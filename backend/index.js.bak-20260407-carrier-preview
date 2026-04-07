@@ -214,7 +214,7 @@ app.put("/api/data/:bucket", (req, res) => {
       return res.status(400).json({ error: "Unknown data bucket" });
     }
 
-    const nextValue = req.body?.data !== undefined ? req.body.data : req.body;
+    const nextValue = req.body?.data;
     const defaultValue = dataDefaults[bucket];
     const isValidShape = Array.isArray(defaultValue)
       ? Array.isArray(nextValue)

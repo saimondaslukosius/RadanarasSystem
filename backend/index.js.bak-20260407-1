@@ -15,65 +15,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const dataRoot = path.join(__dirname, "data");
-const dataFiles = {
-  clients: path.join(dataRoot, "clients.json"),
-  carriers: path.join(dataRoot, "carriers.json"),
-  orders: path.join(dataRoot, "orders.json"),
-  settings: path.join(dataRoot, "settings.json")
-};
-
-const dataDefaults = {
-  clients: [],
-  carriers: [],
-  orders: [],
-  settings: {}
-};
-
-function ensureJsonStorage() {
-  fs.mkdirSync(dataRoot, { recursive: true });
-
-  Object.entries(dataFiles).forEach(([bucket, filePath]) => {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(dataDefaults[bucket], null, 2));
-      return;
-    }
-
-    try {
-      JSON.parse(fs.readFileSync(filePath, "utf8"));
-    } catch (error) {
-      console.warn(`Invalid JSON in ${filePath}, resetting to default.`, error.message);
-      fs.writeFileSync(filePath, JSON.stringify(dataDefaults[bucket], null, 2));
-    }
-  });
-}
-
-function readDataBucket(bucket) {
-  const filePath = dataFiles[bucket];
-  if (!filePath) {
-    throw new Error(`Unknown data bucket: ${bucket}`);
-  }
-
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    return JSON.parse(raw);
-  } catch (error) {
-    console.error(`Failed to read ${bucket} from ${filePath}:`, error.message);
-    return dataDefaults[bucket];
-  }
-}
-
-function writeDataBucket(bucket, value) {
-  const filePath = dataFiles[bucket];
-  if (!filePath) {
-    throw new Error(`Unknown data bucket: ${bucket}`);
-  }
-
-  fs.writeFileSync(filePath, JSON.stringify(value ?? dataDefaults[bucket], null, 2));
-}
-
-ensureJsonStorage();
-
 const uploadRoot = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadRoot)) {
   fs.mkdirSync(uploadRoot, { recursive: true });
@@ -192,50 +133,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 const licenseExtractor = new LicenseExtractorCLI();
-
-app.get("/api/data", (req, res) => {
-  try {
-    res.json({
-      clients: readDataBucket("clients"),
-      carriers: readDataBucket("carriers"),
-      orders: readDataBucket("orders"),
-      settings: readDataBucket("settings")
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to read app data" });
-  }
-});
-
-app.put("/api/data/:bucket", (req, res) => {
-  try {
-    const bucket = req.params.bucket;
-    if (!(bucket in dataFiles)) {
-      return res.status(400).json({ error: "Unknown data bucket" });
-    }
-
-    const nextValue = req.body?.data !== undefined ? req.body.data : req.body;
-    const defaultValue = dataDefaults[bucket];
-    const isValidShape = Array.isArray(defaultValue)
-      ? Array.isArray(nextValue)
-      : nextValue && typeof nextValue === "object" && !Array.isArray(nextValue);
-
-    if (!isValidShape) {
-      return res.status(400).json({ error: "Invalid data payload" });
-    }
-
-    writeDataBucket(bucket, nextValue);
-    res.json({
-      ok: true,
-      bucket,
-      filePath: dataFiles[bucket],
-      data: readDataBucket(bucket)
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to save app data" });
-  }
-});
 
 app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
   try {

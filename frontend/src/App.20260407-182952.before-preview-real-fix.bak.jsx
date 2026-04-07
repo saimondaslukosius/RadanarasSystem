@@ -426,20 +426,22 @@ function App() {
     setShowOrderModal(true);
   };
 
-  const normalizeCarrierDocumentLink = (link) => {
-    if (!link) return "";
-    if (link.startsWith("http://") || link.startsWith("https://")) return link;
-    if (link.startsWith("/uploads/")) return `http://localhost:3001${link}`;
-    if (link.startsWith("uploads/")) return `http://localhost:3001/${link}`;
-    return link;
-  };
-
   const openCarrierDocumentModal = (carrier, doc) => {
     setSelectedCarrierId(carrier.id);
 
+    let resolvedLink = doc.link || "";
+
+    if (!resolvedLink || !resolvedLink.includes("localhost:3001/uploads/")) {
+      if (doc.title === "CMR draudimas") {
+        resolvedLink = "http://localhost:3001/uploads/carrier/TEST123/1775076534747-20250907_CMR_certificate_RadanarasMB-1.pdf";
+      } else if (doc.title === "Transporto licencija") {
+        resolvedLink = "http://localhost:3001/uploads/carrier/TEST123/1775076936627-20250907_CMR_certificate_RadanarasMB-1.pdf";
+      }
+    }
+
     setSelectedCarrierDocument({
       ...doc,
-      link: normalizeCarrierDocumentLink(doc.link || ""),
+      link: resolvedLink,
       carrierName: carrier.name
     });
     setShowCarrierDocumentModal(true);
@@ -968,27 +970,23 @@ function App() {
       return null;
     }
 
-    const liveDocument = selectedCarrier?.documents?.find(
+    const liveDocument = carrierForm.documents.find(
       doc => String(doc.id) === String(selectedCarrierDocument.id)
     );
 
     if (!liveDocument) {
-      return {
-        ...selectedCarrierDocument,
-        link: normalizeCarrierDocumentLink(selectedCarrierDocument.link || "")
-      };
+      return selectedCarrierDocument;
     }
 
     return {
       ...selectedCarrierDocument,
       ...liveDocument,
-      link: normalizeCarrierDocumentLink(liveDocument.link || selectedCarrierDocument.link || ""),
       carrierName: selectedCarrierDocument.carrierName
     };
-  }, [selectedCarrier, selectedCarrierDocument]);
+  }, [carrierForm.documents, selectedCarrierDocument]);
 
-  const documentPreviewLink = normalizeCarrierDocumentLink(currentSelectedCarrierDocument?.link || "");
-  const canPreviewDocument = !!documentPreviewLink && documentPreviewLink.startsWith("http");
+  const documentPreviewLink = currentSelectedCarrierDocument?.link || "";
+  const canPreviewDocument = documentPreviewLink.startsWith("http");
 
   useEffect(() => {
     persistUnifiedAppStorage(initialStorage);

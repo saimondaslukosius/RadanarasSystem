@@ -1,0 +1,134 @@
+[
+  {
+    "id": "CR20260407181241",
+    "name": "TEst vežėjas",
+    "carrierType": "Vežėjas",
+    "companyCode": "256481",
+    "vatCode": "LT20256547892",
+    "email": "info@testvežejas.com",
+    "phone": "+370654782",
+    "address": "",
+    "website": "",
+    "managerContacts": [],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "link": ""
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "link": ""
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "CR20260407173442",
+    "name": " Tralveža, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305653321",
+    "vatCode": "LT100013654011",
+    "email": "info@tralveza.com",
+    "phone": "+370 644 46543",
+    "address": "Vinco Žilionio g. 3, Vidgirių k., LT-69330 Marijampolė",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "MIndaugas Mickus",
+        "position": "Direktorius",
+        "email": "info@tralveza.com",
+        "phone": "+370 644 46543"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "02092025GK",
+        "validUntil": "2026-08-24",
+        "link": "http://localhost:3001/uploads/carrier/CR20260407173442/1775576720393-Evidence_of_cover.pdf",
+        "fileName": "Evidence of cover.pdf"
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "LIC-008252-EBKR",
+        "validUntil": "2031-03-05",
+        "link": "http://localhost:3001/uploads/carrier/CR20260407173442/1775576673618-MB_TralveA_3_4a_Licencija_230907_103733.pdf",
+        "fileName": "MB,,Tralveža'' Licencija_230907_103733.pdf"
+      }
+    ],
+    "notes": ""
+  }
+]
