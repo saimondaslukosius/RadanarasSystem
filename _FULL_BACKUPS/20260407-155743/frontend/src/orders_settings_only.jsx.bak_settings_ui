@@ -1,0 +1,343 @@
+﻿
+import React, { useEffect, useState } from "react";
+
+const pageCard = { background: "white", borderRadius: "12px", padding: "30px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" };
+const cardHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
+const cardTitle = { fontSize: "22px", color: "#1e3a8a", margin: 0 };
+const btn = { background: "linear-gradient(135deg, #1e3a8a, #3b82f6)", color: "white", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: 500, boxShadow: "0 2px 4px rgba(30, 58, 138, 0.3)" };
+const btnSecondary = { ...btn, background: "#64748b", boxShadow: "none" };
+const btnSuccess = { ...btn, background: "#16a34a", boxShadow: "none" };
+const table = { width: "100%", borderCollapse: "collapse" };
+const th = { background: "#f8fafc", padding: "12px", textAlign: "left", fontWeight: 600, color: "#475569", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" };
+const td = { padding: "14px 12px", borderTop: "1px solid #e2e8f0", color: "#1e293b", verticalAlign: "top" };
+const emptyState = { textAlign: "center", padding: "60px 20px", color: "#64748b" };
+const modalOverlay = { position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 };
+const modal = { background: "white", borderRadius: "12px", padding: "30px", maxWidth: "800px", width: "90%", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" };
+const modalHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
+const closeBtn = { background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#64748b", padding: 0, width: "32px", height: "32px", borderRadius: "6px" };
+const formGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "24px" };
+const formGroup = { display: "flex", flexDirection: "column" };
+const label = { fontSize: "14px", fontWeight: 500, color: "#475569", marginBottom: "8px" };
+const inputBase = { padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "14px" };
+const sectionTitle = { marginBottom: "12px", color: "#1e3a8a", fontSize: "15px" };
+const actionButtons = { display: "flex", gap: "10px" };
+const actionBtn = { background: "none", border: "none", padding: "6px 12px", cursor: "pointer", borderRadius: "4px", fontSize: "13px" };
+const defaultTemplateContent = "<div><h1>Transporto užsakymas {{orderNumber}}</h1></div>";
+const buildDefaultSettings = (source = {}) => ({ environment: source.environment || "test", company: { name: source.company?.name || "", code: source.company?.code || "", vat: source.company?.vat || "", phone: source.company?.phone || "", email: source.company?.email || "", address: source.company?.address || "", bank_name: source.company?.bank_name || "", bank_account: source.company?.bank_account || "", swift: source.company?.swift || "" }, documents: { auto_numbering_format: source.documents?.auto_numbering_format || "RAD-{YEAR}-{NUMBER}", default_language: source.documents?.default_language || "lt", show_vat: source.documents?.show_vat ?? true, terms_lt: source.documents?.terms_lt || "" }, email: { from_address: source.email?.from_address || "", from_name: source.email?.from_name || "", auto_attach_pdf: source.email?.auto_attach_pdf ?? true, always_cc: Array.isArray(source.email?.always_cc) ? source.email.always_cc : [] }, companyStampSignature: source.companyStampSignature || "", templates: Array.isArray(source.templates) ? source.templates : [] });
+const createOrderNumber = () => `RAD${Date.now().toString().slice(-6)}`;
+const euro = (value) => `${Number(value || 0).toFixed(2)} €`;
+const badge = (kind) => ({ display: "inline-block", padding: "4px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, background: kind === "success" ? "#dcfce7" : kind === "danger" ? "#fee2e2" : "#fef3c7", color: kind === "success" ? "#16a34a" : kind === "danger" ? "#dc2626" : "#ca8a04" });
+const emptyOrderForm = { orderType: "resale_to_carrier", sendToCarrier: true, clientPrice: 0, carrierPrice: 0, carrierPriceWithVAT: false, paymentTerm: "14 dienų", cargoType: "", cargo: "", vehicleCount: "1", vinNumbers: "", truckPlate: "", trailerPlate: "", driverName: "", loadingCompanyName: "", loadingCity: "", loadingStreet: "", loadingPostalCode: "", loadingCoordinates: "", unloadingCompanyName: "", unloadingCity: "", unloadingStreet: "", unloadingPostalCode: "", unloadingCoordinates: "", route: "", loadingDate: "", unloadingDate: "", loadRefLoading: "", loadRefUnloading: "", instructions: "", originalsRequired: false, notes: "", documentUploadLink: "", clientId: "", clientName: "", carrierId: "", carrierName: "", carrierType: "", status: "active" };
+function readFileAsDataUrl(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); }); }
+
+export function TemplateManager({ settings, saveSettings }) {
+  const [name, setName] = useState("");
+  const [content, setContent] = useState(defaultTemplateContent);
+  return <div style={pageCard}><div style={cardHeader}><h2 style={cardTitle}>Šablonai</h2><button type="button" style={btn} onClick={() => saveSettings({ ...buildDefaultSettings(settings), templates: [{ id: Date.now(), name: name || "Šablonas", content }] })}>Išsaugoti šabloną</button></div><div style={formGrid}><div style={formGroup}><label style={label}>Pavadinimas</label><input style={inputBase} value={name} onChange={(e) => setName(e.target.value)} /></div></div><div style={formGroup}><label style={label}>HTML turinys</label><textarea style={{ ...inputBase, minHeight: "260px", fontFamily: "Consolas, monospace" }} value={content} onChange={(e) => setContent(e.target.value)} /></div></div>;
+}
+
+export function Settings({ settings, saveSettings }) {
+  const [formData, setFormData] = useState(() => buildDefaultSettings(settings));
+  const [section, setSection] = useState("company");
+  useEffect(() => { setFormData(buildDefaultSettings(settings)); }, [settings]);
+  const persist = (next = formData) => { const merged = buildDefaultSettings(next); setFormData(merged); saveSettings(merged); window.alert("Nustatymai išsaugoti."); };
+  const uploadStamp = async (event) => { const file = event.target.files?.[0]; if (!file) return; try { const dataUrl = await readFileAsDataUrl(file); setFormData((prev) => ({ ...prev, companyStampSignature: dataUrl })); } catch { window.alert("Nepavyko įkelti paveikslėlio."); } };
+  return <div style={pageCard}><div style={cardHeader}><h2 style={cardTitle}>Nustatymai</h2></div><div style={{ display: "flex", gap: "10px", marginBottom: "24px", flexWrap: "wrap" }}>{[["company","Įmonė"],["documents","Dokumentai"],["email","El. paštas"],["templates","Šablonai"]].map(([key,title]) => <button key={key} type="button" style={section===key?btn:btnSecondary} onClick={() => setSection(key)}>{title}</button>)}</div>{section === "company" && <><div style={formGrid}><div style={formGroup}><label style={label}>Aplinka</label><select style={inputBase} value={formData.environment} onChange={(e) => setFormData({ ...formData, environment: e.target.value })}><option value="test">Test / Demo</option><option value="production">Production / Reali</option></select></div><div style={formGroup}><label style={label}>Pavadinimas</label><input style={inputBase} value={formData.company.name} onChange={(e) => setFormData({ ...formData, company: { ...formData.company, name: e.target.value } })} /></div></div><div style={formGroup}><label style={label}>Įmonės antspaudas ir parašas</label><input type="file" accept="image/png,image/jpeg,image/jpg" onChange={uploadStamp} /></div><div style={{ marginTop: "24px" }}><button type="button" style={btnSuccess} onClick={() => persist()}>Išsaugoti</button></div></>}{section === "documents" && <div style={formGroup}><label style={label}>Sąlygų tekstas</label><textarea style={{ ...inputBase, minHeight: "180px" }} value={formData.documents.terms_lt} onChange={(e) => setFormData({ ...formData, documents: { ...formData.documents, terms_lt: e.target.value } })} /></div>}{section === "email" && <div style={formGrid}><div style={formGroup}><label style={label}>Siuntėjo adresas</label><input style={inputBase} value={formData.email.from_address} onChange={(e) => setFormData({ ...formData, email: { ...formData.email, from_address: e.target.value } })} /></div></div>}{section === "templates" && <TemplateManager settings={formData} saveSettings={(next) => { setFormData(next); saveSettings(next); }} />}</div>;
+}
+export function Orders({ orders, saveOrders, clients, carriers, openModal }) {
+  const deleteOrder = (id) => {
+    if (window.confirm("Ar tikrai norite ištrinti šį užsakymą?")) {
+      saveOrders(orders.filter((item) => item.id !== id));
+    }
+  };
+
+  return (
+    <div style={pageCard}>
+      <div style={cardHeader}>
+        <h2 style={cardTitle}>Užsakymai ({orders.length})</h2>
+        <button style={btn} onClick={() => openModal("order", null)}>+ Naujas Užsakymas</button>
+      </div>
+      {orders.length > 0 ? (
+        <table style={table}>
+          <thead><tr><th style={th}>Užsakymo Nr.</th><th style={th}>Tipas</th><th style={th}>Klientas</th><th style={th}>Vežėjas</th><th style={th}>Maršrutas</th><th style={th}>Pakrovimas</th><th style={th}>Iškrovimas</th><th style={th}>Kl. kaina</th><th style={th}>Pelnas</th><th style={th}>Statusas</th><th style={th}>Veiksmai</th></tr></thead>
+          <tbody>
+            {orders.map((order) => {
+              const profit = (order.clientPrice || 0) - (order.carrierPrice || 0);
+              const margin = order.carrierPrice ? ((profit / order.carrierPrice) * 100).toFixed(1) : 0;
+              return <tr key={order.id}><td style={td}><strong style={{ cursor: "pointer", color: "#3b82f6", textDecoration: "underline" }} onClick={() => openModal("order", order)}>{order.orderNumber}</strong></td><td style={td}><span style={{ fontSize: "11px", padding: "2px 6px", borderRadius: "3px", background: "#f1f5f9" }}>{order.orderType === "own_transport" && "🚛 Nuosavas"}{order.orderType === "resale_to_carrier" && "🔄 Perpard."}{!order.orderType && "-"}</span></td><td style={td}>{order.clientName || "-"}</td><td style={td}>{order.carrierName || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.route || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.loadingDate || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.unloadingDate || "-"}</td><td style={td}>{order.clientPrice ? euro(order.clientPrice) : euro(order.price || 0)}</td><td style={td}>{order.orderType === "resale_to_carrier" && order.clientPrice && order.carrierPrice ? <span style={{ fontWeight: 600, color: profit >= 0 ? "#059669" : "#dc2626" }}>{profit >= 0 ? "+" : ""}{profit.toFixed(2)} €<div style={{ fontSize: "10px", color: "#64748b" }}>({margin}%)</div></span> : "-"}</td><td style={td}><span style={badge(order.status === "active" ? "success" : order.status === "draft" ? "warning" : "warning")}>{order.status === "active" ? "Aktyvus" : order.status === "draft" ? "Juodraštis" : order.status === "generated" ? "Paruoštas siuntimui" : "Užbaigtas"}</span></td><td style={td}><div style={actionButtons}><button style={actionBtn} onClick={() => openModal("order", order)} title="Tęsti / Redaguoti">✎</button><button style={actionBtn} onClick={() => deleteOrder(order.id)} title="Ištrinti">🗑</button></div></td></tr>;
+            })}
+          </tbody>
+        </table>
+      ) : <div style={emptyState}><div style={{ fontSize: "64px", marginBottom: "16px", opacity: 0.3 }}>📦</div><h3>Nėra užsakymų</h3><p>Sukurkite pirmą užsakymą</p></div>}
+    </div>
+  );
+}
+export function Modal({ type, initialData, onClose, clients, carriers, saveOrders, orders }) {
+  const [formData, setFormData] = useState(emptyOrderForm);
+
+  useEffect(() => {
+    if (type !== "order") return;
+    if (initialData) {
+      setFormData((prev) => ({ ...prev, ...initialData }));
+      return;
+    }
+    try {
+      const savedDraft = JSON.parse(localStorage.getItem("currentOrderDraftForm") || "null");
+      if (savedDraft) {
+        setFormData((prev) => ({ ...prev, ...savedDraft }));
+        return;
+      }
+    } catch {}
+    setFormData(emptyOrderForm);
+  }, [type, initialData]);
+
+  useEffect(() => {
+    if (type === "order") {
+      localStorage.setItem("currentOrderDraftForm", JSON.stringify(formData));
+    }
+  }, [type, formData]);
+
+  const updateFormData = (updates) => setFormData((prev) => ({ ...prev, ...updates }));
+  const upsertOrder = (payload) => {
+    const existingIndex = orders.findIndex((item) => item.id === payload.id);
+    if (existingIndex >= 0) {
+      const updated = [...orders];
+      updated[existingIndex] = { ...updated[existingIndex], ...payload, updatedAt: new Date().toISOString() };
+      saveOrders(updated);
+      return updated[existingIndex];
+    }
+    const created = { ...payload, id: payload.id || Date.now(), createdAt: new Date().toISOString() };
+    saveOrders([...orders, created]);
+    return created;
+  };
+
+  const saveOrderAsDraft = (status = "draft", silent = false) => {
+    const selectedCarrier = carriers.find((c) => c.id == formData.carrierId) || {};
+    const selectedClient = clients.find((c) => c.id == formData.clientId) || {};
+    const payload = { ...formData, id: formData.id, orderNumber: formData.orderNumber || createOrderNumber(), status, clientName: formData.clientName || selectedClient.name || "", carrierName: formData.carrierName || selectedCarrier.name || "", carrierCompanyCode: selectedCarrier.companyCode || formData.carrierCompanyCode || "", carrierVAT: selectedCarrier.vatCode || formData.carrierVAT || "", carrierAddress: selectedCarrier.address || formData.carrierAddress || "", carrierPhone: selectedCarrier.phone || formData.carrierPhone || "", carrierEmail: selectedCarrier.email || formData.carrierEmail || "" };
+    if (payload.orderType === "resale_to_carrier" && payload.clientPrice && payload.carrierPrice) {
+      payload.profit = payload.clientPrice - payload.carrierPrice;
+      payload.profitMargin = payload.carrierPrice ? (payload.profit / payload.carrierPrice) * 100 : 0;
+    }
+    const saved = upsertOrder(payload);
+    setFormData((prev) => ({ ...prev, id: saved.id, orderNumber: saved.orderNumber }));
+    if (!silent) window.alert(`Juodraštis išsaugotas (${saved.orderNumber})`);
+    return saved;
+  };
+
+  const generateCarrierOrder = () => {
+    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
+    if (formData.orderType !== "resale_to_carrier") return window.alert("Orderis vežėjui generuojamas tik pasirinkus pardavimą vežėjui.");
+    if (!formData.carrierId) return window.alert("Pasirinkite vežėją.");
+    saveOrderAsDraft("generated", true);
+    window.alert("Užsakymas pažymėtas kaip paruoštas siuntimui.");
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
+    if (formData.orderType === "resale_to_carrier") {
+      if (!formData.carrierId) return window.alert("Perpardavimui būtinas vežėjas.");
+      if (!formData.carrierPrice) return window.alert("Įveskite vežėjo kainą.");
+      const profit = (formData.clientPrice || 0) - (formData.carrierPrice || 0);
+      if (profit < 0 && !window.confirm(`DĖMESIO: Neigiamas pelnas (${profit.toFixed(2)} EUR). Ar tikrai norite tęsti?`)) return;
+    }
+    const selectedCarrier = carriers.find((c) => c.id === formData.carrierId);
+    const selectedClient = clients.find((c) => c.id === formData.clientId);
+    const newItem = { ...formData, id: formData.id || Date.now(), orderNumber: formData.orderNumber || createOrderNumber(), status: "active", clientName: selectedClient?.name || formData.clientName || "", carrierName: selectedCarrier?.name || formData.carrierName || "" };
+    if (newItem.orderType === "resale_to_carrier" && newItem.clientPrice && newItem.carrierPrice) {
+      newItem.profit = newItem.clientPrice - newItem.carrierPrice;
+      newItem.profitMargin = (newItem.profit / newItem.carrierPrice) * 100;
+    }
+    upsertOrder(newItem);
+    localStorage.removeItem("currentOrderDraftForm");
+    onClose();
+  };
+
+  if (type !== "order") return null;
+  return (
+    <div style={modalOverlay} onClick={onClose}>
+      <div style={modal} onClick={(e) => e.stopPropagation()}>
+        <div style={modalHeader}>
+          <h2 style={{ fontSize: "20px", color: "#1e3a8a", margin: 0 }}>{initialData ? "Redaguoti Užsakymą" : "Naujas Užsakymas"}</h2>
+          <button style={closeBtn} onClick={onClose}>×</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{ display: "block", marginBottom: "12px", fontWeight: 600, color: "#1e3a8a" }}>1. Užsakymo tipas *</label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+              {["own_transport", "resale_to_carrier"].map((choice) => (
+                <div key={choice} onClick={() => updateFormData({ orderType: choice })} style={{ padding: "16px", border: `2px solid ${formData.orderType === choice ? "#3b82f6" : "#e2e8f0"}`, borderRadius: "8px", cursor: "pointer", background: formData.orderType === choice ? "#eff6ff" : "#fff", textAlign: "center" }}>
+                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>{choice === "own_transport" ? "🚛" : "🔄"}</div>
+                  <div style={{ fontSize: "13px", fontWeight: 600 }}>{choice === "own_transport" ? "Nuosavas transportas" : "Pardavimas vežėjui"}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={formGrid}>
+            <div style={formGroup}><label style={label}>2. Klientas (užsakovas) *</label><select style={inputBase} required value={formData.clientId || ""} onChange={(e) => { const client = clients.find((c) => String(c.id) === String(e.target.value)); updateFormData({ clientId: e.target.value, clientName: client?.name || "" }); }}><option value="">Pasirinkite...</option>{clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+            <div style={formGroup}><label style={label}>Kliento kaina (EUR) *</label><input style={inputBase} type="number" step="0.01" required value={formData.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholder="1200.00" /></div>
+          </div>
+          {formData.orderType === "resale_to_carrier" && (
+            <>
+              <div style={{ ...formGrid, marginTop: "16px" }}>
+                <div style={formGroup}>
+                  <label style={label}>3. Vežėjas (vykdytojas) *</label>
+                  <select
+                    style={inputBase}
+                    required
+                    value={formData.carrierId || ""}
+                    onChange={(e) => {
+                      const carrier = carriers.find((c) => String(c.id) === String(e.target.value));
+                      updateFormData({
+                        carrierId: e.target.value,
+                        carrierName: carrier?.name || "",
+                        carrierType: carrier?.carrierType || ""
+                      });
+                    }}
+                  >
+                    <option value="">Pasirinkite...</option>
+                    {carriers
+                      .filter((c) => !c.isOwnCompany)
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} 🚛
+                        </option>
+                      ))}
+                  </select>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                    Rodomi tik išoriniai vežėjai
+                  </div>
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Vežėjo kaina (savikaina EUR) *</label>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <input
+                      style={{ ...inputBase, flex: 1 }}
+                      type="number"
+                      step="0.01"
+                      required
+                      value={formData.carrierPrice || ""}
+                      onChange={(e) => updateFormData({ carrierPrice: parseFloat(e.target.value) || 0 })}
+                      placeholder="1000.00"
+                    />
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontSize: "13px",
+                        whiteSpace: "nowrap",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.carrierPriceWithVAT || false}
+                        onChange={(e) => updateFormData({ carrierPriceWithVAT: e.target.checked })}
+                      />
+                      +PVM
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div style={{ ...formGrid, marginTop: "12px" }}>
+                <div style={formGroup}>
+                  <label style={label}>Mokėjimo terminas vežėjui</label>
+                  <select
+                    style={inputBase}
+                    value={formData.paymentTerm || "14 dienų"}
+                    onChange={(e) => updateFormData({ paymentTerm: e.target.value })}
+                  >
+                    {[
+                      "1 diena",
+                      "5 dienos",
+                      "7 dienos",
+                      "10 dienų",
+                      "14 dienų",
+                      "15 dienų",
+                      "20 dienų",
+                      "25 dienos",
+                      "30 dienų",
+                      "35 dienos",
+                      "40 dienų",
+                      "45 dienos",
+                      "50 dienų",
+                      "55 dienos",
+                      "60 dienų"
+                    ].map((term) => (
+                      <option key={term} value={term}>
+                        {term}
+                        {term === "14 dienų" ? " (numatyta)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={formGroup}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                      paddingTop: "8px"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.originalsRequired === true}
+                      onChange={(e) => updateFormData({ originalsRequired: e.target.checked })}
+                    />
+                    <span style={{ fontSize: "13px", fontWeight: 500 }}>
+                      Originalūs dokumentai reikalingi
+                    </span>
+                  </label>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px", marginLeft: "24px" }}>
+                    CMR su pasirašymais turi būti pateikti originalūs
+                  </div>
+                </div>
+              </div>
+              {formData.clientPrice > 0 && formData.carrierPrice > 0 && (
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "16px",
+                    background: (formData.clientPrice - formData.carrierPrice) < 0 ? "#fee2e2" : "#d1fae5",
+                    border: `2px solid ${
+                      (formData.clientPrice - formData.carrierPrice) < 0 ? "#ef4444" : "#10b981"
+                    }`,
+                    borderRadius: "8px"
+                  }}
+                >
+                  <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>
+                    💰 PELNAS: {(formData.clientPrice - formData.carrierPrice).toFixed(2)} EUR
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>
+                    Marža: {(((formData.clientPrice - formData.carrierPrice) / formData.carrierPrice) * 100).toFixed(2)}%
+                  </div>
+                  {(formData.clientPrice - formData.carrierPrice) < 0 && (
+                    <div style={{ fontSize: "12px", color: "#dc2626", marginTop: "4px" }}>
+                      ⚠️ DĖMESIO: Neigiamas pelnas!
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+          <div style={{ marginTop: "16px" }}>
+            <h4 style={sectionTitle}>🚚 Krovinio informacija</h4>
+            <div style={formGrid}><div style={formGroup}><label style={label}>Krovinio tipas *</label><select style={inputBase} required value={formData.cargoType || ""} onChange={(e) => { const value = e.target.value; value !== "custom" ? updateFormData({ cargoType: value, cargo: value }) : updateFormData({ cargoType: value }); }}><option value="">Pasirinkite...</option><option value="Automobiliai">🚗 Automobiliai</option><option value="Neutralus krovinys">📦 Neutralus krovinys</option><option value="custom">✨ Kitas (įvesti rankiniu būdu)</option></select></div>{formData.cargoType === "custom" && <div style={formGroup}><label style={label}>Krovinio pavadinimas *</label><input style={inputBase} required value={formData.cargo || ""} placeholder="pvz. Baldai, Padangos..." onChange={(e) => updateFormData({ cargo: e.target.value })} /></div>}<div style={formGroup}><label style={label}>Automobilių skaičius</label><select style={inputBase} value={formData.vehicleCount || "1"} onChange={(e) => updateFormData({ vehicleCount: e.target.value })}>{[1,2,3,4,5,6,7,8,9,10].map((num) => <option key={num} value={String(num)}>{num} vnt.</option>)}</select></div><div style={formGroup}><label style={label}>VIN numeriai (nebūtina)</label><textarea rows="3" style={{ ...inputBase, fontFamily: "monospace", fontSize: "11px" }} value={formData.vinNumbers || ""} placeholder="Įveskite VIN numerius, kiekvienas naujoje eilutėje" onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div></div>
+            <div style={{ marginTop: "16px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Pakrovimo vieta (Siuntėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.loadingCompanyName || ""} placeholder="pvz. BMW AG" onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.loadingCity || ""} placeholder="pvz. Hamburg" onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && formData.unloadingCity ? `${loadingCity} → ${formData.unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.loadingStreet || ""} placeholder="pvz. Hauptstraße 123" onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.loadingPostalCode || ""} placeholder="pvz. 20095" onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.loadingCoordinates || ""} placeholder="pvz. 53.551086, 9.993682" onChange={(e) => updateFormData({ loadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ marginTop: "12px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Iškrovimo vieta (Gavėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.unloadingCompanyName || ""} placeholder="pvz. UAB Automobiliai" onChange={(e) => updateFormData({ unloadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.unloadingCity || ""} placeholder="pvz. Vilnius" onChange={(e) => { const unloadingCity = e.target.value; updateFormData({ unloadingCity, route: formData.loadingCity && unloadingCity ? `${formData.loadingCity} → ${unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.unloadingStreet || ""} placeholder="pvz. Gedimino pr. 1" onChange={(e) => updateFormData({ unloadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.unloadingPostalCode || ""} placeholder="pvz. 01103" onChange={(e) => updateFormData({ unloadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.unloadingCoordinates || ""} placeholder="pvz. 54.687157, 25.279652" onChange={(e) => updateFormData({ unloadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Maršrutas (auto-generuojamas)</label><input style={{ ...inputBase, background: "#f8fafc", cursor: "not-allowed" }} value={formData.route || ""} placeholder="Užpildykite adresus - maršrutas sugeneruosis automatiškai" readOnly /></div>
+          </div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>🚛 Transportas ir vairuotojas</h4><div style={formGrid}><div style={formGroup}><label style={label}>Vilkikas (valst. nr.)</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.truckPlate || ""} placeholder="pvz. ABC123" onChange={(e) => updateFormData({ truckPlate: e.target.value.toUpperCase() })} /></div><div style={formGroup}><label style={label}>Priekaba (valst. nr.)</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.trailerPlate || ""} placeholder="pvz. XYZ789" onChange={(e) => updateFormData({ trailerPlate: e.target.value.toUpperCase() })} /></div><div style={formGroup}><label style={label}>Vairuotojas (vardas pavardė)</label><input style={inputBase} value={formData.driverName || ""} placeholder="pvz. Jonas Jonaitis" onChange={(e) => updateFormData({ driverName: e.target.value })} /></div></div></div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} type="date" required value={formData.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required value={formData.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{formData.loadingDate && formData.unloadingDate && (() => { const start = new Date(formData.loadingDate); const end = new Date(formData.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div style={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "diena" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrovimo!</span>}</div>; })()}</div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={formData.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={formData.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={formData.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Instrukcijos vežėjui</label><textarea rows="3" style={inputBase} value={formData.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={formData.originalsRequired === true ? "required" : formData.originalsRequired || "not_required"} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={formData.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
+          {formData.orderType === "resale_to_carrier" && formData.carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}><input type="checkbox" checked={formData.sendToCarrier !== false} onChange={(e) => updateFormData({ sendToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
+          <div style={{ display: "flex", gap: "10px", marginTop: "24px", flexWrap: "wrap" }}><button type="button" style={btnSecondary} onClick={() => saveOrderAsDraft("draft")}>📝 Išsaugoti kaip juodraštį</button><button type="submit" style={btnSuccess}>✅ Išsaugoti užsakymą</button>{formData.orderType === "resale_to_carrier" && <button type="button" style={{ ...btn, background: "#3b82f6" }} onClick={(e) => { const form = e.target.closest("form"); if (form.reportValidity()) generateCarrierOrder(); else window.alert("Užpildykite visus privalomus laukus."); }}>📄 Sugeneruoti užsakymą vežėjui</button>}<button type="button" style={btnSecondary} onClick={onClose}>Atšaukti</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,1698 @@
+﻿
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+const pageCard = { background: "white", borderRadius: "12px", padding: "30px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" };
+const cardHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
+const cardTitle = { fontSize: "22px", color: "#1e3a8a", margin: 0 };
+const btn = { background: "linear-gradient(135deg, #1e3a8a, #3b82f6)", color: "white", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: 500, boxShadow: "0 2px 4px rgba(30, 58, 138, 0.3)" };
+const btnSecondary = { ...btn, background: "#64748b", boxShadow: "none" };
+const btnSuccess = { ...btn, background: "#16a34a", boxShadow: "none" };
+const table = { width: "100%", borderCollapse: "collapse" };
+const th = { background: "#f8fafc", padding: "12px", textAlign: "left", fontWeight: 600, color: "#475569", fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.5px" };
+const td = { padding: "14px 12px", borderTop: "1px solid #e2e8f0", color: "#1e293b", verticalAlign: "top" };
+const emptyState = { textAlign: "center", padding: "60px 20px", color: "#64748b" };
+const modalOverlay = { position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 };
+const modal = { background: "white", borderRadius: "12px", padding: "30px", maxWidth: "800px", width: "90%", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" };
+const modalHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
+const closeBtn = { background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#64748b", padding: 0, width: "32px", height: "32px", borderRadius: "6px" };
+const formGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "24px" };
+const formGroup = { display: "flex", flexDirection: "column" };
+const label = { fontSize: "14px", fontWeight: 500, color: "#475569", marginBottom: "8px" };
+const inputBase = { padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "14px" };
+const sectionTitle = { marginBottom: "12px", color: "#1e3a8a", fontSize: "15px" };
+const actionButtons = { display: "flex", gap: "10px" };
+const actionBtn = { background: "none", border: "none", padding: "6px 12px", cursor: "pointer", borderRadius: "4px", fontSize: "13px" };
+const defaultTemplateContent = "<div><h1>Transporto užsakymas {{order_number}}</h1></div>";
+const buildDefaultSettings = (source = {}) => ({ environment: source.environment || "test", company: { name: source.company?.name || "", code: source.company?.code || "", vat: source.company?.vat || "", phone: source.company?.phone || "", email: source.company?.email || "", address: source.company?.address || "", bank_name: source.company?.bank_name || "", bank_account: source.company?.bank_account || "", swift: source.company?.swift || "" }, documents: { auto_numbering_format: source.documents?.auto_numbering_format || "RAD-{YEAR}-{NUMBER}", default_language: source.documents?.default_language || "lt", show_vat: source.documents?.show_vat ?? true, terms_lt: source.documents?.terms_lt || "" }, email: { from_address: source.email?.from_address || "", from_name: source.email?.from_name || "", auto_attach_pdf: source.email?.auto_attach_pdf ?? true, always_cc: Array.isArray(source.email?.always_cc) ? source.email.always_cc : [] }, companyStampSignature: source.companyStampSignature || "", templates: Array.isArray(source.templates) ? source.templates : [] });
+const createOrderNumber = () => `RAD${Date.now().toString().slice(-6)}`;
+const euro = (value) => `${Number(value || 0).toFixed(2)} €`;
+const badge = (kind) => ({ display: "inline-block", padding: "4px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, background: kind === "success" ? "#dcfce7" : kind === "danger" ? "#fee2e2" : "#fef3c7", color: kind === "success" ? "#16a34a" : kind === "danger" ? "#dc2626" : "#ca8a04" });
+const emptyOrderForm = { orderType: "resale_to_carrier", sendToCarrier: true, clientPrice: 0, carrierPrice: 0, carrierPriceWithVAT: false, paymentTerm: "14 dienų", cargoType: "", cargo: "", vehicleCount: "1", vinNumbers: "", truckPlate: "", trailerPlate: "", driverName: "", loadingCompanyName: "", loadingCity: "", loadingStreet: "", loadingPostalCode: "", loadingCoordinates: "", unloadingCompanyName: "", unloadingCity: "", unloadingStreet: "", unloadingPostalCode: "", unloadingCoordinates: "", route: "", loadingDate: "", unloadingDate: "", loadRefLoading: "", loadRefUnloading: "", instructions: "", originalsRequired: false, notes: "", documentUploadLink: "", clientId: "", clientName: "", carrierId: "", carrierName: "", carrierType: "", status: "active" };
+function readFileAsDataUrl(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); }); }
+
+const mmToPx = (mm) => mm * 3.7795275591;
+const buildPlaceholderImage = (label, color) => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96"><rect width="320" height="96" rx="12" fill="${color}"/><text x="160" y="54" text-anchor="middle" font-size="22" font-family="Arial, sans-serif" fill="#ffffff">${label}</text></svg>`)}`;
+const templateFieldOptions = [
+  { key: "order_number", label: "Užsakymo numeris" },
+  { key: "today_date", label: "Šiandienos data" },
+  { key: "client_name", label: "Klientas" },
+  { key: "carrier_name", label: "Vežėjas" },
+  { key: "cargo", label: "Krovinys" },
+  { key: "route", label: "Maršrutas" },
+  { key: "loading_date", label: "Pakrovimo data" },
+  { key: "unloading_date", label: "Iškrovimo data" },
+  { key: "client_price", label: "Kliento kaina" },
+  { key: "carrier_price", label: "Vežėjo kaina" },
+  { key: "payment_term", label: "Mokėjimo terminas" },
+  { key: "company_logo", label: "Įmonės logotipas" },
+  { key: "company_stamp_signature", label: "Antspaudas / parašas" }
+];
+const buildPreviewFields = (settings, manualState) => ({
+  order_number: "RAD-2026-014",
+  today_date: "2026-04-04",
+  client_name: "MB Radanaras",
+  carrier_name: "UAB Baltic Carrier",
+  cargo: "Automobilių pervežimas",
+  route: "Hamburg, DE → Vilnius, LT",
+  loading_date: "2026-04-07",
+  unloading_date: "2026-04-09",
+  client_price: "1450.00 EUR",
+  carrier_price: "1180.00 EUR",
+  payment_term: "14 dienų",
+  company_logo: manualState?.assets?.logoSrc || settings?.company?.logo_url || buildPlaceholderImage("LOGO", "#2563eb"),
+  company_stamp_signature: settings?.companyStampSignature || buildPlaceholderImage("STAMP", "#0f766e")
+});
+const renderTemplateTokens = (html, values) =>
+  String(html || "").replace(/{{\s*([^}]+)\s*}}/g, (_, token) => values[token.trim()] ?? `{{${token.trim()}}}`);
+const configureLogoMarkup = (html, assets) => {
+  if (!html) return "";
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+  const root = doc.body.firstChild;
+  if (!root) return html;
+  root.querySelectorAll('[data-logo-wrapper="true"]').forEach((node) => {
+    node.style.textAlign = assets.logoAlign || "left";
+  });
+  root.querySelectorAll('[data-template-logo="true"]').forEach((node) => {
+    node.style.width = `${assets.logoWidth || 220}px`;
+    node.style.maxWidth = "100%";
+    node.style.height = "auto";
+    node.style.objectFit = "contain";
+    node.style.display = "inline-block";
+  });
+  return root.innerHTML;
+};
+const prepareTemplateSection = (html, manualState, { persistLogo = false } = {}) => {
+  let nextHtml = configureLogoMarkup(html, manualState.assets);
+  if (persistLogo && manualState.assets.logoSrc) {
+    nextHtml = nextHtml.replace(/{{\s*company_logo\s*}}/g, manualState.assets.logoSrc);
+  }
+  return nextHtml;
+};
+const defaultManualTemplateState = () => ({
+  templateId: null,
+  name: "Modernus transporto orderis",
+  headerHtml: `
+    <div style="padding:22px 24px; border:1px solid #dbeafe; border-radius:22px; background:linear-gradient(180deg,#fbfdff,#eef5ff); margin-bottom:10px;">
+      <table style="width:100%; border-collapse:collapse;">
+        <tr>
+          <td style="width:58%; vertical-align:top; padding-right:16px;">
+            <div data-logo-wrapper="true" style="text-align:left; margin-bottom:18px;">
+              <img data-template-logo="true" src="{{company_logo}}" alt="Logo" style="width:220px; max-width:100%; height:auto; object-fit:contain; display:inline-block;" />
+            </div>
+            <div style="font-size:28px; line-height:1.1; font-weight:800; color:#0f172a; letter-spacing:-0.03em;">Transporto užsakymas</div>
+            <div style="font-size:14px; color:#475569; margin-top:8px;">Vienkartinė krovinio pervežimo sutartis profesionaliam vežėjui</div>
+          </td>
+          <td style="width:42%; vertical-align:top;">
+            <div style="padding:18px; background:#0f172a; color:#ffffff; border-radius:18px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);">
+              <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.14em; opacity:0.72; margin-bottom:10px;">Order summary</div>
+              <div style="font-size:24px; font-weight:800; letter-spacing:-0.03em; margin-bottom:8px;">{{order_number}}</div>
+              <div style="display:grid; gap:8px; font-size:13px; color:rgba(255,255,255,0.88);">
+                <div><strong style="color:#ffffff;">Data:</strong> {{today_date}}</div>
+                <div><strong style="color:#ffffff;">Mokėjimas:</strong> {{payment_term}}</div>
+                <div><strong style="color:#ffffff;">Vežėjas:</strong> {{carrier_name}}</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `,
+  bodyHtml: `
+    <div style="font-size:13px; color:#0f172a;">
+      <div style="padding:16px 18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; margin-bottom:18px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:8px;">Sutarties šalys</div>
+        <div style="font-size:14px; line-height:1.7;">
+          Tarp <strong>{{carrier_name}}</strong>, toliau Vežėjas, ir <strong>{{client_name}}</strong>, toliau Užsakovas, sudaromas šis transporto užsakymas.
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:14px; margin-bottom:14px;">
+        <div style="padding:18px; border:1px solid #dbeafe; border-radius:18px; background:#ffffff; box-shadow:0 8px 24px rgba(15,23,42,0.04);">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:12px;">Pagrindinė informacija</div>
+          <table style="width:100%; border-collapse:separate; border-spacing:0 10px;">
+            <tr>
+              <td style="width:34%; font-weight:700; color:#1e293b; vertical-align:top;">Krovinys</td>
+              <td style="color:#0f172a;">{{cargo}}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700; color:#1e293b; vertical-align:top;">Maršrutas</td>
+              <td style="color:#0f172a;">{{route}}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700; color:#1e293b; vertical-align:top;">Pakrovimas</td>
+              <td style="color:#0f172a;">{{loading_date}}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700; color:#1e293b; vertical-align:top;">Iškrovimas</td>
+              <td style="color:#0f172a;">{{unloading_date}}</td>
+            </tr>
+          </table>
+        </div>
+        <div style="padding:18px; border:1px solid #e2e8f0; border-radius:18px; background:linear-gradient(180deg,#ffffff,#f8fafc);">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:12px;">Finansai</div>
+          <div style="display:grid; gap:10px;">
+            <div style="padding:12px 14px; background:#eff6ff; border-radius:14px;">
+              <div style="font-size:11px; color:#64748b; margin-bottom:4px;">Kliento kaina</div>
+              <div style="font-size:20px; font-weight:800; color:#1d4ed8;">{{client_price}}</div>
+            </div>
+            <div style="padding:12px 14px; background:#f8fafc; border-radius:14px;">
+              <div style="font-size:11px; color:#64748b; margin-bottom:4px;">Vežėjo kaina</div>
+              <div style="font-size:20px; font-weight:800; color:#0f172a;">{{carrier_price}}</div>
+            </div>
+            <div style="padding:12px 14px; background:#ecfdf5; border-radius:14px;">
+              <div style="font-size:11px; color:#64748b; margin-bottom:4px;">Mokėjimo terminas</div>
+              <div style="font-size:16px; font-weight:700; color:#0f766e;">{{payment_term}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:16px 18px; background:#0f172a; border-radius:18px; color:#ffffff; margin-bottom:20px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.72); margin-bottom:8px;">Instrukcijos vežėjui</div>
+        <div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92);">
+          Atvykimą patvirtinti telefonu. CMR ir POD dokumentus pateikti laiku. Krovinys turi būti vežamas saugiai ir laikantis visų CMR reikalavimų.
+        </div>
+      </div>
+
+      <div data-page-break="true" style="page-break-before:always; border-top:2px dashed #cbd5e1; color:#64748b; text-align:center; font-size:12px; padding:10px 0; margin:20px 0;">
+        Naujas puslapis
+      </div>
+
+      <div style="padding:22px 24px; border:1px solid #e2e8f0; border-radius:22px; background:#ffffff; margin-bottom:18px;">
+        <div style="font-size:24px; font-weight:800; color:#0f172a; margin-bottom:8px;">Sąlygos ir atsakomybės</div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:18px;">Antras puslapis skirtas aiškioms sąlygoms, atsakomybėms ir darbų vykdymo taisyklėms.</div>
+        <div style="display:grid; gap:12px;">
+          <div style="padding:14px 16px; border-left:4px solid #2563eb; background:#f8fbff; border-radius:12px;">
+            <strong>1.</strong> Vežėjas atsako už krovinio saugumą nuo pakrovimo iki iškrovimo ir užtikrina tinkamą transporto priemonės būklę.
+          </div>
+          <div style="padding:14px 16px; border-left:4px solid #0f766e; background:#f7fffb; border-radius:12px;">
+            <strong>2.</strong> Užsakovas apmoka paslaugas pagal suderintą kainą ir nustatytą mokėjimo terminą.
+          </div>
+          <div style="padding:14px 16px; border-left:4px solid #9333ea; background:#fbf7ff; border-radius:12px;">
+            <strong>3.</strong> Bet kokie nukrypimai nuo maršruto, grafiko ar krovinio informacijos turi būti suderinti iš anksto raštu.
+          </div>
+          <div style="padding:14px 16px; border-left:4px solid #dc2626; background:#fff7f7; border-radius:12px;">
+            <strong>4.</strong> Vežėjas nedelsdamas informuoja užsakovą apie bet kokį incidentą, vėlavimą ar krovinio pažeidimą.
+          </div>
+        </div>
+      </div>
+
+      <div data-page-break="true" style="page-break-before:always; border-top:2px dashed #cbd5e1; color:#64748b; text-align:center; font-size:12px; padding:10px 0; margin:20px 0;">
+        Naujas puslapis
+      </div>
+
+      <div style="padding:22px 24px; border:1px solid #e2e8f0; border-radius:22px; background:linear-gradient(180deg,#ffffff,#fbfdff);">
+        <div style="font-size:24px; font-weight:800; color:#0f172a; margin-bottom:8px;">Siuntėjo ir vežėjo detalės</div>
+        <div style="font-size:13px; color:#64748b; margin-bottom:18px;">Trečias puslapis skirtas kontaktams, patvirtinimams ir parašų zonoms.</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div style="padding:18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:10px;">Užsakovas</div>
+            <div style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:8px;">{{client_name}}</div>
+            <div style="font-size:13px; color:#475569; line-height:1.7;">Atsakingas už užsakymo pateikimą, grafiko koordinavimą ir apmokėjimą pagal sutartas sąlygas.</div>
+          </div>
+          <div style="padding:18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:10px;">Vežėjas</div>
+            <div style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:8px;">{{carrier_name}}</div>
+            <div style="font-size:13px; color:#475569; line-height:1.7;">Atsakingas už krovinio priėmimą, saugų transportavimą ir pristatymą nurodytu laiku.</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div style="padding:18px; border:1px dashed #94a3b8; border-radius:18px; min-height:160px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:14px;">Parašas</div>
+            <div style="margin-top:78px; border-top:1px solid #cbd5e1; padding-top:8px; font-size:12px; color:#475569;">Vardas, pavardė, pareigos</div>
+          </div>
+          <div style="padding:18px; border:1px dashed #94a3b8; border-radius:18px; min-height:160px; display:flex; flex-direction:column; justify-content:space-between; align-items:flex-end;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b;">Antspaudas</div>
+            <img src="{{company_stamp_signature}}" alt="Stamp" style="max-height:92px; max-width:180px; object-fit:contain;" />
+            <div style="font-size:12px; color:#475569;">Įmonės antspaudas / parašas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  footerHtml: `
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; padding-top:12px; border-top:1px solid #e2e8f0; font-size:11px; color:#64748b;">
+      <div>{{client_name}} • Transporto dokumentas</div>
+      <div>{{order_number}}</div>
+    </div>
+  `,
+  layout: {
+    orientation: "portrait",
+    marginTop: 14,
+    marginRight: 14,
+    marginBottom: 14,
+    marginLeft: 14,
+    headerSpacing: 8,
+    footerSpacing: 8,
+    pageGap: 20,
+    zoom: 60
+  },
+  assets: {
+    logoSrc: "",
+    logoWidth: 220,
+    logoAlign: "left"
+  }
+});
+const buildTemplateMarkup = (state) => {
+  const { layout } = state;
+  const padding = `${layout.marginTop}mm ${layout.marginRight}mm ${layout.marginBottom}mm ${layout.marginLeft}mm`;
+  const bodyContent = String(prepareTemplateSection(state.bodyHtml, state, { persistLogo: true }) || "").replace(
+    /<div[^>]*data-page-break="true"[^>]*>[\s\S]*?<\/div>/g,
+    '<div data-page-break="true" style="page-break-before:always; height:0; overflow:hidden;"></div>'
+  );
+  const headerContent = prepareTemplateSection(state.headerHtml, state, { persistLogo: true });
+  const footerContent = prepareTemplateSection(state.footerHtml, state, { persistLogo: true });
+  return `
+    <div data-template-root="manual-order-template" data-orientation="${layout.orientation}" style="font-family:Arial, Helvetica, sans-serif; color:#0f172a; width:100%; background:#ffffff;">
+      <div style="padding:${padding}; box-sizing:border-box;">
+        <div data-template-header style="margin-bottom:${layout.headerSpacing}mm;">${headerContent}</div>
+        <div data-template-body>${bodyContent}</div>
+        <div data-template-footer style="margin-top:${layout.footerSpacing}mm;">${footerContent}</div>
+      </div>
+    </div>
+  `;
+};
+const restoreManualTemplateState = (template) => {
+  const defaults = defaultManualTemplateState();
+  if (!template) return defaults;
+  if (template.editorState?.manual) {
+    return {
+      ...defaults,
+      ...template.editorState.manual,
+      templateId: template.id ?? null,
+      name: template.name || defaults.name,
+      layout: { ...defaults.layout, ...(template.editorState.manual.layout || {}) },
+      assets: { ...defaults.assets, ...(template.editorState.manual.assets || {}) }
+    };
+  }
+  return {
+    ...defaults,
+    templateId: template.id ?? null,
+    name: template.name || defaults.name,
+    bodyHtml: template.content || defaults.bodyHtml
+  };
+};
+
+export function TemplateManager({ settings, saveSettings }) {
+  const [manualState, setManualState] = useState(() => defaultManualTemplateState());
+  const [mode, setMode] = useState("manual");
+  const [activeEditor, setActiveEditor] = useState("body");
+  const [previewPages, setPreviewPages] = useState([""]);
+  const [previewMode, setPreviewMode] = useState("canvas");
+  const [textColor, setTextColor] = useState("#0f172a");
+  const [fontScale, setFontScale] = useState("3");
+  const templates = useMemo(() => (Array.isArray(settings?.templates) ? settings.templates : []), [settings]);
+  const headerRef = useRef(null);
+  const bodyRef = useRef(null);
+  const footerRef = useRef(null);
+  const previewHeaderRef = useRef(null);
+  const previewBodyRef = useRef(null);
+  const previewFooterRef = useRef(null);
+  const imageInputRef = useRef(null);
+  const logoInputRef = useRef(null);
+  const measureRef = useRef(null);
+  const previewViewportRef = useRef(null);
+  const activeEditableRef = useRef(null);
+  const previewFields = useMemo(() => buildPreviewFields(settings, manualState), [settings, manualState]);
+  const renderedHeader = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.headerHtml, manualState), previewFields), [manualState, previewFields]);
+  const renderedBody = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.bodyHtml, manualState), previewFields), [manualState, previewFields]);
+  const renderedFooter = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.footerHtml, manualState), previewFields), [manualState, previewFields]);
+  const pageSize = manualState.layout.orientation === "portrait" ? { width: 794, height: 1123 } : { width: 1123, height: 794 };
+  const previewScale = Math.max(0.25, manualState.layout.zoom / 100);
+  const editorRefs = {
+    header: [headerRef, previewHeaderRef],
+    body: [bodyRef, previewBodyRef],
+    footer: [footerRef, previewFooterRef]
+  };
+
+  const updateManualState = (updates) => {
+    setManualState((prev) => ({ ...prev, ...updates }));
+  };
+
+  const updateLayout = (key, value) => {
+    setManualState((prev) => ({
+      ...prev,
+      layout: {
+        ...prev.layout,
+        [key]: value
+      }
+    }));
+  };
+
+  const syncSectionState = (key, html) => {
+    setManualState((prev) => ({ ...prev, [`${key}Html`]: html }));
+  };
+
+  const syncDomFromState = (key) => {
+    const html = key === "header" ? manualState.headerHtml : key === "body" ? manualState.bodyHtml : manualState.footerHtml;
+    editorRefs[key].forEach((ref) => {
+      if (!ref.current) return;
+      if (document.activeElement === ref.current) return;
+      if (ref.current.innerHTML !== html) ref.current.innerHTML = html;
+    });
+  };
+
+  const focusEditor = (key = activeEditor, preferred = "source") => {
+    const primary = preferred === "preview" ? editorRefs[key][1]?.current : editorRefs[key][0]?.current;
+    const fallback = preferred === "preview" ? editorRefs[key][0]?.current : editorRefs[key][1]?.current;
+    const ref = primary || fallback;
+    if (ref) {
+      ref.focus();
+      activeEditableRef.current = ref;
+      setActiveEditor(key);
+    }
+  };
+
+  const onEditableFocus = (key, ref) => {
+    setActiveEditor(key);
+    activeEditableRef.current = ref.current;
+  };
+
+  const onEditableInput = (key, ref) => {
+    syncSectionState(key, ref.current?.innerHTML || "");
+  };
+
+  useEffect(() => {
+    ["header", "body", "footer"].forEach(syncDomFromState);
+  }, [manualState.headerHtml, manualState.bodyHtml, manualState.footerHtml]);
+
+  const exec = (command, value = null) => {
+    focusEditor(activeEditor, previewMode === "canvas" ? "preview" : "source");
+    document.execCommand(command, false, value);
+    if (activeEditableRef.current) syncSectionState(activeEditor, activeEditableRef.current.innerHTML || "");
+  };
+
+  const insertHtml = (html, target = activeEditor) => {
+    focusEditor(target, previewMode === "canvas" ? "preview" : "source");
+    document.execCommand("insertHTML", false, html);
+    if (activeEditableRef.current) syncSectionState(target, activeEditableRef.current.innerHTML || "");
+  };
+
+  const insertField = (key) => insertHtml(`{{${key}}}`);
+
+  const insertTemplateBlock = (variant) => {
+    if (variant === "infoTable") {
+      insertHtml(`
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+          <tr>
+            <td style="border:1px solid #1e293b; padding:8px; font-weight:700; background:#f8fafc;">Laukas</td>
+            <td style="border:1px solid #1e293b; padding:8px;">Reikšmė</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #1e293b; padding:8px; font-weight:700; background:#f8fafc;">Maršrutas</td>
+            <td style="border:1px solid #1e293b; padding:8px;">{{route}}</td>
+          </tr>
+        </table>
+      `);
+      return;
+    }
+    if (variant === "priceTable") {
+      insertHtml(`
+        <table style="width:100%; border-collapse:collapse; margin:12px 0;">
+          <tr>
+            <th style="border:1px solid #1e293b; padding:8px; background:#eff6ff; text-align:left;">Pozicija</th>
+            <th style="border:1px solid #1e293b; padding:8px; background:#eff6ff; text-align:left;">Suma</th>
+          </tr>
+          <tr>
+            <td style="border:1px solid #1e293b; padding:8px;">Kliento kaina</td>
+            <td style="border:1px solid #1e293b; padding:8px;">{{client_price}}</td>
+          </tr>
+          <tr>
+            <td style="border:1px solid #1e293b; padding:8px;">Vežėjo kaina</td>
+            <td style="border:1px solid #1e293b; padding:8px;">{{carrier_price}}</td>
+          </tr>
+        </table>
+      `);
+      return;
+    }
+    if (variant === "heroCard") {
+      insertHtml(`
+        <div style="padding:18px; border-radius:18px; background:linear-gradient(180deg,#0f172a,#1e293b); color:#ffffff; margin:12px 0;">
+          <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; opacity:0.72; margin-bottom:10px;">Svarbi informacija</div>
+          <div style="font-size:22px; font-weight:800; margin-bottom:6px;">{{order_number}}</div>
+          <div style="font-size:13px; color:rgba(255,255,255,0.88);">Maršrutas: {{route}}</div>
+        </div>
+      `);
+      return;
+    }
+    if (variant === "pageBreak") {
+      insertHtml(`
+        <div data-page-break="true" style="page-break-before:always; border-top:2px dashed #cbd5e1; color:#64748b; text-align:center; font-size:12px; padding:10px 0; margin:20px 0;">
+          Naujas puslapis
+        </div>
+      `);
+    }
+  };
+
+  const findAncestor = (node, tags) => {
+    let current = node;
+    while (current) {
+      if (current.nodeType === 1 && tags.includes(current.tagName)) return current;
+      current = current.parentNode;
+    }
+    return null;
+  };
+
+  const getTableContext = () => {
+    const selection = window.getSelection();
+    if (!selection?.anchorNode) return null;
+    const cell = findAncestor(selection.anchorNode, ["TD", "TH"]);
+    const row = findAncestor(selection.anchorNode, ["TR"]);
+    const table = findAncestor(selection.anchorNode, ["TABLE"]);
+    if (!cell || !row || !table) return null;
+    return { cell, row, table };
+  };
+
+  const mutateActiveSection = () => {
+    if (activeEditableRef.current) syncSectionState(activeEditor, activeEditableRef.current.innerHTML || "");
+  };
+
+  const addTableRow = () => {
+    const context = getTableContext();
+    if (!context) return;
+    const newRow = context.row.cloneNode(true);
+    Array.from(newRow.children).forEach((cell) => { cell.innerHTML = "&nbsp;"; });
+    context.row.after(newRow);
+    mutateActiveSection();
+  };
+
+  const addTableColumn = () => {
+    const context = getTableContext();
+    if (!context) return;
+    const columnIndex = Array.from(context.row.children).indexOf(context.cell);
+    Array.from(context.table.rows).forEach((row) => {
+      const referenceCell = row.children[columnIndex];
+      const nextCell = document.createElement(referenceCell?.tagName || "TD");
+      nextCell.innerHTML = "&nbsp;";
+      nextCell.style.cssText = referenceCell?.style?.cssText || "border:1px solid #1e293b; padding:8px;";
+      if (referenceCell && referenceCell.nextSibling) row.insertBefore(nextCell, referenceCell.nextSibling);
+      else row.appendChild(nextCell);
+    });
+    mutateActiveSection();
+  };
+
+  const deleteTableRow = () => {
+    const context = getTableContext();
+    if (!context) return;
+    if (context.table.rows.length <= 1) context.table.remove();
+    else context.row.remove();
+    mutateActiveSection();
+  };
+
+  const handleInlineImage = async (event, target = activeEditor) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await readFileAsDataUrl(file);
+    insertHtml(`<img src="${dataUrl}" alt="Template asset" style="max-width:100%; height:auto; display:block; margin:12px 0;" />`, target);
+    event.target.value = "";
+  };
+
+  const handleLogoUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await readFileAsDataUrl(file);
+    setManualState((prev) => ({ ...prev, assets: { ...prev.assets, logoSrc: dataUrl } }));
+    event.target.value = "";
+  };
+
+  const updateLogoSetting = (key, value) => {
+    setManualState((prev) => ({ ...prev, assets: { ...prev.assets, [key]: value } }));
+  };
+
+  const saveTemplate = () => {
+    const nextSettings = buildDefaultSettings(settings);
+    const now = new Date().toISOString();
+    const templateId = manualState.templateId || Date.now();
+    const compiledContent = buildTemplateMarkup(manualState);
+    const nextTemplate = {
+      id: templateId,
+      name: manualState.name || "Šablonas",
+      content: compiledContent,
+      createdAt: templates.find((template) => template.id === templateId)?.createdAt || now,
+      updatedAt: now,
+      editorState: {
+        manual: {
+          name: manualState.name,
+          headerHtml: manualState.headerHtml,
+          bodyHtml: manualState.bodyHtml,
+          footerHtml: manualState.footerHtml,
+          layout: manualState.layout,
+          assets: manualState.assets
+        }
+      }
+    };
+    const existingIndex = templates.findIndex((template) => template.id === templateId);
+    const nextTemplates = [...templates];
+    if (existingIndex >= 0) {
+      nextTemplates[existingIndex] = { ...nextTemplates[existingIndex], ...nextTemplate };
+    } else {
+      nextTemplates.unshift(nextTemplate);
+    }
+    saveSettings({ ...nextSettings, templates: nextTemplates });
+    setManualState((prev) => ({ ...prev, templateId }));
+    window.alert(existingIndex >= 0 ? "Šablonas atnaujintas." : "Šablonas išsaugotas.");
+  };
+
+  const loadTemplate = (template) => {
+    setManualState(restoreManualTemplateState(template));
+    setMode("manual");
+    setActiveEditor("body");
+    setPreviewMode("canvas");
+  };
+
+  const createNewTemplate = () => {
+    setManualState(defaultManualTemplateState());
+    setActiveEditor("body");
+    setPreviewMode("canvas");
+  };
+
+  const zoomIn = () => updateLayout("zoom", Math.min(160, manualState.layout.zoom + 10));
+  const zoomOut = () => updateLayout("zoom", Math.max(30, manualState.layout.zoom - 10));
+  const fitPreview = () => {
+    const viewport = previewViewportRef.current;
+    if (!viewport) return;
+    const nextZoom = Math.max(30, Math.min(120, Math.floor(((viewport.clientWidth - 40) / pageSize.width) * 100)));
+    updateLayout("zoom", nextZoom);
+  };
+
+  useEffect(() => {
+    const measureRoot = measureRef.current;
+    if (!measureRoot) return;
+
+    const bodyWidth = pageSize.width - mmToPx(manualState.layout.marginLeft + manualState.layout.marginRight);
+    const bodyHeight = pageSize.height
+      - mmToPx(manualState.layout.marginTop + manualState.layout.marginBottom + manualState.layout.headerSpacing + manualState.layout.footerSpacing)
+      - (renderedHeader ? 140 : 0)
+      - (renderedFooter ? 110 : 0);
+
+    const sourceDoc = new DOMParser().parseFromString(`<div>${renderedBody || "<p></p>"}</div>`, "text/html");
+    const sourceNodes = Array.from(sourceDoc.body.firstChild?.childNodes || []).filter(
+      (node) => node.nodeType === 1 || String(node.textContent || "").trim()
+    );
+
+    const host = document.createElement("div");
+    host.style.position = "absolute";
+    host.style.left = "-99999px";
+    host.style.top = "0";
+    host.style.visibility = "hidden";
+    host.style.width = `${bodyWidth}px`;
+    measureRoot.innerHTML = "";
+    measureRoot.appendChild(host);
+
+    const pages = [];
+    let page = document.createElement("div");
+    page.style.width = "100%";
+    page.style.boxSizing = "border-box";
+    host.appendChild(page);
+
+    const pushPage = () => {
+      pages.push(page.innerHTML || `<div style="color:#94a3b8; font-size:13px;">Tuščias puslapis</div>`);
+      page = document.createElement("div");
+      page.style.width = "100%";
+      page.style.boxSizing = "border-box";
+      host.appendChild(page);
+    };
+
+    if (!sourceNodes.length) {
+      setPreviewPages([`<div style="color:#94a3b8; font-size:13px;">Pradėkite kurti šabloną.</div>`]);
+      measureRoot.innerHTML = "";
+      return;
+    }
+
+    sourceNodes.forEach((node) => {
+      const clone = node.cloneNode(true);
+      if (clone.nodeType === 1 && clone.getAttribute("data-page-break") === "true") {
+        pushPage();
+        return;
+      }
+      page.appendChild(clone);
+      if (page.scrollHeight > bodyHeight && page.childNodes.length > 1) {
+        page.removeChild(clone);
+        pushPage();
+        page.appendChild(clone);
+      }
+    });
+
+    if (page.innerHTML.trim()) {
+      pages.push(page.innerHTML);
+    }
+
+    setPreviewPages(pages.length ? pages : [""]);
+    measureRoot.innerHTML = "";
+  }, [manualState, pageSize.width, pageSize.height, renderedBody, renderedFooter, renderedHeader]);
+
+  return (
+    <div>
+      <h3 style={{ marginBottom: "16px", color: "#1e3a8a" }}>📝 Užsakymų šablonai</h3>
+      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <button type="button" style={mode === "manual" ? btn : btnSecondary} onClick={() => setMode("manual")}>
+          🛠 Manual tools
+        </button>
+        <button type="button" style={mode === "ai" ? btn : btnSecondary} onClick={() => setMode("ai")}>
+          ✨ AI generation
+        </button>
+      </div>
+
+      {mode === "manual" && (
+        <>
+          <div
+            style={{
+              marginBottom: "20px",
+              padding: "16px",
+              background: "#f8fafc",
+              border: "1px solid #e2e8f0",
+              borderRadius: "8px"
+            }}
+          >
+            <div style={{ fontSize: "15px", fontWeight: 700, color: "#1e3a8a", marginBottom: "6px" }}>
+              Profesionalus rankinis šablonų redaktorius
+            </div>
+            <div style={{ fontSize: "12px", color: "#64748b" }}>
+              Redaguokite antraštę, turinį ir poraštę atskirai, naudokite formatavimo įrankius ir iš karto matykite A4 peržiūrą prieš išsaugant.
+            </div>
+          </div>
+
+          <div style={{ ...formGrid, gridTemplateColumns: "minmax(320px, 1.2fr) minmax(360px, 0.8fr)", alignItems: "start" }}>
+            <div style={{ display: "grid", gap: "18px" }}>
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ ...formGrid, gridTemplateColumns: "1.2fr 0.8fr", marginBottom: 0 }}>
+                  <div style={formGroup}>
+                    <label style={label}>Šablono pavadinimas</label>
+                    <input
+                      style={inputBase}
+                      value={manualState.name}
+                      onChange={(e) => updateManualState({ name: e.target.value })}
+                      placeholder="pvz. Profesionalus vežėjo orderis"
+                    />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "end", gap: "10px", flexWrap: "wrap" }}>
+                    <button type="button" style={btnSecondary} onClick={createNewTemplate}>Naujas</button>
+                    <button type="button" style={btnSuccess} onClick={saveTemplate}>💾 Išsaugoti</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "12px", flexWrap: "wrap" }}>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e3a8a" }}>Įrankių juosta</div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>Aktyvi sekcija: {activeEditor === "header" ? "Antraštė" : activeEditor === "body" ? "Turinys" : "Poraštė"}</div>
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                  <select style={{ ...inputBase, width: "auto" }} value="p" onChange={(e) => exec("formatBlock", e.target.value)}>
+                    <option value="p">Pastraipa</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                    <option value="blockquote">Quote</option>
+                  </select>
+                  <select style={{ ...inputBase, width: "auto" }} value={fontScale} onChange={(e) => { setFontScale(e.target.value); exec("fontSize", e.target.value); }}>
+                    <option value="2">Tekstas S</option>
+                    <option value="3">Tekstas M</option>
+                    <option value="4">Tekstas L</option>
+                    <option value="5">Tekstas XL</option>
+                    <option value="6">Tekstas XXL</option>
+                  </select>
+                  <input type="color" value={textColor} onChange={(e) => { setTextColor(e.target.value); exec("foreColor", e.target.value); }} style={{ width: "46px", height: "42px", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "4px", background: "#fff" }} />
+                  {[
+                    ["B", () => exec("bold")],
+                    ["I", () => exec("italic")],
+                    ["U", () => exec("underline")],
+                    ["•", () => exec("insertUnorderedList")],
+                    ["1.", () => exec("insertOrderedList")],
+                    ["←", () => exec("justifyLeft")],
+                    ["↔", () => exec("justifyCenter")],
+                    ["→", () => exec("justifyRight")]
+                  ].map(([title, handler]) => (
+                    <button key={title} type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px", minWidth: "42px" }} onMouseDown={(e) => { e.preventDefault(); handler(); }}>
+                      {title}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); insertTemplateBlock("infoTable"); }}>Info lentelė</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); insertTemplateBlock("priceTable"); }}>Kainų lentelė</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); insertTemplateBlock("heroCard"); }}>Hero blokas</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); insertTemplateBlock("pageBreak"); }}>Puslapio lūžis</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); imageInputRef.current?.click(); }}>Įkelti paveikslą</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); addTableRow(); }}>+ Eilutė</button>
+                  <button type="button" style={{ ...btnSecondary, padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); addTableColumn(); }}>+ Stulpelis</button>
+                  <button type="button" style={{ ...btnSecondary, background: "#b91c1c", padding: "8px 12px", fontSize: "12px" }} onMouseDown={(e) => { e.preventDefault(); deleteTableRow(); }}>− Eilutė</button>
+                </div>
+                <input ref={imageInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { void handleInlineImage(e, activeEditor); }} />
+                <div style={{ fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "8px" }}>Dinaminiai laukai</div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  {templateFieldOptions.map((field) => (
+                    <button key={field.key} type="button" style={{ background: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", borderRadius: "999px", padding: "6px 10px", fontSize: "12px", cursor: "pointer" }} onMouseDown={(e) => { e.preventDefault(); insertField(field.key); }}>
+                      {field.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e3a8a", marginBottom: "12px" }}>Logo ir asset valdymas</div>
+                <div style={{ ...formGrid, gridTemplateColumns: "1fr 1fr", marginBottom: "12px" }}>
+                  <div style={formGroup}>
+                    <label style={label}>Logotipas</label>
+                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                      <button type="button" style={btnSecondary} onClick={() => logoInputRef.current?.click()}>Įkelti logo</button>
+                      <button type="button" style={{ ...btnSecondary, background: "#b91c1c" }} onClick={() => updateLogoSetting("logoSrc", "")}>Pašalinti</button>
+                    </div>
+                    <input ref={logoInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { void handleLogoUpload(e); }} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Logo dydis (px)</label>
+                    <input style={inputBase} type="number" value={manualState.assets.logoWidth} onChange={(e) => updateLogoSetting("logoWidth", Math.max(80, Number(e.target.value) || 220))} />
+                  </div>
+                </div>
+                <div style={{ ...formGrid, gridTemplateColumns: "1fr 1fr", marginBottom: 0 }}>
+                  <div style={formGroup}>
+                    <label style={label}>Logo lygiavimas</label>
+                    <select style={inputBase} value={manualState.assets.logoAlign} onChange={(e) => updateLogoSetting("logoAlign", e.target.value)}>
+                      <option value="left">Kairėje</option>
+                      <option value="center">Centre</option>
+                      <option value="right">Dešinėje</option>
+                    </select>
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Logo peržiūra</label>
+                    <div style={{ padding: "12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "12px", minHeight: "96px", display: "flex", justifyContent: manualState.assets.logoAlign === "left" ? "flex-start" : manualState.assets.logoAlign === "center" ? "center" : "flex-end", alignItems: "center" }}>
+                      <img src={manualState.assets.logoSrc || previewFields.company_logo} alt="Logo preview" style={{ width: `${manualState.assets.logoWidth}px`, maxWidth: "100%", height: "auto", objectFit: "contain" }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e3a8a", marginBottom: "12px" }}>Puslapio nustatymai</div>
+                <div style={{ ...formGrid, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", marginBottom: 0 }}>
+                  <div style={formGroup}>
+                    <label style={label}>Orientacija</label>
+                    <select style={inputBase} value={manualState.layout.orientation} onChange={(e) => updateLayout("orientation", e.target.value)}>
+                      <option value="portrait">Portrait</option>
+                      <option value="landscape">Landscape</option>
+                    </select>
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Viršus (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.marginTop} onChange={(e) => updateLayout("marginTop", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Dešinė (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.marginRight} onChange={(e) => updateLayout("marginRight", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Apačia (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.marginBottom} onChange={(e) => updateLayout("marginBottom", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Kairė (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.marginLeft} onChange={(e) => updateLayout("marginLeft", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Tarpas po antrašte (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.headerSpacing} onChange={(e) => updateLayout("headerSpacing", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Tarpas iki poraštės (mm)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.footerSpacing} onChange={(e) => updateLayout("footerSpacing", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Puslapių tarpas (px)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.pageGap} onChange={(e) => updateLayout("pageGap", Number(e.target.value) || 0)} />
+                  </div>
+                  <div style={formGroup}>
+                    <label style={label}>Peržiūros mastelis (%)</label>
+                    <input style={inputBase} type="number" value={manualState.layout.zoom} onChange={(e) => updateLayout("zoom", Number(e.target.value) || 10)} />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ display: "grid", gap: "16px" }}>
+                  {[
+                    ["header", "Antraštė", headerRef, manualState.headerHtml],
+                    ["body", "Pagrindinis turinys", bodyRef, manualState.bodyHtml],
+                    ["footer", "Poraštė", footerRef, manualState.footerHtml]
+                  ].map(([key, title, ref, html]) => (
+                    <div key={key}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                        <label style={{ ...label, marginBottom: 0 }}>{title}</label>
+                        <button
+                          type="button"
+                          style={activeEditor === key ? btn : btnSecondary}
+                          onClick={() => focusEditor(key, "source")}
+                        >
+                          Aktyvuoti
+                        </button>
+                      </div>
+                      <div
+                        ref={ref}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onFocus={() => onEditableFocus(key, ref)}
+                        onInput={() => onEditableInput(key, ref)}
+                        style={{
+                          minHeight: key === "body" ? "300px" : "140px",
+                          border: activeEditor === key ? "2px solid #3b82f6" : "1px solid #cbd5e1",
+                          borderRadius: "10px",
+                          padding: "14px",
+                          background: "#ffffff",
+                          fontSize: "14px",
+                          lineHeight: 1.6,
+                          outline: "none"
+                        }}
+                        dangerouslySetInnerHTML={{ __html: html }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {templates.length > 0 && (
+                <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e3a8a", marginBottom: "12px" }}>Išsaugoti šablonai</div>
+                  <div style={{ display: "grid", gap: "10px" }}>
+                    {templates.map((template) => (
+                      <div key={template.id} style={{ border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px", background: "#f8fafc" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "12px" }}>
+                          <div>
+                            <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: "4px" }}>{template.name}</div>
+                            <div style={{ fontSize: "12px", color: "#64748b" }}>
+                              {template.updatedAt ? `Atnaujinta ${new Date(template.updatedAt).toLocaleDateString("lt-LT")}` : template.createdAt ? `Sukurta ${new Date(template.createdAt).toLocaleDateString("lt-LT")}` : "Be datos"}
+                            </div>
+                          </div>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                            <button type="button" style={btnSecondary} onClick={() => loadTemplate(template)}>Redaguoti</button>
+                            <button
+                              type="button"
+                              style={{ ...btnSecondary, background: "#dc2626" }}
+                              onClick={() => {
+                                if (!window.confirm("Ar tikrai norite ištrinti šį šabloną?")) return;
+                                const nextSettings = buildDefaultSettings(settings);
+                                saveSettings({ ...nextSettings, templates: templates.filter((item) => item.id !== template.id) });
+                                if (manualState.templateId === template.id) createNewTemplate();
+                              }}
+                            >
+                              Trinti
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ position: "sticky", top: "12px" }}>
+              <div style={{ padding: "18px", border: "1px solid #e2e8f0", borderRadius: "12px", background: "#fff" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginBottom: "12px", flexWrap: "wrap" }}>
+                  <div>
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e3a8a" }}>Vizuali A4 peržiūra</div>
+                    <div style={{ fontSize: "12px", color: "#64748b" }}>
+                      {previewMode === "canvas" ? "Tiesiogiai redaguojama drobė" : `Paginuota peržiūra • ${previewPages.length} psl.`}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <button type="button" style={previewMode === "canvas" ? btn : btnSecondary} onClick={() => setPreviewMode("canvas")}>Edit preview</button>
+                    <button type="button" style={previewMode === "pages" ? btn : btnSecondary} onClick={() => setPreviewMode("pages")}>Page preview</button>
+                    <button type="button" style={btnSecondary} onClick={zoomOut}>−</button>
+                    <button type="button" style={btnSecondary} onClick={fitPreview}>Fit</button>
+                    <button type="button" style={btnSecondary} onClick={zoomIn}>+</button>
+                  </div>
+                </div>
+                <div ref={previewViewportRef} style={{ maxHeight: "calc(100vh - 180px)", overflow: "auto", paddingRight: "4px", background: "#e2e8f0", borderRadius: "10px", padding: "16px" }}>
+                  {previewMode === "canvas" && (
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <div style={{ background: "#fff", border: "1px solid #cbd5e1", boxShadow: "0 18px 36px rgba(15,23,42,0.14)", width: `${pageSize.width}px`, minHeight: `${pageSize.height}px`, zoom: previewScale }}>
+                        <div style={{ padding: `${manualState.layout.marginTop}mm ${manualState.layout.marginRight}mm ${manualState.layout.marginBottom}mm ${manualState.layout.marginLeft}mm`, boxSizing: "border-box", minHeight: `${pageSize.height}px`, fontFamily: "Arial, Helvetica, sans-serif" }}>
+                          <div
+                            ref={previewHeaderRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onFocus={() => onEditableFocus("header", previewHeaderRef)}
+                            onInput={() => onEditableInput("header", previewHeaderRef)}
+                            style={{ outline: activeEditor === "header" ? "2px solid #3b82f6" : "1px dashed transparent", borderRadius: "10px", marginBottom: `${manualState.layout.headerSpacing}mm`, minHeight: "80px" }}
+                            dangerouslySetInnerHTML={{ __html: manualState.headerHtml }}
+                          />
+                          <div
+                            ref={previewBodyRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onFocus={() => onEditableFocus("body", previewBodyRef)}
+                            onInput={() => onEditableInput("body", previewBodyRef)}
+                            style={{ outline: activeEditor === "body" ? "2px solid #3b82f6" : "1px dashed transparent", borderRadius: "10px", minHeight: `${pageSize.height - 280}px` }}
+                            dangerouslySetInnerHTML={{ __html: manualState.bodyHtml }}
+                          />
+                          <div
+                            ref={previewFooterRef}
+                            contentEditable
+                            suppressContentEditableWarning
+                            onFocus={() => onEditableFocus("footer", previewFooterRef)}
+                            onInput={() => onEditableInput("footer", previewFooterRef)}
+                            style={{ outline: activeEditor === "footer" ? "2px solid #3b82f6" : "1px dashed transparent", borderRadius: "10px", marginTop: `${manualState.layout.footerSpacing}mm`, minHeight: "44px" }}
+                            dangerouslySetInnerHTML={{ __html: manualState.footerHtml }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {previewMode === "pages" && previewPages.map((pageHtml, index) => (
+                    <div key={index} style={{ marginBottom: `${manualState.layout.pageGap}px` }}>
+                      <div style={{ fontSize: "12px", color: "#475569", marginBottom: "8px", fontWeight: 600 }}>Puslapis {index + 1}</div>
+                      <div style={{ width: `${pageSize.width * previewScale}px`, minHeight: `${pageSize.height * previewScale}px`, position: "relative", background: "#fff", border: "1px solid #cbd5e1", boxShadow: "0 10px 30px rgba(15, 23, 42, 0.12)", overflow: "hidden" }}>
+                        <div style={{ width: `${pageSize.width}px`, minHeight: `${pageSize.height}px`, transform: `scale(${previewScale})`, transformOrigin: "top left", background: "#fff" }}>
+                          <div style={{ padding: `${manualState.layout.marginTop}mm ${manualState.layout.marginRight}mm ${manualState.layout.marginBottom}mm ${manualState.layout.marginLeft}mm`, boxSizing: "border-box", minHeight: `${pageSize.height}px`, fontFamily: "Arial, Helvetica, sans-serif", color: "#0f172a" }}>
+                            <div dangerouslySetInnerHTML={{ __html: renderedHeader }} />
+                            <div style={{ marginTop: `${manualState.layout.headerSpacing}mm` }} dangerouslySetInnerHTML={{ __html: pageHtml }} />
+                            <div style={{ marginTop: `${manualState.layout.footerSpacing}mm` }} dangerouslySetInnerHTML={{ __html: renderedFooter }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div ref={measureRef} style={{ position: "absolute", left: "-99999px", top: 0, visibility: "hidden" }} />
+        </>
+      )}
+
+      {mode === "ai" && (
+        <div>
+          <div
+            style={{
+              marginBottom: "20px",
+              padding: "16px",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderRadius: "8px"
+            }}
+          >
+            <div style={{ fontSize: "14px", fontWeight: 600, color: "#1e3a8a", marginBottom: "6px" }}>
+              AI šablonų generavimas
+            </div>
+            <div style={{ fontSize: "12px", color: "#475569" }}>
+              UI paruošta AI generavimui. Šiame etape palikta tik struktūra ir laukų išdėstymas.
+            </div>
+          </div>
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Šablono paskirtis</label>
+              <input style={inputBase} placeholder="pvz. Vežėjo užsakymo forma" disabled />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Kalba ir tonas</label>
+              <input style={inputBase} placeholder="pvz. LT, formalus" disabled />
+            </div>
+          </div>
+          <div style={formGroup}>
+            <label style={label}>Reikalingos sekcijos</label>
+            <textarea
+              rows="5"
+              style={{ ...inputBase, resize: "vertical" }}
+              placeholder="pvz. Užsakymo numeris, klientas, vežėjas, maršrutas, kainos, sąlygos..."
+              disabled
+            />
+          </div>
+          <button type="button" style={{ ...btnSecondary, marginTop: "20px", opacity: 0.8, cursor: "not-allowed" }} disabled>
+            Greitai bus galima generuoti su AI
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Settings({ settings, saveSettings }) {
+  const [formData, setFormData] = useState(() => buildDefaultSettings(settings));
+  const [section, setSection] = useState("company");
+  const sectionButtons = [
+    { key: "company", title: "🏢 Įmonės duomenys" },
+    { key: "documents", title: "📄 Dokumentai" },
+    { key: "email", title: "📧 El. paštas" },
+    { key: "templates", title: "📝 Užsakymų šablonai" }
+  ];
+
+  useEffect(() => {
+    setFormData(buildDefaultSettings(settings));
+  }, [settings]);
+
+  const persist = (next = formData) => {
+    const merged = buildDefaultSettings(next);
+    setFormData(merged);
+    saveSettings(merged);
+    window.alert("✅ Nustatymai išsaugoti!");
+  };
+
+  const uploadStamp = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 500 * 1024) {
+      window.alert("⚠️ Failas per didelis! Maksimalus dydis: 500 KB");
+      event.target.value = "";
+      return;
+    }
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setFormData((prev) => ({ ...prev, companyStampSignature: dataUrl }));
+    } catch {
+      window.alert("❌ Klaida įkeliant failą");
+    }
+  };
+
+  return (
+    <div style={pageCard}>
+      <div style={cardHeader}>
+        <h2 style={cardTitle}>⚙️ Nustatymai</h2>
+      </div>
+
+      <div style={{ display: "flex", gap: "20px", marginBottom: "24px", flexWrap: "wrap" }}>
+        {sectionButtons.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            style={section === item.key ? btn : btnSecondary}
+            onClick={() => setSection(item.key)}
+          >
+            {item.title}
+          </button>
+        ))}
+      </div>
+
+      {section === "company" && (
+        <div>
+          <h3 style={{ marginBottom: "16px", color: "#1e3a8a" }}>🏢 Įmonės duomenys</h3>
+
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Aplinka</label>
+              <select
+                style={inputBase}
+                value={formData.environment}
+                onChange={(e) => setFormData({ ...formData, environment: e.target.value })}
+              >
+                <option value="test">🧪 Test / Demo</option>
+                <option value="production">🚀 Production / Reali</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Pavadinimas *</label>
+              <input
+                style={inputBase}
+                value={formData.company.name}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, name: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Įmonės kodas *</label>
+              <input
+                style={inputBase}
+                value={formData.company.code}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, code: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>PVM kodas *</label>
+              <input
+                style={inputBase}
+                value={formData.company.vat}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, vat: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Telefonas *</label>
+              <input
+                style={inputBase}
+                value={formData.company.phone}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, phone: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Email *</label>
+              <input
+                style={inputBase}
+                type="email"
+                value={formData.company.email}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, email: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Adresas</label>
+              <input
+                style={inputBase}
+                value={formData.company.address}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, address: e.target.value } })}
+              />
+            </div>
+          </div>
+
+          <h4 style={{ marginTop: "24px", marginBottom: "12px", color: "#1e3a8a" }}>Banko duomenys</h4>
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Bankas</label>
+              <input
+                style={inputBase}
+                value={formData.company.bank_name}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, bank_name: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Sąskaitos nr.</label>
+              <input
+                style={inputBase}
+                value={formData.company.bank_account}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, bank_account: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>SWIFT</label>
+              <input
+                style={inputBase}
+                value={formData.company.swift}
+                onChange={(e) => setFormData({ ...formData, company: { ...formData.company, swift: e.target.value } })}
+              />
+            </div>
+          </div>
+
+          <h4 style={{ marginTop: "24px", marginBottom: "12px", color: "#1e3a8a" }}>Įmonės antspaudas ir parašas</h4>
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: 600 }}>
+              Įkelkite įmonės antspaudą su direktoriaus parašu
+            </label>
+            <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "12px" }}>
+              Šis antspaudas bus automatiškai įterpiamas į visus orderius vežėjams. Rekomenduojamas PNG formatas su permatomu fonu.
+            </div>
+
+            {formData.companyStampSignature ? (
+              <div style={{ marginBottom: "12px" }}>
+                <div
+                  style={{
+                    padding: "16px",
+                    background: "#f8fafc",
+                    border: "2px solid #e2e8f0",
+                    borderRadius: "8px",
+                    display: "inline-block"
+                  }}
+                >
+                  <img
+                    src={formData.companyStampSignature}
+                    style={{ maxHeight: "120px", maxWidth: "200px", display: "block" }}
+                    alt="Company Stamp"
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    style={{ ...btnSecondary, marginTop: "10px", fontSize: "13px" }}
+                    onClick={() => {
+                      if (window.confirm("Ar tikrai norite pašalinti antspaudą?")) {
+                        setFormData({ ...formData, companyStampSignature: "" });
+                      }
+                    }}
+                  >
+                    🗑️ Pašalinti antspaudą
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ marginBottom: "12px" }}>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={uploadStamp}
+                  style={{
+                    padding: "10px",
+                    border: "2px dashed #cbd5e1",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    width: "100%",
+                    maxWidth: "400px",
+                    background: "#fff"
+                  }}
+                />
+                <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px" }}>
+                  ✓ Formatai: PNG, JPG | ✓ Maks. dydis: 500 KB | ✓ Rekomenduojamas: PNG su permatomu fonu
+                </div>
+              </div>
+            )}
+          </div>
+
+          <button type="button" style={{ ...btnSuccess, marginTop: "20px" }} onClick={() => persist()}>
+            💾 Išsaugoti Įmonės Duomenis
+          </button>
+        </div>
+      )}
+
+      {section === "documents" && (
+        <div>
+          <h3 style={{ marginBottom: "16px", color: "#1e3a8a" }}>📄 Dokumentų nustatymai</h3>
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Numeracijos formatas</label>
+              <input
+                style={inputBase}
+                value={formData.documents.auto_numbering_format}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    documents: { ...formData.documents, auto_numbering_format: e.target.value }
+                  })
+                }
+                placeholder="RAD-{YEAR}-{NUMBER}"
+              />
+              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Pvz: RAD-2026-001</div>
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Kalba pagal nutylėjimą</label>
+              <select
+                style={inputBase}
+                value={formData.documents.default_language}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    documents: { ...formData.documents, default_language: e.target.value }
+                  })
+                }
+              >
+                <option value="lt">🇱🇹 Lietuvių</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="pl">🇵🇱 Polski</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "16px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={formData.documents.show_vat}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    documents: { ...formData.documents, show_vat: e.target.checked }
+                  })
+                }
+              />
+              Rodyti PVM dokumentuose
+            </label>
+          </div>
+
+          <div style={{ marginTop: "16px" }}>
+            <label style={label}>Sąlygų tekstas (LT)</label>
+            <textarea
+              rows="6"
+              style={{ ...inputBase, width: "100%", resize: "vertical" }}
+              value={formData.documents.terms_lt}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  documents: { ...formData.documents, terms_lt: e.target.value }
+                })
+              }
+            />
+          </div>
+
+          <button type="button" style={{ ...btnSuccess, marginTop: "20px" }} onClick={() => persist()}>
+            💾 Išsaugoti Dokumentų Nustatymus
+          </button>
+        </div>
+      )}
+
+      {section === "email" && (
+        <div>
+          <h3 style={{ marginBottom: "16px", color: "#1e3a8a" }}>📧 El. pašto nustatymai</h3>
+          <div style={formGrid}>
+            <div style={formGroup}>
+              <label style={label}>Siuntėjo adresas</label>
+              <input
+                style={inputBase}
+                type="email"
+                value={formData.email.from_address}
+                onChange={(e) => setFormData({ ...formData, email: { ...formData.email, from_address: e.target.value } })}
+              />
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Siuntėjo vardas</label>
+              <input
+                style={inputBase}
+                value={formData.email.from_name}
+                onChange={(e) => setFormData({ ...formData, email: { ...formData.email, from_name: e.target.value } })}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginTop: "16px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={formData.email.auto_attach_pdf}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: { ...formData.email, auto_attach_pdf: e.target.checked }
+                  })
+                }
+              />
+              Automatiškai prisegti PDF
+            </label>
+          </div>
+
+          <div style={{ ...formGroup, marginTop: "16px" }}>
+            <label style={label}>Visada CC (atskirti kableliais)</label>
+            <input
+              style={inputBase}
+              value={formData.email.always_cc.join(", ")}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  email: {
+                    ...formData.email,
+                    always_cc: e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
+                  }
+                })
+              }
+              placeholder="email1@example.com, email2@example.com"
+            />
+          </div>
+
+          <button type="button" style={{ ...btnSuccess, marginTop: "20px" }} onClick={() => persist()}>
+            💾 Išsaugoti Email Nustatymus
+          </button>
+        </div>
+      )}
+
+      {section === "templates" && (
+        <TemplateManager
+          settings={formData}
+          saveSettings={(next) => {
+            const merged = buildDefaultSettings(next);
+            setFormData(merged);
+            saveSettings(merged);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+export function Orders({ orders, saveOrders, clients, carriers, openModal }) {
+  const deleteOrder = (id) => {
+    if (window.confirm("Ar tikrai norite ištrinti šį užsakymą?")) {
+      saveOrders(orders.filter((item) => item.id !== id));
+    }
+  };
+
+  return (
+    <div style={pageCard}>
+      <div style={cardHeader}>
+        <h2 style={cardTitle}>Užsakymai ({orders.length})</h2>
+        <button style={btn} onClick={() => openModal("order", null)}>+ Naujas Užsakymas</button>
+      </div>
+      {orders.length > 0 ? (
+        <table style={table}>
+          <thead><tr><th style={th}>Užsakymo Nr.</th><th style={th}>Tipas</th><th style={th}>Klientas</th><th style={th}>Vežėjas</th><th style={th}>Maršrutas</th><th style={th}>Pakrovimas</th><th style={th}>Iškrovimas</th><th style={th}>Kl. kaina</th><th style={th}>Pelnas</th><th style={th}>Statusas</th><th style={th}>Veiksmai</th></tr></thead>
+          <tbody>
+            {orders.map((order) => {
+              const profit = (order.clientPrice || 0) - (order.carrierPrice || 0);
+              const margin = order.carrierPrice ? ((profit / order.carrierPrice) * 100).toFixed(1) : 0;
+              return <tr key={order.id}><td style={td}><strong style={{ cursor: "pointer", color: "#3b82f6", textDecoration: "underline" }} onClick={() => openModal("order", order)}>{order.orderNumber}</strong></td><td style={td}><span style={{ fontSize: "11px", padding: "2px 6px", borderRadius: "3px", background: "#f1f5f9" }}>{order.orderType === "own_transport" && "🚛 Nuosavas"}{order.orderType === "resale_to_carrier" && "🔄 Perpard."}{!order.orderType && "-"}</span></td><td style={td}>{order.clientName || "-"}</td><td style={td}>{order.carrierName || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.route || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.loadingDate || "-"}</td><td style={{ ...td, fontSize: "12px" }}>{order.unloadingDate || "-"}</td><td style={td}>{order.clientPrice ? euro(order.clientPrice) : euro(order.price || 0)}</td><td style={td}>{order.orderType === "resale_to_carrier" && order.clientPrice && order.carrierPrice ? <span style={{ fontWeight: 600, color: profit >= 0 ? "#059669" : "#dc2626" }}>{profit >= 0 ? "+" : ""}{profit.toFixed(2)} €<div style={{ fontSize: "10px", color: "#64748b" }}>({margin}%)</div></span> : "-"}</td><td style={td}><span style={badge(order.status === "active" ? "success" : order.status === "draft" ? "warning" : "warning")}>{order.status === "active" ? "Aktyvus" : order.status === "draft" ? "Juodraštis" : order.status === "generated" ? "Paruoštas siuntimui" : "Užbaigtas"}</span></td><td style={td}><div style={actionButtons}><button style={actionBtn} onClick={() => openModal("order", order)} title="Tęsti / Redaguoti">✎</button><button style={actionBtn} onClick={() => deleteOrder(order.id)} title="Ištrinti">🗑</button></div></td></tr>;
+            })}
+          </tbody>
+        </table>
+      ) : <div style={emptyState}><div style={{ fontSize: "64px", marginBottom: "16px", opacity: 0.3 }}>📦</div><h3>Nėra užsakymų</h3><p>Sukurkite pirmą užsakymą</p></div>}
+    </div>
+  );
+}
+export function Modal({ type, initialData, onClose, clients, carriers, saveOrders, orders }) {
+  const [formData, setFormData] = useState(emptyOrderForm);
+
+  useEffect(() => {
+    if (type !== "order") return;
+    if (initialData) {
+      setFormData((prev) => ({ ...prev, ...initialData }));
+      return;
+    }
+    try {
+      const savedDraft = JSON.parse(localStorage.getItem("currentOrderDraftForm") || "null");
+      if (savedDraft) {
+        setFormData((prev) => ({ ...prev, ...savedDraft }));
+        return;
+      }
+    } catch {}
+    setFormData(emptyOrderForm);
+  }, [type, initialData]);
+
+  useEffect(() => {
+    if (type === "order") {
+      localStorage.setItem("currentOrderDraftForm", JSON.stringify(formData));
+    }
+  }, [type, formData]);
+
+  const updateFormData = (updates) => setFormData((prev) => ({ ...prev, ...updates }));
+  const upsertOrder = (payload) => {
+    const existingIndex = orders.findIndex((item) => item.id === payload.id);
+    if (existingIndex >= 0) {
+      const updated = [...orders];
+      updated[existingIndex] = { ...updated[existingIndex], ...payload, updatedAt: new Date().toISOString() };
+      saveOrders(updated);
+      return updated[existingIndex];
+    }
+    const created = { ...payload, id: payload.id || Date.now(), createdAt: new Date().toISOString() };
+    saveOrders([...orders, created]);
+    return created;
+  };
+
+  const saveOrderAsDraft = (status = "draft", silent = false) => {
+    const selectedCarrier = carriers.find((c) => c.id == formData.carrierId) || {};
+    const selectedClient = clients.find((c) => c.id == formData.clientId) || {};
+    const payload = { ...formData, id: formData.id, orderNumber: formData.orderNumber || createOrderNumber(), status, clientName: formData.clientName || selectedClient.name || "", carrierName: formData.carrierName || selectedCarrier.name || "", carrierCompanyCode: selectedCarrier.companyCode || formData.carrierCompanyCode || "", carrierVAT: selectedCarrier.vatCode || formData.carrierVAT || "", carrierAddress: selectedCarrier.address || formData.carrierAddress || "", carrierPhone: selectedCarrier.phone || formData.carrierPhone || "", carrierEmail: selectedCarrier.email || formData.carrierEmail || "" };
+    if (payload.orderType === "resale_to_carrier" && payload.clientPrice && payload.carrierPrice) {
+      payload.profit = payload.clientPrice - payload.carrierPrice;
+      payload.profitMargin = payload.carrierPrice ? (payload.profit / payload.carrierPrice) * 100 : 0;
+    }
+    const saved = upsertOrder(payload);
+    setFormData((prev) => ({ ...prev, id: saved.id, orderNumber: saved.orderNumber }));
+    if (!silent) window.alert(`Juodraštis išsaugotas (${saved.orderNumber})`);
+    return saved;
+  };
+
+  const generateCarrierOrder = () => {
+    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
+    if (formData.orderType !== "resale_to_carrier") return window.alert("Orderis vežėjui generuojamas tik pasirinkus pardavimą vežėjui.");
+    if (!formData.carrierId) return window.alert("Pasirinkite vežėją.");
+    saveOrderAsDraft("generated", true);
+    window.alert("Užsakymas pažymėtas kaip paruoštas siuntimui.");
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
+    if (formData.orderType === "resale_to_carrier") {
+      if (!formData.carrierId) return window.alert("Perpardavimui būtinas vežėjas.");
+      if (!formData.carrierPrice) return window.alert("Įveskite vežėjo kainą.");
+      const profit = (formData.clientPrice || 0) - (formData.carrierPrice || 0);
+      if (profit < 0 && !window.confirm(`DĖMESIO: Neigiamas pelnas (${profit.toFixed(2)} EUR). Ar tikrai norite tęsti?`)) return;
+    }
+    const selectedCarrier = carriers.find((c) => c.id === formData.carrierId);
+    const selectedClient = clients.find((c) => c.id === formData.clientId);
+    const newItem = { ...formData, id: formData.id || Date.now(), orderNumber: formData.orderNumber || createOrderNumber(), status: "active", clientName: selectedClient?.name || formData.clientName || "", carrierName: selectedCarrier?.name || formData.carrierName || "" };
+    if (newItem.orderType === "resale_to_carrier" && newItem.clientPrice && newItem.carrierPrice) {
+      newItem.profit = newItem.clientPrice - newItem.carrierPrice;
+      newItem.profitMargin = (newItem.profit / newItem.carrierPrice) * 100;
+    }
+    upsertOrder(newItem);
+    localStorage.removeItem("currentOrderDraftForm");
+    onClose();
+  };
+
+  if (type !== "order") return null;
+  return (
+    <div style={modalOverlay} onClick={onClose}>
+      <div style={modal} onClick={(e) => e.stopPropagation()}>
+        <div style={modalHeader}>
+          <h2 style={{ fontSize: "20px", color: "#1e3a8a", margin: 0 }}>{initialData ? "Redaguoti Užsakymą" : "Naujas Užsakymas"}</h2>
+          <button style={closeBtn} onClick={onClose}>×</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{ display: "block", marginBottom: "12px", fontWeight: 600, color: "#1e3a8a" }}>1. Užsakymo tipas *</label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+              {["own_transport", "resale_to_carrier"].map((choice) => (
+                <div key={choice} onClick={() => updateFormData({ orderType: choice })} style={{ padding: "16px", border: `2px solid ${formData.orderType === choice ? "#3b82f6" : "#e2e8f0"}`, borderRadius: "8px", cursor: "pointer", background: formData.orderType === choice ? "#eff6ff" : "#fff", textAlign: "center" }}>
+                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>{choice === "own_transport" ? "🚛" : "🔄"}</div>
+                  <div style={{ fontSize: "13px", fontWeight: 600 }}>{choice === "own_transport" ? "Nuosavas transportas" : "Pardavimas vežėjui"}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={formGrid}>
+            <div style={formGroup}><label style={label}>2. Klientas (užsakovas) *</label><select style={inputBase} required value={formData.clientId || ""} onChange={(e) => { const client = clients.find((c) => String(c.id) === String(e.target.value)); updateFormData({ clientId: e.target.value, clientName: client?.name || "" }); }}><option value="">Pasirinkite...</option>{clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+            <div style={formGroup}><label style={label}>Kliento kaina (EUR) *</label><input style={inputBase} type="number" step="0.01" required value={formData.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholder="1200.00" /></div>
+          </div>
+          {formData.orderType === "resale_to_carrier" && (
+            <>
+              <div style={{ ...formGrid, marginTop: "16px" }}>
+                <div style={formGroup}>
+                  <label style={label}>3. Vežėjas (vykdytojas) *</label>
+                  <select
+                    style={inputBase}
+                    required
+                    value={formData.carrierId || ""}
+                    onChange={(e) => {
+                      const carrier = carriers.find((c) => String(c.id) === String(e.target.value));
+                      updateFormData({
+                        carrierId: e.target.value,
+                        carrierName: carrier?.name || "",
+                        carrierType: carrier?.carrierType || ""
+                      });
+                    }}
+                  >
+                    <option value="">Pasirinkite...</option>
+                    {carriers
+                      .filter((c) => !c.isOwnCompany)
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} 🚛
+                        </option>
+                      ))}
+                  </select>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                    Rodomi tik išoriniai vežėjai
+                  </div>
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Vežėjo kaina (savikaina EUR) *</label>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <input
+                      style={{ ...inputBase, flex: 1 }}
+                      type="number"
+                      step="0.01"
+                      required
+                      value={formData.carrierPrice || ""}
+                      onChange={(e) => updateFormData({ carrierPrice: parseFloat(e.target.value) || 0 })}
+                      placeholder="1000.00"
+                    />
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontSize: "13px",
+                        whiteSpace: "nowrap",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.carrierPriceWithVAT || false}
+                        onChange={(e) => updateFormData({ carrierPriceWithVAT: e.target.checked })}
+                      />
+                      +PVM
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div style={{ ...formGrid, marginTop: "12px" }}>
+                <div style={formGroup}>
+                  <label style={label}>Mokėjimo terminas vežėjui</label>
+                  <select
+                    style={inputBase}
+                    value={formData.paymentTerm || "14 dienų"}
+                    onChange={(e) => updateFormData({ paymentTerm: e.target.value })}
+                  >
+                    {[
+                      "1 diena",
+                      "5 dienos",
+                      "7 dienos",
+                      "10 dienų",
+                      "14 dienų",
+                      "15 dienų",
+                      "20 dienų",
+                      "25 dienos",
+                      "30 dienų",
+                      "35 dienos",
+                      "40 dienų",
+                      "45 dienos",
+                      "50 dienų",
+                      "55 dienos",
+                      "60 dienų"
+                    ].map((term) => (
+                      <option key={term} value={term}>
+                        {term}
+                        {term === "14 dienų" ? " (numatyta)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={formGroup}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      cursor: "pointer",
+                      paddingTop: "8px"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.originalsRequired === true}
+                      onChange={(e) => updateFormData({ originalsRequired: e.target.checked })}
+                    />
+                    <span style={{ fontSize: "13px", fontWeight: 500 }}>
+                      Originalūs dokumentai reikalingi
+                    </span>
+                  </label>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "6px", marginLeft: "24px" }}>
+                    CMR su pasirašymais turi būti pateikti originalūs
+                  </div>
+                </div>
+              </div>
+              {formData.clientPrice > 0 && formData.carrierPrice > 0 && (
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "16px",
+                    background: (formData.clientPrice - formData.carrierPrice) < 0 ? "#fee2e2" : "#d1fae5",
+                    border: `2px solid ${
+                      (formData.clientPrice - formData.carrierPrice) < 0 ? "#ef4444" : "#10b981"
+                    }`,
+                    borderRadius: "8px"
+                  }}
+                >
+                  <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>
+                    💰 PELNAS: {(formData.clientPrice - formData.carrierPrice).toFixed(2)} EUR
+                  </div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>
+                    Marža: {(((formData.clientPrice - formData.carrierPrice) / formData.carrierPrice) * 100).toFixed(2)}%
+                  </div>
+                  {(formData.clientPrice - formData.carrierPrice) < 0 && (
+                    <div style={{ fontSize: "12px", color: "#dc2626", marginTop: "4px" }}>
+                      ⚠️ DĖMESIO: Neigiamas pelnas!
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+          <div style={{ marginTop: "16px" }}>
+            <h4 style={sectionTitle}>🚚 Krovinio informacija</h4>
+            <div style={formGrid}><div style={formGroup}><label style={label}>Krovinio tipas *</label><select style={inputBase} required value={formData.cargoType || ""} onChange={(e) => { const value = e.target.value; value !== "custom" ? updateFormData({ cargoType: value, cargo: value }) : updateFormData({ cargoType: value }); }}><option value="">Pasirinkite...</option><option value="Automobiliai">🚗 Automobiliai</option><option value="Neutralus krovinys">📦 Neutralus krovinys</option><option value="custom">✨ Kitas (įvesti rankiniu būdu)</option></select></div>{formData.cargoType === "custom" && <div style={formGroup}><label style={label}>Krovinio pavadinimas *</label><input style={inputBase} required value={formData.cargo || ""} placeholder="pvz. Baldai, Padangos..." onChange={(e) => updateFormData({ cargo: e.target.value })} /></div>}<div style={formGroup}><label style={label}>Automobilių skaičius</label><select style={inputBase} value={formData.vehicleCount || "1"} onChange={(e) => updateFormData({ vehicleCount: e.target.value })}>{[1,2,3,4,5,6,7,8,9,10].map((num) => <option key={num} value={String(num)}>{num} vnt.</option>)}</select></div><div style={formGroup}><label style={label}>VIN numeriai (nebūtina)</label><textarea rows="3" style={{ ...inputBase, fontFamily: "monospace", fontSize: "11px" }} value={formData.vinNumbers || ""} placeholder="Įveskite VIN numerius, kiekvienas naujoje eilutėje" onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div></div>
+            <div style={{ marginTop: "16px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Pakrovimo vieta (Siuntėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.loadingCompanyName || ""} placeholder="pvz. BMW AG" onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.loadingCity || ""} placeholder="pvz. Hamburg" onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && formData.unloadingCity ? `${loadingCity} → ${formData.unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.loadingStreet || ""} placeholder="pvz. Hauptstraße 123" onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.loadingPostalCode || ""} placeholder="pvz. 20095" onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.loadingCoordinates || ""} placeholder="pvz. 53.551086, 9.993682" onChange={(e) => updateFormData({ loadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ marginTop: "12px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Iškrovimo vieta (Gavėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.unloadingCompanyName || ""} placeholder="pvz. UAB Automobiliai" onChange={(e) => updateFormData({ unloadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.unloadingCity || ""} placeholder="pvz. Vilnius" onChange={(e) => { const unloadingCity = e.target.value; updateFormData({ unloadingCity, route: formData.loadingCity && unloadingCity ? `${formData.loadingCity} → ${unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.unloadingStreet || ""} placeholder="pvz. Gedimino pr. 1" onChange={(e) => updateFormData({ unloadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.unloadingPostalCode || ""} placeholder="pvz. 01103" onChange={(e) => updateFormData({ unloadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.unloadingCoordinates || ""} placeholder="pvz. 54.687157, 25.279652" onChange={(e) => updateFormData({ unloadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Maršrutas (auto-generuojamas)</label><input style={{ ...inputBase, background: "#f8fafc", cursor: "not-allowed" }} value={formData.route || ""} placeholder="Užpildykite adresus - maršrutas sugeneruosis automatiškai" readOnly /></div>
+          </div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>🚛 Transportas ir vairuotojas</h4><div style={formGrid}><div style={formGroup}><label style={label}>Vilkikas (valst. nr.)</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.truckPlate || ""} placeholder="pvz. ABC123" onChange={(e) => updateFormData({ truckPlate: e.target.value.toUpperCase() })} /></div><div style={formGroup}><label style={label}>Priekaba (valst. nr.)</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.trailerPlate || ""} placeholder="pvz. XYZ789" onChange={(e) => updateFormData({ trailerPlate: e.target.value.toUpperCase() })} /></div><div style={formGroup}><label style={label}>Vairuotojas (vardas pavardė)</label><input style={inputBase} value={formData.driverName || ""} placeholder="pvz. Jonas Jonaitis" onChange={(e) => updateFormData({ driverName: e.target.value })} /></div></div></div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} type="date" required value={formData.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required value={formData.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{formData.loadingDate && formData.unloadingDate && (() => { const start = new Date(formData.loadingDate); const end = new Date(formData.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div style={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "diena" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrovimo!</span>}</div>; })()}</div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={formData.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={formData.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={formData.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Instrukcijos vežėjui</label><textarea rows="3" style={inputBase} value={formData.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={formData.originalsRequired === true ? "required" : formData.originalsRequired || "not_required"} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={formData.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
+          {formData.orderType === "resale_to_carrier" && formData.carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}><input type="checkbox" checked={formData.sendToCarrier !== false} onChange={(e) => updateFormData({ sendToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
+          <div style={{ display: "flex", gap: "10px", marginTop: "24px", flexWrap: "wrap" }}><button type="button" style={btnSecondary} onClick={() => saveOrderAsDraft("draft")}>📝 Išsaugoti kaip juodraštį</button><button type="submit" style={btnSuccess}>✅ Išsaugoti užsakymą</button>{formData.orderType === "resale_to_carrier" && <button type="button" style={{ ...btn, background: "#3b82f6" }} onClick={(e) => { const form = e.target.closest("form"); if (form.reportValidity()) generateCarrierOrder(); else window.alert("Užpildykite visus privalomus laukus."); }}>📄 Sugeneruoti užsakymą vežėjui</button>}<button type="button" style={btnSecondary} onClick={onClose}>Atšaukti</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}

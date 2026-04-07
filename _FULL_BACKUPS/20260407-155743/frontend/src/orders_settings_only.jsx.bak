@@ -1,0 +1,128 @@
+﻿import React, { useEffect, useMemo, useState } from "react";
+
+const card = { background: "white", borderRadius: "16px", padding: "24px", boxShadow: "0 12px 28px rgba(15,23,42,.08)" };
+const row = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", marginBottom: "20px", flexWrap: "wrap" };
+const primary = { background: "linear-gradient(135deg,#1e3a8a,#3b82f6)", color: "#fff", border: "none", padding: "12px 18px", borderRadius: "10px", cursor: "pointer", fontWeight: 600 };
+const secondary = { background: "#e2e8f0", color: "#334155", border: "none", padding: "12px 18px", borderRadius: "10px", cursor: "pointer", fontWeight: 600 };
+const danger = { background: "#fee2e2", color: "#b91c1c", border: "none", padding: "10px 14px", borderRadius: "10px", cursor: "pointer", fontWeight: 600 };
+const input = { padding: "12px 14px", borderRadius: "10px", border: "1px solid #cbd5e1", fontSize: "14px", width: "100%", boxSizing: "border-box" };
+const label = { fontSize: "13px", color: "#334155", fontWeight: 600, marginBottom: "6px", display: "block" };
+const grid = { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "16px" };
+const table = { width: "100%", borderCollapse: "collapse", background: "white", borderRadius: "12px", overflow: "hidden" };
+const th = { textAlign: "left", padding: "12px 10px", fontSize: "12px", color: "#475569", borderBottom: "1px solid #e2e8f0", background: "#f8fafc" };
+const td = { padding: "12px 10px", borderBottom: "1px solid #e2e8f0", fontSize: "14px", color: "#1e293b", verticalAlign: "top" };
+const overlay = { position: "fixed", inset: 0, background: "rgba(15,23,42,.48)", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px", zIndex: 1200 };
+const modal = { background: "white", width: "100%", maxWidth: "980px", maxHeight: "92vh", overflowY: "auto", borderRadius: "16px", padding: "20px", boxShadow: "0 20px 48px rgba(15,23,42,.24)" };
+const defaultTemplateContent = "<div><h1>Transporto užsakymas {{orderNumber}}</h1><p>{{clientName}} - {{carrierName}}</p><p>{{route}}</p></div>";
+const sectionButton = (active) => ({ background: active ? "linear-gradient(135deg,#1e3a8a,#3b82f6)" : "#e2e8f0", color: active ? "#fff" : "#334155", border: "none", padding: "10px 14px", borderRadius: "10px", cursor: "pointer", fontWeight: 600 });
+const pill = (status) => ({ display: "inline-block", padding: "4px 8px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, background: status === "active" ? "#dcfce7" : status === "draft" ? "#fef3c7" : "#dbeafe", color: status === "active" ? "#166534" : status === "draft" ? "#92400e" : "#1d4ed8" });
+const defaultSettings = (source = {}) => ({ environment: source.environment || "test", company: { name: source.company?.name || "", code: source.company?.code || "", vat: source.company?.vat || "", phone: source.company?.phone || "", email: source.company?.email || "", address: source.company?.address || "", bank_name: source.company?.bank_name || "", bank_account: source.company?.bank_account || "", swift: source.company?.swift || "" }, documents: { auto_numbering_format: source.documents?.auto_numbering_format || "RAD-{YEAR}-{NUMBER}", default_language: source.documents?.default_language || "lt", show_vat: source.documents?.show_vat ?? true, terms_lt: source.documents?.terms_lt || "" }, email: { from_address: source.email?.from_address || "", from_name: source.email?.from_name || "", auto_attach_pdf: source.email?.auto_attach_pdf ?? true, always_cc: Array.isArray(source.email?.always_cc) ? source.email.always_cc : [] }, companyStampSignature: source.companyStampSignature || "", templates: Array.isArray(source.templates) ? source.templates : [] });
+const emptyOrder = () => ({ id: "", orderNumber: "", status: "active", orderType: "resale_to_carrier", clientId: "", clientName: "", carrierId: "", carrierName: "", cargo: "", route: "", loadingDate: "", unloadingDate: "", clientPrice: "", carrierPrice: "", notes: "" });
+const createOrderNumber = () => `RAD${Date.now().toString().slice(-6)}`;
+const money = (value) => value === "" || value === null || value === undefined || !Number.isFinite(Number(value)) ? "-" : `${Number(value).toFixed(2)} €`;
+const normalizeMoney = (value) => value === "" || value === null || value === undefined ? "" : (Number.isFinite(Number(value)) ? Number(value) : "");
+function readFileAsDataUrl(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); }); }
+
+export function TemplateManager({ settings, saveSettings }) {
+  const [templates, setTemplates] = useState(() => defaultSettings(settings).templates);
+  const [editingId, setEditingId] = useState(null);
+  const [name, setName] = useState("");
+  const [content, setContent] = useState(defaultTemplateContent);
+  useEffect(() => setTemplates(defaultSettings(settings).templates), [settings]);
+  const persist = (next) => { setTemplates(next); saveSettings({ ...defaultSettings(settings), templates: next }); };
+  const edit = (template) => { setEditingId(template.id); setName(template.name || ""); setContent(template.content || defaultTemplateContent); };
+  const save = () => {
+    if (!name.trim()) return window.alert("Įveskite šablono pavadinimą.");
+    const payload = { id: editingId || Date.now(), name: name.trim(), content: content || defaultTemplateContent, isDefault: templates.length === 0 };
+    persist(editingId ? templates.map((item) => item.id === editingId ? { ...item, ...payload } : item) : [...templates, payload]);
+    setEditingId(payload.id);
+  };
+  const makeDefault = (id) => persist(templates.map((item) => ({ ...item, isDefault: item.id === id })));
+  const remove = (id) => {
+    if (!window.confirm("Ar tikrai norite pašalinti šį šabloną?")) return;
+    let next = templates.filter((item) => item.id !== id);
+    if (next.length > 0 && !next.some((item) => item.isDefault)) next = next.map((item, index) => ({ ...item, isDefault: index === 0 }));
+    persist(next);
+    if (editingId === id) { setEditingId(null); setName(""); setContent(defaultTemplateContent); }
+  };
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: "20px", alignItems: "start" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div style={row}><h3 style={{ margin: 0, color: "#1e3a8a" }}>Šablonai</h3><button type="button" style={secondary} onClick={() => { setEditingId(null); setName(""); setContent(defaultTemplateContent); }}>+ Naujas</button></div>
+        {templates.length === 0 ? <div style={{ ...card, padding: "14px" }}>Šablonų dar nėra.</div> : templates.map((template) => <div key={template.id} style={{ border: "1px solid #dbe3ef", borderRadius: "12px", padding: "14px", background: "#f8fafc" }}><div style={{ fontWeight: 700 }}>{template.name}</div><div style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>{template.isDefault ? "Numatytasis" : "Papildomas"}</div><div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}><button type="button" style={secondary} onClick={() => edit(template)}>Redaguoti</button><button type="button" style={secondary} onClick={() => makeDefault(template.id)}>Numatytasis</button><button type="button" style={danger} onClick={() => remove(template.id)}>Trinti</button></div></div>)}
+      </div>
+      <div style={card}><div style={row}><h3 style={{ margin: 0, color: "#1e3a8a" }}>{editingId ? "Redaguoti šabloną" : "Naujas šablonas"}</h3><button type="button" style={primary} onClick={save}>Išsaugoti šabloną</button></div><label style={label}>Pavadinimas</label><input style={input} value={name} onChange={(event) => setName(event.target.value)} /><label style={{ ...label, marginTop: "16px" }}>HTML turinys</label><textarea style={{ ...input, minHeight: "320px", resize: "vertical", fontFamily: "Consolas, monospace" }} value={content} onChange={(event) => setContent(event.target.value)} /></div>
+    </div>
+  );
+}
+export function Settings({ settings, saveSettings }) {
+  const [formData, setFormData] = useState(() => defaultSettings(settings));
+  const [section, setSection] = useState("company");
+  useEffect(() => setFormData(defaultSettings(settings)), [settings]);
+  const persist = (next = formData) => { const merged = defaultSettings(next); setFormData(merged); saveSettings(merged); window.alert("Nustatymai išsaugoti."); };
+  const uploadStamp = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try { const dataUrl = await readFileAsDataUrl(file); setFormData((prev) => ({ ...prev, companyStampSignature: dataUrl })); }
+    catch { window.alert("Nepavyko įkelti paveikslėlio."); }
+  };
+  return (
+    <div style={card}>
+      <div style={row}><h2 style={{ margin: 0, color: "#1e3a8a" }}>Nustatymai</h2></div>
+      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "20px" }}>
+        <button type="button" style={sectionButton(section === "company")} onClick={() => setSection("company")}>Įmonė</button>
+        <button type="button" style={sectionButton(section === "documents")} onClick={() => setSection("documents")}>Dokumentai</button>
+        <button type="button" style={sectionButton(section === "email")} onClick={() => setSection("email")}>El. paštas</button>
+        <button type="button" style={sectionButton(section === "templates")} onClick={() => setSection("templates")}>Šablonai</button>
+      </div>
+      {section === "company" && <div><div style={grid}><div><label style={label}>Aplinka</label><select style={input} value={formData.environment} onChange={(event) => setFormData((prev) => ({ ...prev, environment: event.target.value }))}><option value="test">Test / Demo</option><option value="production">Production / Reali</option></select></div><div><label style={label}>Pavadinimas</label><input style={input} value={formData.company.name} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, name: event.target.value } }))} /></div><div><label style={label}>Įmonės kodas</label><input style={input} value={formData.company.code} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, code: event.target.value } }))} /></div><div><label style={label}>PVM kodas</label><input style={input} value={formData.company.vat} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, vat: event.target.value } }))} /></div><div><label style={label}>Telefonas</label><input style={input} value={formData.company.phone} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, phone: event.target.value } }))} /></div><div><label style={label}>El. paštas</label><input style={input} type="email" value={formData.company.email} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, email: event.target.value } }))} /></div><div><label style={label}>Adresas</label><input style={input} value={formData.company.address} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, address: event.target.value } }))} /></div><div><label style={label}>Bankas</label><input style={input} value={formData.company.bank_name} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, bank_name: event.target.value } }))} /></div><div><label style={label}>Sąskaita</label><input style={input} value={formData.company.bank_account} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, bank_account: event.target.value } }))} /></div><div><label style={label}>SWIFT</label><input style={input} value={formData.company.swift} onChange={(event) => setFormData((prev) => ({ ...prev, company: { ...prev.company, swift: event.target.value } }))} /></div></div><div style={{ marginTop: "16px" }}><label style={label}>Įmonės antspaudas ir parašas</label><input type="file" accept="image/png,image/jpeg,image/jpg" onChange={uploadStamp} />{formData.companyStampSignature ? <div style={{ marginTop: "12px" }}><img src={formData.companyStampSignature} alt="Įmonės antspaudas" style={{ maxHeight: "120px", maxWidth: "220px", display: "block", borderRadius: "8px", border: "1px solid #cbd5e1" }} /><button type="button" style={{ ...danger, marginTop: "10px" }} onClick={() => setFormData((prev) => ({ ...prev, companyStampSignature: "" }))}>Pašalinti</button></div> : null}</div><div style={{ marginTop: "20px" }}><button type="button" style={primary} onClick={() => persist()}>Išsaugoti įmonės duomenis</button></div></div>}
+      {section === "documents" && <div><div style={grid}><div><label style={label}>Numeracijos formatas</label><input style={input} value={formData.documents.auto_numbering_format} onChange={(event) => setFormData((prev) => ({ ...prev, documents: { ...prev.documents, auto_numbering_format: event.target.value } }))} /></div><div><label style={label}>Numatytoji kalba</label><select style={input} value={formData.documents.default_language} onChange={(event) => setFormData((prev) => ({ ...prev, documents: { ...prev.documents, default_language: event.target.value } }))}><option value="lt">Lietuvių</option><option value="en">English</option><option value="pl">Polski</option></select></div></div><div style={{ marginTop: "16px" }}><label style={{ ...label, display: "flex", alignItems: "center", gap: "8px" }}><input type="checkbox" checked={formData.documents.show_vat} onChange={(event) => setFormData((prev) => ({ ...prev, documents: { ...prev.documents, show_vat: event.target.checked } }))} />Rodyti PVM dokumentuose</label></div><div style={{ marginTop: "16px" }}><label style={label}>Sąlygų tekstas</label><textarea style={{ ...input, minHeight: "180px", resize: "vertical" }} value={formData.documents.terms_lt} onChange={(event) => setFormData((prev) => ({ ...prev, documents: { ...prev.documents, terms_lt: event.target.value } }))} /></div><div style={{ marginTop: "20px" }}><button type="button" style={primary} onClick={() => persist()}>Išsaugoti dokumentų nustatymus</button></div></div>}
+      {section === "email" && <div><div style={grid}><div><label style={label}>Siuntėjo adresas</label><input style={input} type="email" value={formData.email.from_address} onChange={(event) => setFormData((prev) => ({ ...prev, email: { ...prev.email, from_address: event.target.value } }))} /></div><div><label style={label}>Siuntėjo vardas</label><input style={input} value={formData.email.from_name} onChange={(event) => setFormData((prev) => ({ ...prev, email: { ...prev.email, from_name: event.target.value } }))} /></div></div><div style={{ marginTop: "16px" }}><label style={{ ...label, display: "flex", alignItems: "center", gap: "8px" }}><input type="checkbox" checked={formData.email.auto_attach_pdf} onChange={(event) => setFormData((prev) => ({ ...prev, email: { ...prev.email, auto_attach_pdf: event.target.checked } }))} />Automatiškai prisegti PDF</label></div><div style={{ marginTop: "16px" }}><label style={label}>Visada CC</label><input style={input} value={formData.email.always_cc.join(", ")} onChange={(event) => setFormData((prev) => ({ ...prev, email: { ...prev.email, always_cc: event.target.value.split(",").map((item) => item.trim()).filter(Boolean) } }))} /></div><div style={{ marginTop: "20px" }}><button type="button" style={primary} onClick={() => persist()}>Išsaugoti el. pašto nustatymus</button></div></div>}
+      {section === "templates" && <TemplateManager settings={formData} saveSettings={(next) => { const merged = defaultSettings(next); setFormData(merged); saveSettings(merged); }} />}
+    </div>
+  );
+}
+export function Orders({ orders, saveOrders, clients, carriers, openModal }) {
+  const rows = useMemo(() => [...(Array.isArray(orders) ? orders : [])].sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0)), [orders]);
+  const remove = (id) => {
+    if (!window.confirm("Ar tikrai norite ištrinti šį užsakymą?")) return;
+    saveOrders(rows.filter((item) => item.id !== id));
+  };
+  return (
+    <div style={card}>
+      <div style={row}><h2 style={{ margin: 0, color: "#1e3a8a" }}>Užsakymai ({rows.length})</h2><button type="button" style={primary} onClick={() => openModal("order", null)}>+ Naujas užsakymas</button></div>
+      {rows.length === 0 ? <div style={{ color: "#64748b", fontSize: "16px" }}>Kol kas nėra užsakymų.</div> : <table style={table}><thead><tr><th style={th}>Užsakymo Nr.</th><th style={th}>Tipas</th><th style={th}>Klientas</th><th style={th}>Vežėjas</th><th style={th}>Maršrutas</th><th style={th}>Pakrovimas</th><th style={th}>Iškrovimas</th><th style={th}>Kliento kaina</th><th style={th}>Pelnas</th><th style={th}>Statusas</th><th style={th}>Veiksmai</th></tr></thead><tbody>{rows.map((order) => { const profit = Number(order.clientPrice || 0) - Number(order.carrierPrice || 0); return <tr key={order.id}><td style={td}><strong>{order.orderNumber || "-"}</strong></td><td style={td}>{order.orderType === "own_transport" ? "Nuosavas transportas" : "Perpardavimas vežėjui"}</td><td style={td}>{order.clientName || clients.find((item) => String(item.id) === String(order.clientId))?.name || "-"}</td><td style={td}>{order.carrierName || carriers.find((item) => String(item.id) === String(order.carrierId))?.name || "-"}</td><td style={td}>{order.route || "-"}</td><td style={td}>{order.loadingDate || "-"}</td><td style={td}>{order.unloadingDate || "-"}</td><td style={td}>{money(order.clientPrice)}</td><td style={td}>{order.orderType === "resale_to_carrier" ? money(profit) : "-"}</td><td style={td}><span style={pill(order.status)}>{order.status === "draft" ? "Juodraštis" : order.status === "generated" ? "Sugeneruotas" : "Aktyvus"}</span></td><td style={td}><div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}><button type="button" style={secondary} onClick={() => openModal("order", order)}>Redaguoti</button><button type="button" style={danger} onClick={() => remove(order.id)}>Trinti</button></div></td></tr>; })}</tbody></table>}
+    </div>
+  );
+}
+
+export function Modal({ type, initialData, onClose, clients, carriers, saveOrders, orders }) {
+  const [formData, setFormData] = useState(() => emptyOrder());
+  useEffect(() => {
+    if (type !== "order") return;
+    if (initialData) return setFormData({ ...emptyOrder(), ...initialData });
+    try { const stored = JSON.parse(localStorage.getItem("currentOrderDraftForm") || "null"); if (stored) return setFormData({ ...emptyOrder(), ...stored }); } catch {}
+    setFormData(emptyOrder());
+  }, [type, initialData]);
+  useEffect(() => { if (type === "order") localStorage.setItem("currentOrderDraftForm", JSON.stringify(formData)); }, [formData, type]);
+  if (type !== "order") return null;
+  const selectedClient = clients.find((item) => String(item.id) === String(formData.clientId));
+  const selectedCarrier = carriers.find((item) => String(item.id) === String(formData.carrierId));
+  const setField = (key, value) => setFormData((prev) => ({ ...prev, [key]: value }));
+  const upsert = (status) => {
+    if (!formData.clientId) return window.alert("Pasirinkite klientą.");
+    if (formData.orderType === "resale_to_carrier" && !formData.carrierId) return window.alert("Perpardavimui reikia pasirinkti vežėją.");
+    const payload = { ...formData, id: formData.id || Date.now(), orderNumber: formData.orderNumber || createOrderNumber(), status, clientName: selectedClient?.name || formData.clientName || "", carrierName: selectedCarrier?.name || formData.carrierName || "", clientPrice: normalizeMoney(formData.clientPrice), carrierPrice: normalizeMoney(formData.carrierPrice), updatedAt: new Date().toISOString(), createdAt: formData.createdAt || new Date().toISOString() };
+    const next = Array.isArray(orders) ? [...orders] : [];
+    const index = next.findIndex((item) => String(item.id) === String(payload.id));
+    if (index >= 0) next[index] = { ...next[index], ...payload }; else next.unshift(payload);
+    saveOrders(next);
+    localStorage.removeItem("currentOrderDraftForm");
+    setFormData(payload);
+    return payload;
+  };
+  const save = (event) => { event.preventDefault(); if (upsert("active")) onClose(); };
+  return (
+    <div style={overlay} onClick={onClose}><div style={modal} onClick={(event) => event.stopPropagation()}><div style={row}><h2 style={{ margin: 0, color: "#1e3a8a" }}>{initialData ? "Redaguoti užsakymą" : "Naujas užsakymas"}</h2><button type="button" style={secondary} onClick={onClose}>Uždaryti</button></div><form onSubmit={save}><div style={grid}><div><label style={label}>Užsakymo tipas</label><select style={input} value={formData.orderType} onChange={(event) => setField("orderType", event.target.value)}><option value="resale_to_carrier">Perpardavimas vežėjui</option><option value="own_transport">Nuosavas transportas</option></select></div><div><label style={label}>Užsakymo numeris</label><input style={input} value={formData.orderNumber || ""} onChange={(event) => setField("orderNumber", event.target.value)} placeholder={createOrderNumber()} /></div><div><label style={label}>Klientas</label><select style={input} value={formData.clientId} onChange={(event) => setField("clientId", event.target.value)}><option value="">Pasirinkite klientą</option>{clients.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div><div><label style={label}>Vežėjas</label><select style={input} value={formData.carrierId} onChange={(event) => setField("carrierId", event.target.value)} disabled={formData.orderType !== "resale_to_carrier"}><option value="">Pasirinkite vežėją</option>{carriers.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div><div><label style={label}>Krovinys</label><input style={input} value={formData.cargo} onChange={(event) => setField("cargo", event.target.value)} /></div><div><label style={label}>Maršrutas</label><input style={input} value={formData.route} onChange={(event) => setField("route", event.target.value)} /></div><div><label style={label}>Pakrovimo data</label><input type="date" style={input} value={formData.loadingDate} onChange={(event) => setField("loadingDate", event.target.value)} /></div><div><label style={label}>Iškrovimo data</label><input type="date" style={input} value={formData.unloadingDate} onChange={(event) => setField("unloadingDate", event.target.value)} /></div><div><label style={label}>Kliento kaina</label><input type="number" style={input} value={formData.clientPrice} onChange={(event) => setField("clientPrice", event.target.value)} /></div><div><label style={label}>Vežėjo kaina</label><input type="number" style={input} value={formData.carrierPrice} onChange={(event) => setField("carrierPrice", event.target.value)} disabled={formData.orderType !== "resale_to_carrier"} /></div></div><div style={{ marginTop: "16px" }}><label style={label}>Pastabos</label><textarea style={{ ...input, minHeight: "140px", resize: "vertical" }} value={formData.notes} onChange={(event) => setField("notes", event.target.value)} /></div><div style={{ marginTop: "16px", color: "#64748b", fontSize: "13px" }}>Klientas: <strong>{selectedClient?.name || "-"}</strong>{formData.orderType === "resale_to_carrier" ? <> | Vežėjas: <strong>{selectedCarrier?.name || "-"}</strong></> : null}</div><div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "24px", flexWrap: "wrap" }}><button type="button" style={secondary} onClick={() => { if (upsert("draft")) onClose(); }}>Išsaugoti kaip juodraštį</button><button type="button" style={secondary} onClick={onClose}>Atšaukti</button><button type="submit" style={primary}>Išsaugoti užsakymą</button></div></form></div></div>
+  );
+}
