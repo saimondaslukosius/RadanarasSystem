@@ -1,4 +1,4 @@
-﻿require("dotenv").config({ override: true });
+require("dotenv").config({ override: true });
 
 const express = require("express");
 const cors = require("cors");
@@ -13,21 +13,23 @@ const LicenseExtractorCLI = require("./cli_license_extractor");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 
 const dataRoot = path.join(__dirname, "data");
 const dataFiles = {
   clients: path.join(dataRoot, "clients.json"),
   carriers: path.join(dataRoot, "carriers.json"),
   orders: path.join(dataRoot, "orders.json"),
-  settings: path.join(dataRoot, "settings.json")
+  settings: path.join(dataRoot, "settings.json"),
+  imports: path.join(dataRoot, "imports.json")
 };
 
 const dataDefaults = {
   clients: [],
   carriers: [],
   orders: [],
-  settings: {}
+  settings: {},
+  imports: []
 };
 
 function ensureJsonStorage() {
@@ -199,7 +201,8 @@ app.get("/api/data", (req, res) => {
       clients: readDataBucket("clients"),
       carriers: readDataBucket("carriers"),
       orders: readDataBucket("orders"),
-      settings: readDataBucket("settings")
+      settings: readDataBucket("settings"),
+      imports: readDataBucket("imports")
     });
   } catch (error) {
     console.error(error);
@@ -234,6 +237,179 @@ app.put("/api/data/:bucket", (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to save app data" });
+  }
+});
+
+// ── Sub-resource helpers ──────────────────────────────────────────────────────
+
+function getCarrierSubArray(carrierId, field) {
+  const carriers = readDataBucket("carriers");
+  const carrier = carriers.find(c => String(c.id) === String(carrierId));
+  if (!carrier) return null;
+  return Array.isArray(carrier[field]) ? carrier[field] : [];
+}
+
+function addToCarrierSubArray(carrierId, field, item) {
+  const carriers = readDataBucket("carriers");
+  const idx = carriers.findIndex(c => String(c.id) === String(carrierId));
+  if (idx === -1) return null;
+  const newItem = { ...item, id: Date.now() };
+  const updatedCarrier = {
+    ...carriers[idx],
+    [field]: [...(Array.isArray(carriers[idx][field]) ? carriers[idx][field] : []), newItem]
+  };
+  const updated = carriers.map((c, i) => i === idx ? updatedCarrier : c);
+  writeDataBucket("carriers", updated);
+  return { carrier: updatedCarrier, item: newItem };
+}
+
+function removeFromCarrierSubArray(carrierId, field, itemId) {
+  const carriers = readDataBucket("carriers");
+  const idx = carriers.findIndex(c => String(c.id) === String(carrierId));
+  if (idx === -1) return null;
+  const updatedCarrier = {
+    ...carriers[idx],
+    [field]: (Array.isArray(carriers[idx][field]) ? carriers[idx][field] : []).filter(x => String(x.id) !== String(itemId))
+  };
+  const updated = carriers.map((c, i) => i === idx ? updatedCarrier : c);
+  writeDataBucket("carriers", updated);
+  return { carrier: updatedCarrier };
+}
+
+function getClientSubArray(clientId, field) {
+  const clients = readDataBucket("clients");
+  const client = clients.find(c => String(c.id) === String(clientId));
+  if (!client) return null;
+  return Array.isArray(client[field]) ? client[field] : [];
+}
+
+function addToClientSubArray(clientId, field, item) {
+  const clients = readDataBucket("clients");
+  const idx = clients.findIndex(c => String(c.id) === String(clientId));
+  if (idx === -1) return null;
+  const newItem = { ...item, id: Date.now() };
+  const updatedClient = {
+    ...clients[idx],
+    [field]: [...(Array.isArray(clients[idx][field]) ? clients[idx][field] : []), newItem]
+  };
+  const updated = clients.map((c, i) => i === idx ? updatedClient : c);
+  writeDataBucket("clients", updated);
+  return { client: updatedClient, item: newItem };
+}
+
+function removeFromClientSubArray(clientId, field, itemId) {
+  const clients = readDataBucket("clients");
+  const idx = clients.findIndex(c => String(c.id) === String(clientId));
+  if (idx === -1) return null;
+  const updatedClient = {
+    ...clients[idx],
+    [field]: (Array.isArray(clients[idx][field]) ? clients[idx][field] : []).filter(x => String(x.id) !== String(itemId))
+  };
+  const updated = clients.map((c, i) => i === idx ? updatedClient : c);
+  writeDataBucket("clients", updated);
+  return { client: updatedClient };
+}
+
+// ── Carrier sub-resource endpoints ───────────────────────────────────────────
+
+// Managers (managerContacts)
+app.get("/api/carriers/:id/managers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "managerContacts");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/managers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "managerContacts", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/managers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "managerContacts", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Drivers
+app.get("/api/carriers/:id/drivers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "drivers");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/drivers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "drivers", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/drivers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "drivers", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Trucks
+app.get("/api/carriers/:id/trucks", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "trucks");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/trucks", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "trucks", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/trucks/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "trucks", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Trailers
+app.get("/api/carriers/:id/trailers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "trailers");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/trailers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "trailers", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/trailers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "trailers", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// ── Client sub-resource endpoints ────────────────────────────────────────────
+
+app.get("/api/clients/:id/contacts", (req, res) => {
+  const arr = getClientSubArray(req.params.id, "contacts");
+  if (arr === null) return res.status(404).json({ error: "Client not found" });
+  res.json(arr);
+});
+app.post("/api/clients/:id/contacts", (req, res) => {
+  const result = addToClientSubArray(req.params.id, "contacts", req.body);
+  if (!result) return res.status(404).json({ error: "Client not found" });
+  res.json({ ok: true, item: result.item, client: result.client });
+});
+app.delete("/api/clients/:id/contacts/:itemId", (req, res) => {
+  const result = removeFromClientSubArray(req.params.id, "contacts", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Client not found" });
+  res.json({ ok: true, client: result.client });
+});
+
+// ── Email ────────────────────────────────────────────────────────────────────
+const { sendOrderToCarrier } = require("./emailService");
+
+app.post("/api/email/send-order", async (req, res) => {
+  try {
+    const { orderId, documentHtml, toEmail } = req.body;
+    if (!orderId) return res.status(400).json({ success: false, message: "orderId būtinas." });
+    const result = await sendOrderToCarrier({ orderId, documentHtml, toEmail });
+    res.json(result);
+  } catch (err) {
+    console.error("Email send error:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -361,4 +537,7 @@ app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
 app.listen(3001, () => {
   console.log("Server started on http://localhost:3001");
 });
+
+
+
 

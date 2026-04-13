@@ -1,81 +1,20 @@
 [
   {
-    "id": "CR20260407181241",
-    "name": "TEst vežėjas",
-    "carrierType": "Vežėjas",
-    "companyCode": "256481",
-    "vatCode": "LT20256547892",
-    "email": "info@testvežejas.com",
-    "phone": "+370654782",
-    "address": "",
-    "website": "",
-    "managerContacts": [],
-    "documentContacts": [
-      {
-        "id": 1,
-        "title": "Administracija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 2,
-        "title": "Buhalterija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 3,
-        "title": "Klientų aptarnavimas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 4,
-        "title": "Personalas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 5,
-        "title": "Krovinių gabenimas",
-        "phone": "",
-        "email": ""
-      }
-    ],
-    "documents": [
-      {
-        "id": 1,
-        "title": "CMR draudimas",
-        "number": "",
-        "validUntil": "",
-        "link": ""
-      },
-      {
-        "id": 2,
-        "title": "Transporto licencija",
-        "number": "",
-        "validUntil": "",
-        "link": ""
-      }
-    ],
-    "notes": ""
-  },
-  {
-    "id": "CR20260407173442",
-    "name": " Tralveža, MB",
+    "id": "CR20260402013001",
+    "name": "Tralveža, MB",
     "carrierType": "Vežėjas",
     "companyCode": "305653321",
     "vatCode": "LT100013654011",
-    "email": "info@tralveza.com",
+    "email": "Info@tralveza.com",
     "phone": "+370 644 46543",
-    "address": "Vinco Žilionio g. 3, Vidgirių k., LT-69330 Marijampolė",
-    "website": "",
+    "address": "Vinco Žilionio g. 3, Vidgirių k., LT-69330",
+    "website": "www.tralveza.com",
     "managerContacts": [
       {
         "id": 1,
-        "name": "MIndaugas Mickus",
-        "position": "Direktorius",
-        "email": "info@tralveza.com",
+        "name": "Mindaugas Mickus ",
+        "position": "Direktorius ",
+        "email": "Info@tralveza.com",
         "phone": "+370 644 46543"
       }
     ],
@@ -117,7 +56,7 @@
         "title": "CMR draudimas",
         "number": "02092025GK",
         "validUntil": "2026-08-24",
-        "link": "http://localhost:3001/uploads/carrier/CR20260407173442/1775576720393-Evidence_of_cover.pdf",
+        "link": "http://localhost:3001/uploads/carrier/CR20260402013001/1775087512239-Evidence_of_cover.pdf",
         "fileName": "Evidence of cover.pdf"
       },
       {
@@ -125,10 +64,3686 @@
         "title": "Transporto licencija",
         "number": "LIC-008252-EBKR",
         "validUntil": "2031-03-05",
-        "link": "http://localhost:3001/uploads/carrier/CR20260407173442/1775576673618-MB_TralveA_3_4a_Licencija_230907_103733.pdf",
+        "link": "http://localhost:3001/uploads/carrier/CR20260402013001/1775087493934-MB_TralveA_3_4a_Licencija_230907_103733.pdf",
         "fileName": "MB,,Tralveža'' Licencija_230907_103733.pdf"
       }
     ],
-    "notes": ""
+    "notes": "",
+    "trucks": [
+      {
+        "licensePlate": "ABS236",
+        "model": "",
+        "year": "",
+        "id": 1775938358754
+      }
+    ],
+    "trailers": [
+      {
+        "licensePlate": "MNO458",
+        "model": "",
+        "year": "",
+        "id": 1775938372099
+      }
+    ]
+  },
+  {
+    "id": "CR20260401204606",
+    "name": "Radanaras MB",
+    "carrierType": "Nuosavas transportas",
+    "companyCode": "305779537",
+    "vatCode": "LT100014108415",
+    "email": "info@radanaras.com",
+    "phone": "+370 630 21971",
+    "address": "Klevų g. 9, Valavičių k., LT-69331 Marijampolė",
+    "website": " http://www.radanaras.com",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "Edgaras Mickus ",
+        "position": "Direktorius ",
+        "email": "Edgarasmickus@radanaras.com ",
+        "phone": "+370 630 21971"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "+37063841350",
+        "email": "mbradanaras@gmail.com"
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "525134",
+        "validUntil": "2026-09-07",
+        "link": "http://localhost:3001/uploads/carrier/CR20260401204606/1775085956464-20250907_CMR_certificate_RadanarasMB-1.pdf",
+        "fileName": "20250907 CMR certificate RadanarasMB-1.pdf"
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "LIC-008604-EBKR",
+        "validUntil": "2031-07-23",
+        "link": "http://localhost:3001/uploads/carrier/CR20260401204606/1775085930338-Radanaras_MB_License_for_International_Road_Freight_Transport.pdf",
+        "fileName": "Radanaras_MB_License_for_International_Road_Freight_Transport.pdf"
+      }
+    ],
+    "notes": "",
+    "country": "",
+    "drivers": [
+      {
+        "id": 1775937718340,
+        "name": "Egidijus Matusevičius",
+        "phone": "+370 685 31762",
+        "licenseNumber": ""
+      },
+      {
+        "id": 1775937754302,
+        "name": "Audrius Tarasevičius",
+        "phone": "+370 639 35837",
+        "licenseNumber": "14892994"
+      },
+      {
+        "id": 1775937846748,
+        "name": "Mindaugas Regelskas",
+        "phone": "+37068512698",
+        "licenseNumber": ""
+      }
+    ],
+    "trucks": [
+      {
+        "id": 1775937888141,
+        "licensePlate": "NFK744",
+        "model": "",
+        "year": "0"
+      }
+    ],
+    "trailers": []
+  },
+  {
+    "id": "IMP1775684103422",
+    "name": "Antralita, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304959322",
+    "vatCode": "LT100012032612",
+    "email": "\"\"svajunas.n@gmail.com\"\"",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas"
+  },
+  {
+    "id": "IMP1775684103424",
+    "name": "Artitransa, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305450883",
+    "vatCode": "LT100013027319",
+    "email": "\"\"Arturasauto22@gmail.com\"\"",
+    "phone": "",
+    "address": "Vilkaviðkis, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilkaviðkis.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilkaviðkis"
+  },
+  {
+    "id": "IMP1775684103428",
+    "name": "Auto Transferbaltic UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "302492553",
+    "vatCode": "LT100005293911",
+    "email": "\"\"Info@autotransfer.lt\"\"",
+    "phone": "",
+    "address": "Ðiauliai, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Rokas Danielaitis   \"\"",
+        "position": "",
+        "email": "\"\"Info@autotransfer.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Ðiauliai.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Ðiauliai"
+  },
+  {
+    "id": "IMP1775684103429",
+    "name": "Autoeda, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304434495",
+    "vatCode": "LT100015464410",
+    "email": "",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius"
+  },
+  {
+    "id": "IMP1775684103434",
+    "name": "Avdëjus, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306241694",
+    "vatCode": "LT100015926319",
+    "email": "\"\"antanas.karaza@gmail.com\"\"",
+    "phone": "",
+    "address": "Ukmergë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius AAntanas Karaþantanas  antanas.karaza@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"antanas.karaza@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Ukmergë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Ukmergë"
+  },
+  {
+    "id": "IMP1775684103436",
+    "name": "BARTOLA EXPRESS RAFAÙ BIELSKI",
+    "carrierType": "Vežėjas",
+    "companyCode": "451091269",
+    "vatCode": "PL5461210815",
+    "email": "\"\"bartolaexpress@gmail.com\"\"",
+    "phone": "\"\"+48 733 003 959\"\"",
+    "address": "Koùodzieý, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Koùodzieý.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Koùodzieý"
+  },
+  {
+    "id": "IMP1775684103450",
+    "name": "Cartop, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306661335",
+    "vatCode": "LT100016733718",
+    "email": "",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas"
+  },
+  {
+    "id": "IMP1775684103456",
+    "name": "Daliaus Miliausko ind.veikla",
+    "carrierType": "Vežėjas",
+    "companyCode": "471296",
+    "vatCode": "LT100001507512",
+    "email": "\"\"mantas.kriauciunas1@gmail.com\"\"",
+    "phone": "",
+    "address": "Liudvinavas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Mantas +37067927975 mantas.kriauciunas1@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"mantas.kriauciunas1@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Liudvinavas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Liudvinavas"
+  },
+  {
+    "id": "IMP1775684103459",
+    "name": "DanKes Trans, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304724776",
+    "vatCode": "LT100011371516",
+    "email": "\"\"dankestrans@gmail.com\"\"",
+    "phone": "",
+    "address": "Kazlø Rûda, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Dangiras Bielys   telegram\"\"",
+        "position": "",
+        "email": "\"\"dankestrans@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kazlø Rûda.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kazlø Rûda"
+  },
+  {
+    "id": "IMP1775684103465",
+    "name": "DMI TRANS I K E",
+    "carrierType": "Vežėjas",
+    "companyCode": "DMI TRANS I K E",
+    "vatCode": "EL802045353",
+    "email": "\"\"dmitranspc@gmail.com\"\"",
+    "phone": "",
+    "address": "??????, Graikija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Alex   \"\"",
+        "position": "",
+        "email": "\"\"dmitranspc@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Graikija. Miestas: ??????.",
+    "_importSource": "InfoTrans",
+    "_country": "Graikija",
+    "_city": "??????"
+  },
+  {
+    "id": "IMP1775684103467",
+    "name": "Dolausa, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304784969",
+    "vatCode": "LT100013478218",
+    "email": "\"\"dolausa.lt@gmail.com\"\"",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Laurynas Èeikauskas  dolausa.lt@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"dolausa.lt@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas"
+  },
+  {
+    "id": "IMP1775684103468",
+    "name": "Donlina, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306163181",
+    "vatCode": "LT100015380813",
+    "email": "\"\"uabdonlina@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Donatas   telegram\"\"",
+        "position": "",
+        "email": "\"\"uabdonlina@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103476",
+    "name": "Evagardas, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305227898",
+    "vatCode": "LT100012649017",
+    "email": "\"\"evaldasbautrenas1986@gmail.com\"\"",
+    "phone": "",
+    "address": "Kalvarija, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kalvarija"
+  },
+  {
+    "id": "IMP1775684103479",
+    "name": "Fast Way LT, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304699853",
+    "vatCode": "LT100011223419",
+    "email": "\"\"dispo@fastwaygroup.eu\"\"",
+    "phone": "\"\"+37060560017\"\"",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas"
+  },
+  {
+    "id": "IMP1775684103480",
+    "name": "FAST WAY PL Sp. z o.o.",
+    "carrierType": "Vežėjas",
+    "companyCode": "383490852",
+    "vatCode": "PL8442366162",
+    "email": "\"\"dispo@fastwaygroup.eu\"\"",
+    "phone": "",
+    "address": "Puñsk, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Vadybininkë Jolanta   \"\"",
+        "position": "",
+        "email": "\"\"dispo@fastwaygroup.eu\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Puñsk.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Puñsk"
+  },
+  {
+    "id": "IMP1775684103481",
+    "name": "Fintransa, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305971772",
+    "vatCode": "LT100014674617",
+    "email": "\"\"info@fintransa.lt\"\"",
+    "phone": "\"\"+370 640 01061\"\"",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Tomas Ðukys  info@fintransa.lt \"\"",
+        "position": "",
+        "email": "\"\"info@fintransa.lt\"\"",
+        "phone": "\"\"+370 640 01061\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas"
+  },
+  {
+    "id": "IMP1775684103485",
+    "name": "Frigotransa, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304084917",
+    "vatCode": "LT100010825519",
+    "email": "\"\"Frigotransa@gmail.com\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Aloiz Simanoviè  Frigotransa@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"Frigotransa@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius"
+  },
+  {
+    "id": "IMP1775684103486",
+    "name": "Gadet, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305422019",
+    "vatCode": "LT100013172916",
+    "email": "\"\"traliukas500@gmail.com\"\"",
+    "phone": "",
+    "address": "Klaipëda, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Gintaras Laureckis  traliukas500@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"traliukas500@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Klaipëda.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Klaipëda"
+  },
+  {
+    "id": "IMP1775684103489",
+    "name": "Gindaista, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "151254172",
+    "vatCode": "LT512541716",
+    "email": "\"\"stanaitiss@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103490",
+    "name": "Ginerda, IÁ",
+    "carrierType": "Vežėjas",
+    "companyCode": "302466640",
+    "vatCode": "LT100005068918",
+    "email": "\"\"Ginerda@gmail.com\"\"",
+    "phone": "\"\"+37065216853\"\"",
+    "address": "Vilkaviðkis, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilkaviðkis.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilkaviðkis"
+  },
+  {
+    "id": "IMP1775684103493",
+    "name": "Godmanta, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305839190",
+    "vatCode": "LT100014252217",
+    "email": "\"\"mbgodmanta@gmail.com\"\"",
+    "phone": "",
+    "address": "Kalvarija, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Mantas  Vaitkevièius  mbgodmanta@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"mbgodmanta@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kalvarija"
+  },
+  {
+    "id": "IMP1775684103502",
+    "name": "Interautos, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304469578",
+    "vatCode": "LT100010748118",
+    "email": "\"\"info@interautos.eu\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Povilas Margelevièius  info@interautos.eu \"\"",
+        "position": "",
+        "email": "\"\"info@interautos.eu\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103507",
+    "name": "Kamilë, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "133470250",
+    "vatCode": "LT334702515",
+    "email": "",
+    "phone": "",
+    "address": "Karmëlava, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Karmëlava.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Karmëlava"
+  },
+  {
+    "id": "IMP1775684103514",
+    "name": "Liamas, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306390243",
+    "vatCode": "LT100016270811",
+    "email": "\"\"info@liamas.lt\"\"",
+    "phone": "",
+    "address": "Tauragë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Vairas /savininkas Þydrûnas Maslauskas  info@liamas.lt \"\"",
+        "position": "",
+        "email": "\"\"info@liamas.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Tauragë"
+  },
+  {
+    "id": "IMP1775684103518",
+    "name": "Lumbeva UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304181273",
+    "vatCode": "LT100014220118",
+    "email": "",
+    "phone": "",
+    "address": "Alytus, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Lukas Urbonavièius   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Alytus.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Alytus"
+  },
+  {
+    "id": "IMP1775684103520",
+    "name": "Mabos transportas, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304279408",
+    "vatCode": "LT100010248015",
+    "email": "\"\"mabostransportas@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vairuotojas /savininkas Marius  Ðafranauskas   \"\"",
+        "position": "",
+        "email": "\"\"mabostransportas@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103521",
+    "name": "Mangida, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304403304",
+    "vatCode": "LT100010461711",
+    "email": "\"\"uabmangida@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Robertas Marcinkevièius  uabmangida@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"uabmangida@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103530",
+    "name": "Mdtransa, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305558396",
+    "vatCode": "LT100016078511",
+    "email": "\"\"mdtransltd@yahoo.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103531",
+    "name": "Mechanas, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304953515",
+    "vatCode": "LT100014379810",
+    "email": "\"\"Maciulaitislukass@gmail.com\"\"",
+    "phone": "",
+    "address": "Prienai, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Prienai.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Prienai"
+  },
+  {
+    "id": "IMP1775684103533",
+    "name": "Mikauta, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "300610490",
+    "vatCode": "LT100002695110",
+    "email": "\"\"aurimas.mikolaitis@gmail.com\"\"",
+    "phone": "",
+    "address": "Këdainiai, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Aurimas Mikolaitis  aurimas.mikolaitis@gmail.com telegram\"\"",
+        "position": "",
+        "email": "\"\"aurimas.mikolaitis@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Këdainiai.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Këdainiai"
+  },
+  {
+    "id": "IMP1775684103534",
+    "name": "Mini paslauga, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "302892654",
+    "vatCode": "LT100009547212",
+    "email": "\"\"minipaslauga@gmail.com\"\"",
+    "phone": "\"\"+37060185495\"\"",
+    "address": "Tauragë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Vadybininkë Jolita Gerulienë   \"\"",
+        "position": "",
+        "email": "\"\"minipaslauga@gmail.com\"\"",
+        "phone": "\"\"+37060185495\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Tauragë"
+  },
+  {
+    "id": "IMP1775684103544",
+    "name": "On Time Logistics, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "302337873",
+    "vatCode": "LT100005122613",
+    "email": "\"\"dainius@ontime.lt\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius"
+  },
+  {
+    "id": "IMP1775684103546",
+    "name": "OT Autotransport, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306668358",
+    "vatCode": "LT100016626910",
+    "email": "\"\"otautotransport@gmail.com\"\"",
+    "phone": "",
+    "address": "Prienai, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Osvaldas Virbickas  otautotransport@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"otautotransport@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Prienai.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Prienai"
+  },
+  {
+    "id": "IMP1775684103558",
+    "name": "Rytva, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "303005938",
+    "vatCode": "LT100007521914",
+    "email": "\"\"Transport@rytva.lt\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103559",
+    "name": "Salvikdus, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "166061318",
+    "vatCode": "LT660613113",
+    "email": "",
+    "phone": "",
+    "address": "Kalvarija, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Transporto vadybininkas Evaldas  Petrauskas  evaldas@salvikdus.lt direktorius Saulius Dulinskas",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kalvarija"
+  },
+  {
+    "id": "IMP1775684103565",
+    "name": "Skorpionas, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "132714417",
+    "vatCode": "LT327144113",
+    "email": "\"\"skinkyskestutis@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Kestutis Skinkys  skinkyskestutis@gmail.com \"\"",
+        "position": "",
+        "email": "\"\"skinkyskestutis@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë"
+  },
+  {
+    "id": "IMP1775684103578",
+    "name": "Transandreja, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "303444999",
+    "vatCode": "LT100008959710",
+    "email": "\"\"transandreja@gmail.com\"\"",
+    "phone": "",
+    "address": "Prienai, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Prienai.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Prienai",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103582",
+    "name": "Translis, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "303166425",
+    "vatCode": "LT100008088616",
+    "email": "\"\"raimisauto1@gmail.com\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Aivaras   \"\"",
+        "position": "",
+        "email": "\"\"raimisauto1@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103583",
+    "name": "Transpaula, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "304114755",
+    "vatCode": "LT100009743818",
+    "email": "\"\"Paidelis999@gmail.com\"\"",
+    "phone": "",
+    "address": "Jurbarkas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Jurbarkas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Jurbarkas",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103589",
+    "name": "UAB Frostis",
+    "carrierType": "Vežėjas",
+    "companyCode": "304918425",
+    "vatCode": "LT100011908914",
+    "email": "",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadyba Karolis Bareika   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103590",
+    "name": "UAB Lusona",
+    "carrierType": "Vežėjas",
+    "companyCode": "302889957",
+    "vatCode": "LT100009097015",
+    "email": "\"\"uablusona@gmail.com\"\"",
+    "phone": "\"\"+37068223848\"\"",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Rytis Tamoðiûnas  uablusona@gmail.com telegram\"\"",
+        "position": "",
+        "email": "\"\"uablusona@gmail.com\"\"",
+        "phone": "\"\"+37068223848\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103591",
+    "name": "UAB Notis LT",
+    "carrierType": "Vežėjas",
+    "companyCode": "302765297",
+    "vatCode": "LT100006801913",
+    "email": "\"\"auto@notis.lt\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103592",
+    "name": "UAB Royal Tourism",
+    "carrierType": "Vežėjas",
+    "companyCode": "302426005",
+    "vatCode": "LT100005339913",
+    "email": "\"\"ramunastour@gmail.com\"\"",
+    "phone": "\"\"+37044579212\"\"",
+    "address": "Palanga, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Ramunas Jazdauskas  ramunastour@gmail.com telegram\"\"",
+        "position": "",
+        "email": "\"\"ramunastour@gmail.com\"\"",
+        "phone": "\"\"+37044579212\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Palanga.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Palanga",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103593",
+    "name": "UAB VOITERA",
+    "carrierType": "Vežėjas",
+    "companyCode": "304537495",
+    "vatCode": "LT100010970016",
+    "email": "\"\"9927199@gmail.com\"\"",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"direktorius Rokas Stancikas   \"\"",
+        "position": "",
+        "email": "\"\"9927199@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103594",
+    "name": "Unitralija, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "303416512",
+    "vatCode": "LT100010122217",
+    "email": "\"\"unitralija@gmail.com\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Erika Labanoviè   telegram\"\"",
+        "position": "",
+        "email": "\"\"unitralija@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103598",
+    "name": "VIP LOGISTICS, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "302426496",
+    "vatCode": "LT100004864113",
+    "email": "\"\"rolandas@viplogistics.eu\"\"",
+    "phone": "\"\"+37052602122\"\"",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Rolandas Ercius  rolandas@viplogistics.eu \"\"",
+        "position": "",
+        "email": "\"\"rolandas@viplogistics.eu\"\"",
+        "phone": "\"\"+37052602122\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "country": "Lietuva"
+  },
+  {
+    "id": "IMP1775684103421",
+    "name": "ANGLIJOS KELIASMB",
+    "carrierType": "Vežėjas",
+    "companyCode": "305567210",
+    "vatCode": "LT100013440019",
+    "email": "\"\"anglijoskelias@gmail.com\"\"",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "country": "Lietuva"
   }
 ]

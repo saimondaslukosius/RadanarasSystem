@@ -1,1 +1,3574 @@
-[]
+[
+  {
+    "id": "CL20260404001700",
+    "name": "Veho Lietuva, UAB Mercedes-Benz",
+    "clientType": "Tiesioginis klientas",
+    "companyCode": "111748996",
+    "vatCode": "LT117489917",
+    "email": "",
+    "phone": "+37065003373",
+    "address": "Pirklių g. 9, LT-02300 Vilnius ",
+    "website": " http://www.veho.lt",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Justė Žironaitė ",
+        "position": "Pardavimo palaikymo specelistė  Baltijos šalims",
+        "email": "juste.zironaite@veho.lt",
+        "phone": "+37068782955"
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "country": "Lietuva"
+  },
+  {
+    "id": "CL20260401183406",
+    "name": "Delamode Baltics, UAB",
+    "companyCode": "300614485",
+    "vatCode": "LT100002783011",
+    "email": "admin.lt@delamode-group.com",
+    "phone": "+370 618 82931",
+    "address": "Naugarduko g. 98, \tVilnius, \tLT 03160, \tLithuania",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Vytautas Maziliauskas ",
+        "position": "Pardavimų vadovas",
+        "email": "vytautas.maziliauskas@delamode-group.com",
+        "phone": "+370 618 75829"
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "clientType": "Ekspeditorius",
+    "website": " http://www.delamode-baltics.com"
+  },
+  {
+    "id": "IMP1775684103597",
+    "name": "Vin Motors, UAB",
+    "companyCode": "306292105",
+    "vatCode": "LT100016043317",
+    "email": "\"\"ernestas@vinmotors.lt\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Tiesioginis klientas",
+    "contacts": [],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103430",
+    "name": "AUTOLINK POLAND SP. Z O.O.",
+    "companyCode": "0001038563",
+    "vatCode": "PL7011147236",
+    "email": "\"\"info@autolink.pl\"\"",
+    "phone": "",
+    "address": "Warszawa, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Freight Forwarder Mikoùaj Narloch  mikolaj.narloch@autolink.pl \"\"",
+        "position": "",
+        "email": "\"\"info@autolink.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Warszawa.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Warszawa",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Freight Forwarder Mikoùaj Narloch  mikolaj.narloch@autolink.pl \"\"",
+        "position": "",
+        "email": "\"\"info@autolink.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103463",
+    "name": "Deltra, UAB",
+    "companyCode": "300132407",
+    "vatCode": "LT100001886814",
+    "email": "",
+    "phone": "\"\"+37068560522\"\"",
+    "address": "Ukmergë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Transport management Edvinas Kelbauskas +37068555117 transport3@deltra.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37068560522\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Ukmergë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Ukmergë",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Transport management Edvinas Kelbauskas +37068555117 transport3@deltra.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37068560522\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103466",
+    "name": "Dolama, UAB",
+    "companyCode": "303106467",
+    "vatCode": "LT100007903911",
+    "email": "",
+    "phone": "",
+    "address": "Klaipëda, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"transporto vadybininkas Þymantas Butkus  zymantas@dolama.lt Direktorius Domantas Butkus   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Klaipëda.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Klaipëda",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"transporto vadybininkas Þymantas Butkus  zymantas@dolama.lt Direktorius Domantas Butkus   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103469",
+    "name": "Dpmotors, UAB",
+    "companyCode": "306064607",
+    "vatCode": "LT100014907317",
+    "email": "\"\"info@dpmotors.lt\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"direktorius Dominykas Papreckis  info@dpmotors.lt \"\"",
+        "position": "",
+        "email": "\"\"info@dpmotors.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"direktorius Dominykas Papreckis  info@dpmotors.lt \"\"",
+        "position": "",
+        "email": "\"\"info@dpmotors.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103482",
+    "name": "Focus Logistics, UAB",
+    "companyCode": "305230944",
+    "vatCode": "LT100012622018",
+    "email": "",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics manager Aiste Udrenaite  planning@focus-logistics.eu Logistics manager Nerijus Lisanka",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics manager Aiste Udrenaite  planning@focus-logistics.eu Logistics manager Nerijus Lisanka",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103487",
+    "name": "GBY UAB",
+    "companyCode": "179435940",
+    "vatCode": "LT794359418",
+    "email": "",
+    "phone": "",
+    "address": "Tauragë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Pirkimø vadybininkas / Purchase manager Gytis Petkevièius  g.petkevicius@gby.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Tauragë",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Pirkimø vadybininkas / Purchase manager Gytis Petkevièius  g.petkevicius@gby.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103488",
+    "name": "GEFCO Deutschland GmbH",
+    "companyCode": "HRB 52157 Mainz",
+    "vatCode": "DE811122082",
+    "email": "",
+    "phone": "",
+    "address": "Frankfurt am Main, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disponent Robert EICHEL  robert.eichel@cevalogistics.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Frankfurt am Main.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Frankfurt am Main",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disponent Robert EICHEL  robert.eichel@cevalogistics.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103497",
+    "name": "Hegelmann Autotransporte UAB",
+    "companyCode": "305568981",
+    "vatCode": "LT100013357017",
+    "email": "",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Freight forwarding manager assistant Freight Forwarding Department Deividas Slepikas +37065752365",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Freight forwarding manager assistant Freight Forwarding Department Deividas Slepikas +37065752365",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103498",
+    "name": "Hegelmann Multimodal UAB",
+    "companyCode": "305594378",
+    "vatCode": "LT100013305912",
+    "email": "",
+    "phone": "\"\"+37037308983\"\"",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Sales Manager Deividas Kaklauskas +37037302409 dkaklauskas@hegelmann.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37037308983\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Sales Manager Deividas Kaklauskas +37037302409 dkaklauskas@hegelmann.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37037308983\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103500",
+    "name": "Ibiza-Speed Sp. z o.o.",
+    "companyCode": "0000627470",
+    "vatCode": "PL0000627470",
+    "email": "\"\"biuro@ibiza-speed.pl\"\"",
+    "phone": "",
+    "address": "Wolsztyn, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Nicefor   vadybininkas Remigiusz Krysiak   \"\"",
+        "position": "",
+        "email": "\"\"biuro@ibiza-speed.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Wolsztyn.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Wolsztyn",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Nicefor   vadybininkas Remigiusz Krysiak   \"\"",
+        "position": "",
+        "email": "\"\"biuro@ibiza-speed.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103511",
+    "name": "KURBADS un Ko",
+    "companyCode": "50003264331",
+    "vatCode": "LV50003264331",
+    "email": "",
+    "phone": "",
+    "address": "Rîga, Latvija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Baltic logistics Department Toms Svetins  toms.svetins@kurbads.lv \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Latvija. Miestas: Rîga.",
+    "_importSource": "InfoTrans",
+    "_country": "Latvija",
+    "_city": "Rîga",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Baltic logistics Department Toms Svetins  toms.svetins@kurbads.lv \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103513",
+    "name": "Legenus, UAB",
+    "companyCode": "303310288",
+    "vatCode": "LT100008588810",
+    "email": "",
+    "phone": "",
+    "address": "Panevëþys, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics manager Arminas Mikalauskas  arminas.mikalauskas@legenus.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Panevëþys.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Panevëþys",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics manager Arminas Mikalauskas  arminas.mikalauskas@legenus.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103522",
+    "name": "MANTRIDA Sp. z o.o.",
+    "companyCode": "0000342758",
+    "vatCode": "PL8442319240",
+    "email": "",
+    "phone": "",
+    "address": "Suwaùki, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Suwaùki.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Suwaùki",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103523",
+    "name": "Manvesta, UAB",
+    "companyCode": "158297016",
+    "vatCode": "LT582970113",
+    "email": "",
+    "phone": "\"\"+37044772222\"\"",
+    "address": "Jurbarkas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Expedition manager Ramunë Savickienë +370 447 52 222 Ramune Savickiene | MANVESTA  \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37044772222\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Jurbarkas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Jurbarkas",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Expedition manager Ramunë Savickienë +370 447 52 222 Ramune Savickiene | MANVESTA  \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37044772222\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103525",
+    "name": "MARCI Group  UAB",
+    "companyCode": "302612910",
+    "vatCode": "LT100007093415",
+    "email": "",
+    "phone": "\"\"+370-657-70404\"\"",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Forwarding Department Paulius Alkovikas  paulius@marcigroup.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+370-657-70404\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Forwarding Department Paulius Alkovikas  paulius@marcigroup.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+370-657-70404\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103537",
+    "name": "Mylios, UAB",
+    "companyCode": "300144053",
+    "vatCode": "LT100002326317",
+    "email": "\"\"info@mylios.lt\"\"",
+    "phone": "\"\"+370 5 2628899\"\"",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Martynas Bartkus  martynas.bartkus@mylios.lt \"\"",
+        "position": "",
+        "email": "\"\"info@mylios.lt\"\"",
+        "phone": "\"\"+370 5 2628899\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\" Martynas Bartkus  martynas.bartkus@mylios.lt \"\"",
+        "position": "",
+        "email": "\"\"info@mylios.lt\"\"",
+        "phone": "\"\"+370 5 2628899\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103549",
+    "name": "QUADRUM AUTOMOTIVE Sp. z o.o.",
+    "companyCode": "(REGON): 301379755",
+    "vatCode": "PL6080120300",
+    "email": "\"\"admin@quadrum-at.eu\"\"",
+    "phone": "",
+    "address": "Kowalew, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kowalew.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kowalew",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103554",
+    "name": "Roond, UAB",
+    "companyCode": "304949883",
+    "vatCode": "LT100013976213",
+    "email": "\"\"info@roond.lt\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Mindaugas Meðkauskas   vadybininkas Michal  michal@roond.lt  Rasa Meðkauskienë   \"\"",
+        "position": "",
+        "email": "\"\"info@roond.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Mindaugas Meðkauskas   vadybininkas Michal  michal@roond.lt  Rasa Meðkauskienë   \"\"",
+        "position": "",
+        "email": "\"\"info@roond.lt\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103555",
+    "name": "RPM Europe B.V.",
+    "companyCode": "75119056",
+    "vatCode": "NL05150307",
+    "email": "",
+    "phone": "\"\"020 899 1049\"\"",
+    "address": "Amsterdam, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Carrier Operations Representative Jakub Chiszberg  Jakub Chiszberg  pardavimai Vladana  Stamenic",
+        "position": "",
+        "email": "",
+        "phone": "\"\"020 899 1049\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Amsterdam.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "Amsterdam",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Carrier Operations Representative Jakub Chiszberg  Jakub Chiszberg  pardavimai Vladana  Stamenic",
+        "position": "",
+        "email": "",
+        "phone": "\"\"020 899 1049\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103563",
+    "name": "Sigma Trans, UAB",
+    "companyCode": "179766335",
+    "vatCode": "LT797663314",
+    "email": "",
+    "phone": "\"\"+37044672508\"\"",
+    "address": "Tauragë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics Manager Ivona Belenis  ivonabelenis@sigmatrans.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37044672508\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Tauragë",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics Manager Ivona Belenis  ivonabelenis@sigmatrans.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37044672508\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103571",
+    "name": "Stobar, UAB",
+    "companyCode": "303015925",
+    "vatCode": "LT100009692012",
+    "email": "",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Business development Indrë  Èistovaitë   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Head of Business development Indrë  Èistovaitë   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103572",
+    "name": "Stobart Automotive CZ s.r.o.",
+    "companyCode": "27148297",
+    "vatCode": "CZ27148297",
+    "email": "\"\"anna.okhrimenko@eddiestobart.eu\"\"",
+    "phone": "\"\"+420?739?019?666\"\"",
+    "address": "Praha 5 ? Radot?n, Èekija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Buhalterija Anna Okhrimenko +420?739?019?666 mailto:anna.okhrimenko@eddiestobart.eu \"\"",
+        "position": "",
+        "email": "\"\"anna.okhrimenko@eddiestobart.eu\"\"",
+        "phone": "\"\"+420?739?019?666\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Èekija. Miestas: Praha 5 ? Radot?n.",
+    "_importSource": "InfoTrans",
+    "_country": "Èekija",
+    "_city": "Praha 5 ? Radot?n",
+    "clientType": "Klientas",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Buhalterija Anna Okhrimenko +420?739?019?666 mailto:anna.okhrimenko@eddiestobart.eu \"\"",
+        "position": "",
+        "email": "\"\"anna.okhrimenko@eddiestobart.eu\"\"",
+        "phone": "\"\"+420?739?019?666\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103445",
+    "name": "Bonustransa UAB",
+    "companyCode": "305306388",
+    "vatCode": "LT100012801411",
+    "email": "",
+    "phone": "",
+    "address": "Utena, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktore Marija Matelienë  marija@bonustransa.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Utena.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Utena",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktore Marija Matelienë  marija@bonustransa.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103449",
+    "name": "CANI-TRANS LOGISTIC` LESZEK WOJTCZYK",
+    "companyCode": "100475177",
+    "vatCode": "PL7712266873",
+    "email": "",
+    "phone": "",
+    "address": "Piotrków Trybunalski, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Igor Sobczyk   vadybininkas Tomek   Vadybininkas Piotr Boguú   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Piotrków Trybunalski.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Piotrków Trybunalski",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Igor Sobczyk   vadybininkas Tomek   Vadybininkas Piotr Boguú   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103457",
+    "name": "Dalina LT, UAB",
+    "companyCode": "305936084",
+    "vatCode": "LT100014525118",
+    "email": "",
+    "phone": "",
+    "address": "Giluþiø km. Vilniaus r., Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Manager Jurij Oskolkov   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Giluþiø km. Vilniaus r..",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Giluþiø km. Vilniaus r.",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Manager Jurij Oskolkov   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103473",
+    "name": "Eiland Car Lease BV",
+    "companyCode": "52363082",
+    "vatCode": "NL850411026B01",
+    "email": "\"\"info@ecl-lease.com\"\"",
+    "phone": "",
+    "address": "Denekamp, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Coen Wesselink  coen@ecl-lease.com Direktorius Jonnie Boerman  boerman@ecl-lease.com",
+        "position": "",
+        "email": "\"\"info@ecl-lease.com\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Denekamp.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "Denekamp",
+    "clientType": "Klientas",
+    "country": "Olandija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Coen Wesselink  coen@ecl-lease.com Direktorius Jonnie Boerman  boerman@ecl-lease.com",
+        "position": "",
+        "email": "\"\"info@ecl-lease.com\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103503",
+    "name": "Intergate Polska",
+    "companyCode": "427404999",
+    "vatCode": "PL9591592510",
+    "email": "",
+    "phone": "\"\"0048 574 114 254\"\"",
+    "address": "Kielce, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"- International Logistic Manager Sara Benryab   \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"0048 574 114 254\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kielce.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kielce",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"- International Logistic Manager Sara Benryab   \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"0048 574 114 254\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103519",
+    "name": "MA LOGISTICS, S.L.U.",
+    "companyCode": "Reikia  imonës numerio",
+    "vatCode": "ESB67346684",
+    "email": "",
+    "phone": "",
+    "address": "VILANOVA I LA GELTR? (BARCELONA), Ispanija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Ispanija. Miestas: VILANOVA I LA GELTR? (BARCELONA).",
+    "_importSource": "InfoTrans",
+    "_country": "Ispanija",
+    "_city": "VILANOVA I LA GELTR? (BARCELONA)",
+    "clientType": "Klientas",
+    "country": "Ispanija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103545",
+    "name": "Orvipal Trans, S.L.",
+    "companyCode": "77352",
+    "vatCode": "ESB73744427",
+    "email": "",
+    "phone": "",
+    "address": "Lorqu? · Murcia, Ispanija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" BRUNO JOSE MARTINEZ  bjmartinez@orvipal.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Ispanija. Miestas: Lorqu? · Murcia.",
+    "_importSource": "InfoTrans",
+    "_country": "Ispanija",
+    "_city": "Lorqu? · Murcia",
+    "clientType": "Klientas",
+    "country": "Ispanija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\" BRUNO JOSE MARTINEZ  bjmartinez@orvipal.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103547",
+    "name": "P.W. WEGA A SP. Z O.O.",
+    "companyCode": "0000137807",
+    "vatCode": "PL6181003642",
+    "email": "",
+    "phone": "",
+    "address": "Kalisz, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Emma Nowak (+48)507 000 735 emma.nowak@wega-a.pl  Jakub Jankowski (+48)507 000 919 jakub.jankowsk",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kalisz.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kalisz",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\" Emma Nowak (+48)507 000 735 emma.nowak@wega-a.pl  Jakub Jankowski (+48)507 000 919 jakub.jankowsk",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103573",
+    "name": "Stobart Automotive Europe NV",
+    "companyCode": "BE?0405.855.027",
+    "vatCode": "BE0405855027",
+    "email": "",
+    "phone": "",
+    "address": "Genk, Belgija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Transport Manager Arne Arnauts +32?89?300?972 mailto:Arne.Arnauts@eddiestobart.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Belgija. Miestas: Genk.",
+    "_importSource": "InfoTrans",
+    "_country": "Belgija",
+    "_city": "Genk",
+    "clientType": "Klientas",
+    "country": "Belgija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Transport Manager Arne Arnauts +32?89?300?972 mailto:Arne.Arnauts@eddiestobart.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103574",
+    "name": "STS Logistic",
+    "companyCode": "0000377305",
+    "vatCode": "PL7773196380",
+    "email": "",
+    "phone": "\"\"+48 61 89 75 304\"\"",
+    "address": "JASIN, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"International Dispatcher and Forwarder Sùawomir Kania  slawomir.kania@stslogistic.com.pl buhalteri",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+48 61 89 75 304\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: JASIN.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "JASIN",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"International Dispatcher and Forwarder Sùawomir Kania  slawomir.kania@stslogistic.com.pl buhalteri",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+48 61 89 75 304\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103579",
+    "name": "TRANSCAT FRANCE",
+    "companyCode": "404 360 505",
+    "vatCode": "FR12404360505",
+    "email": "",
+    "phone": "",
+    "address": "Suresnes, Prancûzija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Prancûzija. Miestas: Suresnes.",
+    "_importSource": "InfoTrans",
+    "_country": "Prancûzija",
+    "_city": "Suresnes",
+    "clientType": "Klientas",
+    "country": "Prancûzija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103580",
+    "name": "TRANSEURO ADRIA d.o.o.",
+    "companyCode": "080095487",
+    "vatCode": "67564739211",
+    "email": "\"\"dispo@transeuro.gcatrans.com\"\"",
+    "phone": "",
+    "address": "Pojatno, Kroatija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"pardavimø vadybininkë Maja  Reberniðak  maja.rebernisak@transeuro.gcatrans.com Accounting Natalija",
+        "position": "",
+        "email": "\"\"dispo@transeuro.gcatrans.com\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Kroatija. Miestas: Pojatno.",
+    "_importSource": "InfoTrans",
+    "_country": "Kroatija",
+    "_city": "Pojatno",
+    "clientType": "Klientas",
+    "country": "Kroatija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"pardavimø vadybininkë Maja  Reberniðak  maja.rebernisak@transeuro.gcatrans.com Accounting Natalija",
+        "position": "",
+        "email": "\"\"dispo@transeuro.gcatrans.com\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103584",
+    "name": "Transporting Wheels B.V.",
+    "companyCode": "60912332",
+    "vatCode": "NL854116758B01",
+    "email": "\"\"info@transportingwheels.com\"\"",
+    "phone": "",
+    "address": "Zwolle, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Zwolle.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "Zwolle",
+    "clientType": "Klientas",
+    "country": "Olandija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103587",
+    "name": "UAB AXIS AUTO",
+    "companyCode": "302709537",
+    "vatCode": "LT100006602111",
+    "email": "\"\"bsimanaviciute@gmail.com\"\"",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Vadybininkë Birute Simanaviciute  bsimanaviciute@gmail.com telegram\"\"",
+        "position": "",
+        "email": "\"\"bsimanaviciute@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Vadybininkë Birute Simanaviciute  bsimanaviciute@gmail.com telegram\"\"",
+        "position": "",
+        "email": "\"\"bsimanaviciute@gmail.com\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103588",
+    "name": "UAB Bleiras Logistics",
+    "companyCode": "301513603",
+    "vatCode": "LT100003727016",
+    "email": "",
+    "phone": "\"\"+37038961991\"\"",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Forwarding manager Atënë Giedraitë +370 684 35180 atene.giedraite@bleiras.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37038961991\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Forwarding manager Atënë Giedraitë +370 684 35180 atene.giedraite@bleiras.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37038961991\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103581",
+    "name": "Transferational Spóùka z ograniczonà odpowiedzialnoúcià",
+    "companyCode": "5272980736",
+    "vatCode": "PL5272980736",
+    "email": "",
+    "phone": "",
+    "address": "Warszawa, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"manager transport Alan Þukowski   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Warszawa.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Warszawa",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"manager transport Alan Þukowski   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103595",
+    "name": "VDE Transport, UAB",
+    "companyCode": "304057521",
+    "vatCode": "LT100009470513",
+    "email": "",
+    "phone": "",
+    "address": "Panevëþys, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Rièardas Dimða  ricardas@vdetransport.eu Direktorius Vykintas Andriuðkevièius  vykint",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Panevëþys.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Panevëþys",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Rièardas Dimða  ricardas@vdetransport.eu Direktorius Vykintas Andriuðkevièius  vykint",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103599",
+    "name": "VOITURA CZECH S.R.O.",
+    "companyCode": "11898054",
+    "vatCode": "CZ11898054",
+    "email": "",
+    "phone": "",
+    "address": "KNEÞMOST, Èekija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Branch Manager Petra Pet?kov?  petra.petakova@voitura.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Èekija. Miestas: KNEÞMOST.",
+    "_importSource": "InfoTrans",
+    "_country": "Èekija",
+    "_city": "KNEÞMOST",
+    "clientType": "Klientas",
+    "country": "Èekija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Branch Manager Petra Pet?kov?  petra.petakova@voitura.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103600",
+    "name": "Voitura Polska Sp. z o.o.",
+    "companyCode": "0000861278",
+    "vatCode": "PL5272938970",
+    "email": "",
+    "phone": "",
+    "address": "Kalisz, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kalisz.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kalisz",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103601",
+    "name": "VOITURA UAB",
+    "companyCode": "304338867",
+    "vatCode": "LT100010364619",
+    "email": "",
+    "phone": "\"\"+37061581567\"\"",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Purchase Manager Mantas Kraugþlys  mantas.kraugzlys@voitura.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37061581567\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Purchase Manager Mantas Kraugþlys  mantas.kraugzlys@voitura.eu \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37061581567\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103602",
+    "name": "Vykom, UAB",
+    "companyCode": "300132204",
+    "vatCode": "LT100002562319",
+    "email": "\"\"info@vykom.com\"\"",
+    "phone": "",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Purchase Manager Liudas Stojanas  liudas.stojanas@vykom.com \"\"",
+        "position": "",
+        "email": "\"\"info@vykom.com\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Purchase Manager Liudas Stojanas  liudas.stojanas@vykom.com \"\"",
+        "position": "",
+        "email": "\"\"info@vykom.com\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103414",
+    "name": "ADAMPOL S.A",
+    "companyCode": "0000056707",
+    "vatCode": "PL5420000162",
+    "email": "\"\"adampol@adampolsa.com.pl\"\"",
+    "phone": "\"\"+48 85 740 78 60\"\"",
+    "address": "Zaúcianki k/Biaùegostoku, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Zaúcianki k/Biaùegostoku.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Zaúcianki k/Biaùegostoku",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103416",
+    "name": "AG CAR EUROPE SRL",
+    "companyCode": "458348",
+    "vatCode": "IT05592330657",
+    "email": "\"\"agcareurope@pec.it\"\"",
+    "phone": "",
+    "address": "Pagani SA, Italija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Sales &amp\";\" Business Manager Rosario Sorrentino  sales@agcareurope.it \"\"",
+        "position": "",
+        "email": "\"\"agcareurope@pec.it\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Italija. Miestas: Pagani SA.",
+    "_importSource": "InfoTrans",
+    "_country": "Italija",
+    "_city": "Pagani SA",
+    "clientType": "Klientas",
+    "country": "Italija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Sales &amp\";\" Business Manager Rosario Sorrentino  sales@agcareurope.it \"\"",
+        "position": "",
+        "email": "\"\"agcareurope@pec.it\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103417",
+    "name": "ALB LOGISTICS Sp. z o. o.",
+    "companyCode": "364848395",
+    "vatCode": "PL6462944046",
+    "email": "\"\"info@alblogistics.pl\"\"",
+    "phone": "",
+    "address": "Tychy, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Managing Partner Ewelina Dubicka  e.dubicka@alblogistics.pl \"\"",
+        "position": "",
+        "email": "\"\"info@alblogistics.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Tychy.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Tychy",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Managing Partner Ewelina Dubicka  e.dubicka@alblogistics.pl \"\"",
+        "position": "",
+        "email": "\"\"info@alblogistics.pl\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103419",
+    "name": "Alfatransa, UAB",
+    "companyCode": "300066708",
+    "vatCode": "LT100001345018",
+    "email": "",
+    "phone": "\"\"+37037373494\"\"",
+    "address": "Garliava, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Garliava.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Garliava",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103423",
+    "name": "Argodos logistika, UAB",
+    "companyCode": "303365982",
+    "vatCode": "LT100008778411",
+    "email": "\"\"info@argodoslogistika.lt\"\"",
+    "phone": "",
+    "address": "Marijampolë, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Marijampolë",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103431",
+    "name": "Autolink, UAB",
+    "companyCode": "302716955",
+    "vatCode": "LT100006637316",
+    "email": "",
+    "phone": "",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics specialist Tautvydas Papeika  tautvydas.papeika@autolink.lt laukiu CMR\"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"Logistics specialist Tautvydas Papeika  tautvydas.papeika@autolink.lt laukiu CMR\"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103433",
+    "name": "Autotransnet, UAB",
+    "companyCode": "304825615",
+    "vatCode": "LT100011596817",
+    "email": "",
+    "phone": "\"\"+37065220233\"\"",
+    "address": "Kaunas, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Gintaras  dispo@autotransnet.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37065220233\"\""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Kaunas",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\" Gintaras  dispo@autotransnet.lt \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37065220233\"\""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103441",
+    "name": "Bigmet Sp. z o.o.",
+    "companyCode": "(KRS): 0000809965",
+    "vatCode": "PL7010945661",
+    "email": "\"\"transport@bigmet.eu\"\"",
+    "phone": "",
+    "address": "Warszawa, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Grzegorz Gas  transport@bigmet.eu \"\"",
+        "position": "",
+        "email": "\"\"transport@bigmet.eu\"\"",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Warszawa.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Warszawa",
+    "clientType": "Klientas",
+    "country": "Lenkija",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Grzegorz Gas  transport@bigmet.eu \"\"",
+        "position": "",
+        "email": "\"\"transport@bigmet.eu\"\"",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
+    "id": "IMP1775684103552",
+    "name": "Reston Industries, UAB",
+    "companyCode": "305527002",
+    "vatCode": "LT100013175517",
+    "email": "\"\"Evaldas@reston.eu\"\"",
+    "phone": "",
+    "address": "Klaipëda, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Klaipëda.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Klaipëda",
+    "clientType": "Klientas",
+    "country": "Lietuva",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  }
+]

@@ -1,0 +1,4790 @@
+[
+  {
+    "id": "IMP1775684103410",
+    "name": "12Logistics GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 13938",
+    "vatCode": "DE292824056",
+    "email": "",
+    "phone": "",
+    "address": "Kaarst, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Kaarst.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Kaarst"
+  },
+  {
+    "id": "IMP1775684103413",
+    "name": "ABC LOGISTICS EUROPE GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 742166",
+    "vatCode": "DE341929194",
+    "email": "",
+    "phone": "",
+    "address": "Langenau, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Langenau.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Langenau"
+  },
+  {
+    "id": "IMP1775684103415",
+    "name": "AEP TRANSPORT",
+    "carrierType": "Nenustatyta",
+    "companyCode": "384966914",
+    "vatCode": "PL7842520063",
+    "email": "",
+    "phone": "",
+    "address": "Gniezno, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Nicefor Stanisùaw Pacholczyk   \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Gniezno.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Gniezno"
+  },
+  {
+    "id": "IMP1775684103420",
+    "name": "AMI HOLDINGS LTD",
+    "carrierType": "Nenustatyta",
+    "companyCode": "40203199742",
+    "vatCode": "LV40203199742",
+    "email": "\"\"Orders@darwishlogistics.eu\"\"",
+    "phone": "",
+    "address": "Ryga, Latvija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Darwish Logistics Latvia   \"\"",
+        "position": "",
+        "email": "\"\"Orders@darwishlogistics.eu\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Latvija. Miestas: Ryga.",
+    "_importSource": "InfoTrans",
+    "_country": "Latvija",
+    "_city": "Ryga"
+  },
+  {
+    "id": "IMP1775684103437",
+    "name": "Bayer und Sohn Speditions GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 1841",
+    "vatCode": "DE367701245",
+    "email": "\"\"invoice@bayer-sohn.de\"\"",
+    "phone": "",
+    "address": "Trier-Ehrang, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Trier-Ehrang.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Trier-Ehrang"
+  },
+  {
+    "id": "IMP1775684103438",
+    "name": "Belschinger GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 6132",
+    "vatCode": "DE328056858",
+    "email": "",
+    "phone": "",
+    "address": "Döhlau, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Döhlau.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Döhlau"
+  },
+  {
+    "id": "IMP1775684103440",
+    "name": "BEPELOG Internationale Spedition GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 217709 (Amtsgericht Hannover)",
+    "vatCode": "DE198725191",
+    "email": "",
+    "phone": "\"\"+49 5033 9090399\"\"",
+    "address": "Wunstorf / OT Steinhude, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disponent Calvin Stünkel  stuenkel@bepelog.de Disponent Janine Tadje  tadje@bepelog.de Geschäftsfü",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+49 5033 9090399\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Wunstorf / OT Steinhude.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Wunstorf / OT Steinhude"
+  },
+  {
+    "id": "IMP1775684103442",
+    "name": "BLAN LOGISTICS SP. Z O.O.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "KRS 0000975523",
+    "vatCode": "PL1182114447",
+    "email": "",
+    "phone": "",
+    "address": "Warszawa, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Warszawa.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Warszawa"
+  },
+  {
+    "id": "IMP1775684103444",
+    "name": "BMZ Bagger und Transporte GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB4103",
+    "vatCode": "DE250316065",
+    "email": "\"\"info@bmz-transporte.de\"\"",
+    "phone": "",
+    "address": "Oberkotzau, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Oberkotzau.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Oberkotzau"
+  },
+  {
+    "id": "IMP1775684103446",
+    "name": "BTK Befrachtungs- und Transportkontor GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 180 (Traunstein)",
+    "vatCode": "DE811156427",
+    "email": "",
+    "phone": "",
+    "address": "Raubling, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Raubling.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Raubling"
+  },
+  {
+    "id": "IMP1775684103447",
+    "name": "Byload GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 18896",
+    "vatCode": "DE333908094",
+    "email": "",
+    "phone": "",
+    "address": "Mindelheim, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Mindelheim.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Mindelheim"
+  },
+  {
+    "id": "IMP1775684103448",
+    "name": "C. Steinweg GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 18780",
+    "vatCode": "DE119552532",
+    "email": "",
+    "phone": "",
+    "address": "Moers, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Moers.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Moers"
+  },
+  {
+    "id": "IMP1775684103452",
+    "name": "CRUSAR sp. z o.o. sp. k.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "0000591161",
+    "vatCode": "PL8943070320",
+    "email": "\"\"spedycja@crusar.eu\"\"",
+    "phone": "",
+    "address": "Wrocùaw, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Wrocùaw.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Wrocùaw"
+  },
+  {
+    "id": "IMP1775684103453",
+    "name": "CSP Cargo Service Plus GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 24137 (Amtsgericht Lübeck)",
+    "vatCode": "DE364082026",
+    "email": "",
+    "phone": "",
+    "address": "Hollenbek, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Hollenbek.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Hollenbek"
+  },
+  {
+    "id": "IMP1775684103455",
+    "name": "DACHSER SE",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 12711",
+    "vatCode": "DE815512007",
+    "email": "",
+    "phone": "",
+    "address": "Öhringen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Öhringen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Öhringen"
+  },
+  {
+    "id": "IMP1775684103458",
+    "name": "DAMSEN Express Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 28009",
+    "vatCode": "DE324984572",
+    "email": "",
+    "phone": "",
+    "address": "Freilassing, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Freilassing.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Freilassing"
+  },
+  {
+    "id": "IMP1775684103460",
+    "name": "DC Cargo Süd GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 783688",
+    "vatCode": "DE327178096",
+    "email": "\"\"dispo.a@dccargo.de\"\"",
+    "phone": "",
+    "address": "Filderstadt, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disposition Artur Dudkin  dispo.a@dccargo.de Disposition Konstantin Grasser  dispo.rv@dccargo.de \"",
+        "position": "",
+        "email": "\"\"dispo.a@dccargo.de\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Filderstadt.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Filderstadt"
+  },
+  {
+    "id": "IMP1775684103461",
+    "name": "DDS EXPRESS Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 106001",
+    "vatCode": "DE260915030",
+    "email": "",
+    "phone": "",
+    "address": "Hamburg, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Hamburg.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Hamburg"
+  },
+  {
+    "id": "IMP1775684103472",
+    "name": "EGETRANS  SARL",
+    "carrierType": "Nenustatyta",
+    "companyCode": "SIREN: 32192157900033",
+    "vatCode": "FR60321921579",
+    "email": "\"\"egetrans@orange.fr\"\"",
+    "phone": "",
+    "address": "Créteil, Prancûzija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Prancûzija. Miestas: Créteil.",
+    "_importSource": "InfoTrans",
+    "_country": "Prancûzija",
+    "_city": "Créteil"
+  },
+  {
+    "id": "IMP1775684103475",
+    "name": "Essener Ferntransport GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 348, Amtsgericht Essen",
+    "vatCode": "DE119825192",
+    "email": "",
+    "phone": "\"\"+49 201 5367780\"\"",
+    "address": "Essen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disponent Dennis Golz +49 201 53677815 d.golz@eft-logistik.de vadybininkas Michael Lehmkuhl +49 20",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+49 201 5367780\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Essen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Essen"
+  },
+  {
+    "id": "IMP1775684103478",
+    "name": "Fahrlogistik Wächter GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 63263",
+    "vatCode": "DE814976542",
+    "email": "",
+    "phone": "",
+    "address": "Leipzig, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Leipzig.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Leipzig"
+  },
+  {
+    "id": "IMP1775684103483",
+    "name": "Found Solution sp. z o.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "KRS: 0000987142",
+    "vatCode": "PL5040080114",
+    "email": "\"\"k.kaczmarek@found-solution.eu\"\"",
+    "phone": "\"\"+48609778105\"\"",
+    "address": "Sæpólno Krajeñskie, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Sæpólno Krajeñskie.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Sæpólno Krajeñskie"
+  },
+  {
+    "id": "IMP1775684103491",
+    "name": "GKS Kurier Systeme e.K.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRA 200497 (Amtsgericht Göttingen)",
+    "vatCode": "DE159474385",
+    "email": "",
+    "phone": "\"\"+49 551 38421070\"\"",
+    "address": "Göttingen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Göttingen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Göttingen"
+  },
+  {
+    "id": "IMP1775684103492",
+    "name": "GL internationaler Logistikservice e.K.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRA 17820",
+    "vatCode": "DE362449405",
+    "email": "",
+    "phone": "",
+    "address": "Krumbach, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Krumbach.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Krumbach"
+  },
+  {
+    "id": "IMP1775684103495",
+    "name": "Grupa Transportowa Sp. z o.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "(KRS): 0000367098",
+    "vatCode": "PL7712852200",
+    "email": "\"\"justyna.dzielinska@grupatransportowa.pl\"\"",
+    "phone": "",
+    "address": "Piotrków Trybunalski, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Piotrków Trybunalski.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Piotrków Trybunalski"
+  },
+  {
+    "id": "IMP1775684103496",
+    "name": "HAWA Freight GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 707969",
+    "vatCode": "DE281201361",
+    "email": "",
+    "phone": "",
+    "address": "Kehl, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Kehl.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Kehl"
+  },
+  {
+    "id": "IMP1775684103504",
+    "name": "ISG Express Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 538352",
+    "vatCode": "DE317778050",
+    "email": "",
+    "phone": "",
+    "address": "Göppingen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Göppingen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Göppingen"
+  },
+  {
+    "id": "IMP1775684103505",
+    "name": "Jura Logistik Pröpster GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 39906",
+    "vatCode": "DE349749052",
+    "email": "",
+    "phone": "",
+    "address": "Neumarkt, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Neumarkt.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Neumarkt"
+  },
+  {
+    "id": "IMP1775684103506",
+    "name": "K und K Transportgesellschaft mbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 0855 (Amtsgericht Cottbus)",
+    "vatCode": "DE138897624",
+    "email": "",
+    "phone": "\"\"+49 3574 4652610\"\"",
+    "address": "Lauchhammer, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disposition / Accounting Simone Klein  s.klein@kundklauchhammer.de \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+49 3574 4652610\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Lauchhammer.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Lauchhammer"
+  },
+  {
+    "id": "IMP1775684103508",
+    "name": "KEVASPED s.r.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "07212917",
+    "vatCode": "CZ07212917",
+    "email": "",
+    "phone": "",
+    "address": "Brno, Èekija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Èekija. Miestas: Brno.",
+    "_importSource": "InfoTrans",
+    "_country": "Èekija",
+    "_city": "Brno"
+  },
+  {
+    "id": "IMP1775684103509",
+    "name": "KPT-Kroh GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 16936, Amtsgericht Kleve",
+    "vatCode": "DE338727000",
+    "email": "\"\"info@kpt-kroh.de\"\"",
+    "phone": "\"\"+49 2822 9778847\"\"",
+    "address": "Emmerich, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Emmerich.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Emmerich"
+  },
+  {
+    "id": "IMP1775684103510",
+    "name": "KSK Transport International",
+    "carrierType": "Nenustatyta",
+    "companyCode": "53071292600027",
+    "vatCode": "FR93530712926",
+    "email": "\"\"karim@ksk-transport.com\"\"",
+    "phone": "",
+    "address": "Poligny, Prancûzija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Prancûzija. Miestas: Poligny.",
+    "_importSource": "InfoTrans",
+    "_country": "Prancûzija",
+    "_city": "Poligny"
+  },
+  {
+    "id": "IMP1775684103512",
+    "name": "LAL GmbH (LAL Spedition)",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 18494 (Amtsgericht Stendal)",
+    "vatCode": "DE284658781",
+    "email": "\"\"info@lal-spedition.de\"\"",
+    "phone": "\"\"+49 39204 929770\"\"",
+    "address": "Wanzleben-Börde, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Wanzleben-Börde.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Wanzleben-Börde"
+  },
+  {
+    "id": "IMP1775684103515",
+    "name": "LIFA Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 6211 (Handelsregister Hof)",
+    "vatCode": "DE334405657",
+    "email": "\"\"info@lifa-logistics.de\"\"",
+    "phone": "\"\"+49 9281 5081335\"\"",
+    "address": "Marktredwitz, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Marktredwitz.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Marktredwitz"
+  },
+  {
+    "id": "IMP1775684103516",
+    "name": "Lifentra Int. Expeditie B.V.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "KvK: 01120352",
+    "vatCode": "NL818089167B01",
+    "email": "\"\"info@lifentra.nl\"\"",
+    "phone": "",
+    "address": "Wommels, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Wommels.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "Wommels"
+  },
+  {
+    "id": "IMP1775684103517",
+    "name": "Logistik Helden KTG GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "(HRB): 30799",
+    "vatCode": "DE305440117",
+    "email": "",
+    "phone": "\"\"+49 5101 5907860\"\"",
+    "address": "Hemmingen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Hemmingen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Hemmingen"
+  },
+  {
+    "id": "IMP1775684103524",
+    "name": "MARATHON International Logistics GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 152004 B, Berlin",
+    "vatCode": "DE292406265",
+    "email": "",
+    "phone": "\"\"+49 30 678066590\"\"",
+    "address": "Berlin, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Junior FTL&lt\";\"L Trader Weronika Wojtaú  w.wojtas@emarathon.eu Country Manager Magdalena Dal  m.d",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+49 30 678066590\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Berlin.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Berlin"
+  },
+  {
+    "id": "IMP1775684103526",
+    "name": "Margo Worldwide Group Sp. z o.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "(KRS): 0001110956",
+    "vatCode": "PL7792409687",
+    "email": "\"\"izabella@margo-worldwide.com\"\"",
+    "phone": "",
+    "address": "Poznañ, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Poznañ.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Poznañ"
+  },
+  {
+    "id": "IMP1775684103527",
+    "name": "Mariusz Laskowski Laskowski-Transport",
+    "carrierType": "Nenustatyta",
+    "companyCode": "180310063 (REGON)",
+    "vatCode": "PL6842326780",
+    "email": "\"\"biuro@laskowskitransport.pl\"\"",
+    "phone": "\"\"+48 885 051 647\"\"",
+    "address": "Gùojsce, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Gùojsce.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Gùojsce"
+  },
+  {
+    "id": "IMP1775684103529",
+    "name": "Marwerk klussenbedrijf",
+    "carrierType": "Nenustatyta",
+    "companyCode": "000038055880",
+    "vatCode": "NL002495419B03",
+    "email": "\"\"marwerkcars@outlook.com\"\"",
+    "phone": "",
+    "address": "Rotterdam, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Direktorius Aleksandras   \"\"",
+        "position": "",
+        "email": "\"\"marwerkcars@outlook.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Rotterdam.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "Rotterdam"
+  },
+  {
+    "id": "IMP1775684103532",
+    "name": "Meta4log GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 25240 (AG Essen)",
+    "vatCode": "DE815483762",
+    "email": "",
+    "phone": "",
+    "address": "Scharbeutz-Gleschendorf, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Scharbeutz-Gleschendorf.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Scharbeutz-Gleschendorf"
+  },
+  {
+    "id": "IMP1775684103535",
+    "name": "ML Transportgesellschaft mbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 93376",
+    "vatCode": "DE273756079",
+    "email": "",
+    "phone": "\"\"+49618142328019\"\"",
+    "address": "Bruchköbel, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Bruchköbel.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Bruchköbel"
+  },
+  {
+    "id": "IMP1775684103536",
+    "name": "MP Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 8532 (Amtsgericht Steinfurt)",
+    "vatCode": "DE815107498",
+    "email": "",
+    "phone": "",
+    "address": "Rheine, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Rheine.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Rheine"
+  },
+  {
+    "id": "IMP1775684103538",
+    "name": "Naber Logistik GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 60602",
+    "vatCode": "DE252457768",
+    "email": "",
+    "phone": "\"\"+49 6232 6491-0\"\"",
+    "address": "Speyer, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Speyer.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Speyer"
+  },
+  {
+    "id": "IMP1775684103540",
+    "name": "NEUFRA Speditions",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 2660 (Amtsgericht Neuss)",
+    "vatCode": "DE120682142",
+    "email": "",
+    "phone": "",
+    "address": "Hamburg, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Hamburg.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Hamburg"
+  },
+  {
+    "id": "IMP1775684103541",
+    "name": "Noerpel SE",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 204243",
+    "vatCode": "DE147042215",
+    "email": "",
+    "phone": "\"\"+49 8134 5550 2101\"\"",
+    "address": "Odelzhausen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Leonardo Manuel Peso  leonardo.peso@noerpel.de \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+49 8134 5550 2101\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Odelzhausen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Odelzhausen"
+  },
+  {
+    "id": "IMP1775684103542",
+    "name": "Now-Pol Grzegorz Nowiñski",
+    "carrierType": "Nenustatyta",
+    "companyCode": "REGON 281?496?575",
+    "vatCode": "PL8771292080",
+    "email": "",
+    "phone": "",
+    "address": "Nowe Miasto Lubawskie, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Nowe Miasto Lubawskie.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Nowe Miasto Lubawskie"
+  },
+  {
+    "id": "IMP1775684103548",
+    "name": "PAWOL Sp. z o.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "5742078000",
+    "vatCode": "PL5742078000",
+    "email": "",
+    "phone": "",
+    "address": "Kùobuck, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kùobuck.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kùobuck"
+  },
+  {
+    "id": "IMP1775684103550",
+    "name": "Raben Trans European Germany GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 10097",
+    "vatCode": "DE277971929",
+    "email": "",
+    "phone": "",
+    "address": "Leipheim, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Leipheim.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Leipheim"
+  },
+  {
+    "id": "IMP1775684103553",
+    "name": "Roel Ottenheim Logistics B.V.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "KvK78251124",
+    "vatCode": "NL862104014B01",
+    "email": "",
+    "phone": "",
+    "address": "LE Roermond, Olandija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: LE Roermond.",
+    "_importSource": "InfoTrans",
+    "_country": "Olandija",
+    "_city": "LE Roermond"
+  },
+  {
+    "id": "IMP1775684103556",
+    "name": "RST Szymon Paweùczyk",
+    "carrierType": "Nenustatyta",
+    "companyCode": "REGON 381032358",
+    "vatCode": "PL6172188783",
+    "email": "\"\"info@rst-spedition.com\"\"",
+    "phone": "",
+    "address": "Jarocin, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Disponent Adam Ùuczak  adam.luczak@rst-spedition.com \"\"",
+        "position": "",
+        "email": "\"\"info@rst-spedition.com\"\"",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Jarocin.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Jarocin"
+  },
+  {
+    "id": "IMP1775684103557",
+    "name": "RST Transporte GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 16785",
+    "vatCode": "DE305764402",
+    "email": "",
+    "phone": "",
+    "address": "Burgau, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Burgau.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Burgau"
+  },
+  {
+    "id": "IMP1775684103561",
+    "name": "Schenker Deutschland AG",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 101",
+    "vatCode": "DE811228366",
+    "email": "",
+    "phone": "",
+    "address": "Bamberg, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Bamberg.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Bamberg"
+  },
+  {
+    "id": "IMP1775684103562",
+    "name": "SIA Gefco Baltic filialas",
+    "carrierType": "Nenustatyta",
+    "companyCode": "302604835",
+    "vatCode": "LT100006050113",
+    "email": "",
+    "phone": "\"\"+37052051036\"\"",
+    "address": "Vilnius, Lietuva",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Dispatcher Kestutis Bigelis +37061676879 kestutis.bigelis@cevalogistics.com     \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+37052051036\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
+    "_importSource": "InfoTrans",
+    "_country": "Lietuva",
+    "_city": "Vilnius"
+  },
+  {
+    "id": "IMP1775684103564",
+    "name": "Simila Trans Sp. z o.o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "0001050860",
+    "vatCode": "PL5214030515",
+    "email": "\"\"dispo@similatrans.eu\"\"",
+    "phone": "",
+    "address": "Warszawa, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Warszawa.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Warszawa"
+  },
+  {
+    "id": "IMP1775684103566",
+    "name": "Slowaker s. r. o.",
+    "carrierType": "Nenustatyta",
+    "companyCode": "51139511",
+    "vatCode": "SK2120615552",
+    "email": "",
+    "phone": "",
+    "address": "Trebiðov, Slovakija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Slovakija. Miestas: Trebiðov.",
+    "_importSource": "InfoTrans",
+    "_country": "Slovakija",
+    "_city": "Trebiðov"
+  },
+  {
+    "id": "IMP1775684103567",
+    "name": "Spedition Brucker GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "Amtsgericht Ulm HRB 500702",
+    "vatCode": "DE188328606",
+    "email": "\"\"info@spedition-brucker.de\"\"",
+    "phone": "\"\"+49 7361 92920\"\"",
+    "address": "Aalen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"Charter Daniel Gaier  dgaier@spedition-brucker.de \"\"",
+        "position": "",
+        "email": "\"\"info@spedition-brucker.de\"\"",
+        "phone": "\"\"+49 7361 92920\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Aalen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Aalen"
+  },
+  {
+    "id": "IMP1775684103568",
+    "name": "Spedition Koper GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 62420",
+    "vatCode": "DE298060854",
+    "email": "\"\"s.aydin@spedition-koper.de\"\"",
+    "phone": "",
+    "address": "Limburgerho, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Limburgerho.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Limburgerho"
+  },
+  {
+    "id": "IMP1775684103569",
+    "name": "Spedition Winterhalter GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "(HRB): 98387 (München)",
+    "vatCode": "DE131197761",
+    "email": "",
+    "phone": "",
+    "address": "Holzkirchen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Holzkirchen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Holzkirchen"
+  },
+  {
+    "id": "IMP1775684103570",
+    "name": "Speed-Trans Wojciech Galara",
+    "carrierType": "Nenustatyta",
+    "companyCode": "(REGON): 360439085",
+    "vatCode": "PL5542373450",
+    "email": "",
+    "phone": "\"\"+48 500 361 654\"\"",
+    "address": "Kruszyn Krajeñski, Lenkija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\"vadybininkas Dawid Greger  dawidg.stgalara@gmail.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": "\"\"+48 500 361 654\"\""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Kruszyn Krajeñski.",
+    "_importSource": "InfoTrans",
+    "_country": "Lenkija",
+    "_city": "Kruszyn Krajeñski"
+  },
+  {
+    "id": "IMP1775684103576",
+    "name": "STURM Speditions GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 43455 (Amtsgericht Nürnberg)",
+    "vatCode": "DE369457586",
+    "email": "",
+    "phone": "",
+    "address": "Altdorf, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "\"\" Lorenz Sturm  lorenz.sturm@sturm-spedition.com \"\"",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Altdorf.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Altdorf"
+  },
+  {
+    "id": "IMP1775684103603",
+    "name": "WAREMA Renkhoff SE",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 4528 (Registergericht: Würzburg)",
+    "vatCode": "DE811240418",
+    "email": "",
+    "phone": "",
+    "address": "Wertheim-Bettingen, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Wertheim-Bettingen.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Wertheim-Bettingen"
+  },
+  {
+    "id": "IMP1775684103605",
+    "name": "Zipmend GmbH",
+    "carrierType": "Nenustatyta",
+    "companyCode": "HRB 138973",
+    "vatCode": "DE304638568",
+    "email": "",
+    "phone": "",
+    "address": "Hamburg, Vokietija",
+    "website": "",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "type": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      },
+      {
+        "type": "Civilinės atsakomybės draudimas",
+        "number": "",
+        "validUntil": "",
+        "file": null
+      }
+    ],
+    "notes": "Importuota iš InfoTrans. Šalis: Vokietija. Miestas: Hamburg.",
+    "_importSource": "InfoTrans",
+    "_country": "Vokietija",
+    "_city": "Hamburg"
+  }
+]

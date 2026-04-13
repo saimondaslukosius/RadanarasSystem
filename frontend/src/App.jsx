@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Modal as OrdersModal, Orders as OrdersPage, Settings as SettingsPage } from "./orders_settings_only";
+import * as XLSX from "xlsx";
 
 const defaultDepartments = () => ([
   { id: 1, title: "Administracija", phone: "", email: "" },
@@ -43,181 +44,92 @@ const storageBuckets = {
     canonicalKey: "radanaras_settings",
     aliases: ["radanaras_settings", "settings"],
     emptyValue: {}
+  },
+  imports: {
+    canonicalKey: "radanaras_imports",
+    aliases: ["radanaras_imports", "imports"],
+    emptyValue: []
   }
 };
 
-const isPlainObject = (value) =>
-  Object.prototype.toString.call(value) === "[object Object]";
 
-const hasMeaningfulValue = (value) => {
-  if (Array.isArray(value)) return value.length > 0;
-  if (isPlainObject(value)) return Object.keys(value).length > 0;
-  if (typeof value === "string") return value.trim() !== "";
-  return value !== null && value !== undefined;
-};
-
-const getRecordKey = (record, index) => {
-  if (record && typeof record === "object" && !Array.isArray(record)) {
-    if (record.id !== undefined && record.id !== null && record.id !== "") {
-      return `id:${record.id}`;
-    }
-    if (record.templateId) return `templateId:${record.templateId}`;
-    if (record.orderNumber) return `orderNumber:${record.orderNumber}`;
-    if (record.name) return `name:${record.name}`;
-    if (record.title) return `title:${record.title}`;
-  }
-
-  return `index:${index}:${JSON.stringify(record)}`;
-};
-
-function mergeMeaningful(baseValue, incomingValue) {
-  if (Array.isArray(baseValue) && Array.isArray(incomingValue)) {
-    if (baseValue.length === 0) return incomingValue;
-    if (incomingValue.length === 0) return baseValue;
-
-    const everyItemIsRecord = [...baseValue, ...incomingValue].every(
-      (item) => item && typeof item === "object" && !Array.isArray(item)
-    );
-
-    if (everyItemIsRecord) {
-      return mergeCollectionRecords([baseValue, incomingValue]);
-    }
-
-    const seen = new Set(baseValue.map((item) => JSON.stringify(item)));
-    const merged = [...baseValue];
-
-    incomingValue.forEach((item) => {
-      const token = JSON.stringify(item);
-      if (!seen.has(token)) {
-        seen.add(token);
-        merged.push(item);
-      }
-    });
-
-    return merged;
-  }
-
-  if (isPlainObject(baseValue) && isPlainObject(incomingValue)) {
-    const merged = { ...baseValue };
-
-    Object.keys(incomingValue).forEach((key) => {
-      merged[key] = key in merged
-        ? mergeMeaningful(merged[key], incomingValue[key])
-        : incomingValue[key];
-    });
-
-    return merged;
-  }
-
-  return hasMeaningfulValue(incomingValue) ? incomingValue : baseValue;
-}
-
-const mergeCollectionRecords = (sources) => {
-  const merged = [];
-  const recordIndexByKey = new Map();
-
-  sources.forEach((source) => {
-    source.forEach((record, index) => {
-      const key = getRecordKey(record, index);
-      const existingIndex = recordIndexByKey.get(key);
-
-      if (existingIndex === undefined) {
-        recordIndexByKey.set(key, merged.length);
-        merged.push(record);
-        return;
-      }
-
-      merged[existingIndex] = mergeMeaningful(merged[existingIndex], record);
-    });
-  });
-
-  return merged;
-};
-
-const readStorageCandidate = (key, emptyValue) => {
-  if (typeof window === "undefined") return null;
-
-  const rawValue = window.localStorage.getItem(key);
-  if (rawValue === null) return null;
-
-  try {
-    const parsedValue = JSON.parse(rawValue);
-
-    if (Array.isArray(emptyValue)) {
-      return Array.isArray(parsedValue) ? parsedValue : null;
-    }
-
-    if (isPlainObject(emptyValue)) {
-      return isPlainObject(parsedValue) ? parsedValue : null;
-    }
-
-    return parsedValue ?? emptyValue;
-  } catch (error) {
-    console.warn(`Skipping invalid localStorage value for ${key}`, error);
-    return null;
-  }
-};
-
-const readUnifiedBucket = (bucketName) => {
-  const bucket = storageBuckets[bucketName];
-  const values = bucket.aliases
-    .map((key) => readStorageCandidate(key, bucket.emptyValue))
-    .filter((value) => value !== null);
-
-  if (Array.isArray(bucket.emptyValue)) {
-    return values.length > 0 ? mergeCollectionRecords(values) : [];
-  }
-
-  if (isPlainObject(bucket.emptyValue)) {
-    return values.reduce((merged, value) => mergeMeaningful(merged, value), {});
-  }
-
-  return bucket.emptyValue;
-};
-
-const readUnifiedAppStorage = () => ({
-  clients: readUnifiedBucket("clients"),
-  carriers: readUnifiedBucket("carriers"),
-  orders: readUnifiedBucket("orders"),
-  settings: readUnifiedBucket("settings")
+const emptyAppData = () => ({
+  clients: [],
+  carriers: [],
+  orders: [],
+  settings: {},
+  imports: []
 });
 
-const persistUnifiedBucket = (bucketName, value) => {
-  if (typeof window === "undefined") return;
+const loadFromBackend = async (signal) => {
+  try {
+    const response = await fetch('http://localhost:3001/api/data', { signal });
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        clients: Array.isArray(data.clients) ? data.clients : [],
+        carriers: Array.isArray(data.carriers) ? data.carriers : [],
+        orders: Array.isArray(data.orders) ? data.orders : [],
+        settings: (data.settings && typeof data.settings === 'object') ? data.settings : {},
+        imports: Array.isArray(data.imports) ? data.imports : []
+      };
+    }
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.warn('⚠️ Failed to load from backend:', error);
+    }
+  }
+  return null;
+};
 
+const persistUnifiedBucket = (bucketName, value) => {
   const bucket = storageBuckets[bucketName];
   const normalizedValue = value ?? bucket.emptyValue;
   const serializedValue = JSON.stringify(normalizedValue);
 
-  bucket.aliases.forEach((key) => {
-    window.localStorage.setItem(key, serializedValue);
-  });
-
   fetch(`http://localhost:3001/api/data/${bucketName}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: serializedValue
+  }).then((res) => {
+    if (!res.ok) {
+      res.text().then(t => console.error(`❌ Backend rejected PUT /${bucketName}: ${res.status}`, t));
+    }
   }).catch((error) => {
-    console.error(`Failed to persist ${bucketName} to backend`, error);
+    console.error(`❌ Failed to persist ${bucketName} to backend`, error);
   });
 };
 
-const persistUnifiedAppStorage = (snapshot) => {
-  persistUnifiedBucket("clients", snapshot.clients);
-  persistUnifiedBucket("carriers", snapshot.carriers);
-  persistUnifiedBucket("orders", snapshot.orders);
-  persistUnifiedBucket("settings", snapshot.settings);
+
+const dedupeImports = (importsList, carriersList, clientsList) => {
+  const names = new Set([
+    ...carriersList.map(c => c.name?.toLowerCase().trim()).filter(Boolean),
+    ...clientsList.map(c => c.name?.toLowerCase().trim()).filter(Boolean),
+  ]);
+  const vats = new Set([
+    ...carriersList.map(c => c.vatCode?.trim()).filter(Boolean),
+    ...clientsList.map(c => c.vatCode?.trim()).filter(Boolean),
+  ]);
+  return importsList.filter(imp => {
+    const name = imp.name?.toLowerCase().trim();
+    const vat = imp.vatCode?.trim();
+    if (name && names.has(name)) return false;
+    if (vat && vats.has(vat)) return false;
+    return true;
+  });
 };
 
 function App() {
   const [page, setPage] = useState("clients");
-  const [initialStorage] = useState(() => readUnifiedAppStorage());
-  const [clients, setClients] = useState(initialStorage.clients);
-  const [carriers, setCarriers] = useState(initialStorage.carriers);
-  const [orders, setOrders] = useState(initialStorage.orders);
-  const [settings, setSettings] = useState(initialStorage.settings);
+  const [clients, setClients] = useState([]);
+  const [carriers, setCarriers] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [settings, setSettings] = useState({});
+  const [imports, setImports] = useState([]);
+  const [importSearch, setImportSearch] = useState("");
+  const [clientSearch, setClientSearch] = useState("");
+  const [carrierSearch, setCarrierSearch] = useState("");
+  const importFileRef = useRef(null);
 
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [selectedCarrierId, setSelectedCarrierId] = useState(null);
@@ -235,6 +147,45 @@ function App() {
   const [orderModalType, setOrderModalType] = useState("order");
   const [editingOrder, setEditingOrder] = useState(null);
 
+  React.useEffect(() => {
+    // Clear all legacy localStorage keys to prevent QuotaExceededError
+    if (typeof window !== "undefined") {
+      Object.keys(window.localStorage)
+        .filter(k => k.startsWith("radanaras"))
+        .forEach(k => window.localStorage.removeItem(k));
+    }
+
+    const abortController = new AbortController();
+
+    const loadData = async () => {
+      const backendData = await loadFromBackend(abortController.signal);
+      if (abortController.signal.aborted) return;
+
+      if (backendData) {
+        const cleanedImports = dedupeImports(backendData.imports, backendData.carriers, backendData.clients);
+        if (cleanedImports.length !== backendData.imports.length) {
+          persistUnifiedBucket("imports", cleanedImports);
+        }
+        setClients(backendData.clients);
+        setCarriers(backendData.carriers);
+        setOrders(backendData.orders);
+        setSettings(backendData.settings);
+        setImports(cleanedImports);
+      } else {
+        console.warn("⚠️ Backend unavailable — data not loaded");
+        const empty = emptyAppData();
+        setClients(empty.clients);
+        setCarriers(empty.carriers);
+        setOrders(empty.orders);
+        setSettings(empty.settings);
+        setImports(empty.imports);
+      }
+    };
+
+    loadData();
+    return () => abortController.abort();
+  }, []);
+
   const handleFileUpload = async (file, type, id) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -248,6 +199,139 @@ function App() {
       return data;
   };
 
+  const moveImportToCarriers = (importId) => {
+    console.group(`🚚 moveImportToCarriers(${importId})`);
+    console.log("BEFORE — imports:", imports.length, "| carriers:", carriers.length);
+
+    const importItem = imports.find((imp) => imp.id === importId);
+    if (!importItem) {
+      console.error("❌ importItem NOT FOUND for id:", importId);
+      console.groupEnd();
+      return;
+    }
+    console.log("Moving item:", importItem.name, "| id:", importItem.id);
+
+    const newCarrier = {
+      ...importItem,
+      carrierType: "Vežėjas",
+      country: importItem.country || importItem._country || "",
+      managerContacts: importItem.managerContacts || importItem.contacts || [{ id: 1, name: "", position: "", email: "", phone: "" }],
+      documentContacts: importItem.documentContacts || defaultDepartments(),
+      documents: importItem.documents || defaultCarrierDocuments()
+    };
+    console.log("newCarrier constructed:", newCarrier.name, "| id:", newCarrier.id);
+
+    const updatedImports = imports.filter((imp) => imp.id !== importId);
+    const updatedCarriers = [...carriers, newCarrier];
+    console.log("AFTER compute — updatedImports:", updatedImports.length, "| updatedCarriers:", updatedCarriers.length);
+    console.log("Last carrier in updatedCarriers:", updatedCarriers[updatedCarriers.length - 1]?.name);
+
+    setImports(updatedImports);
+    setCarriers(updatedCarriers);
+    console.log("✅ setState called for imports and carriers");
+
+    persistUnifiedBucket("imports", updatedImports);
+    console.log("📡 persistUnifiedBucket('imports') called with", updatedImports.length, "items");
+    persistUnifiedBucket("carriers", updatedCarriers);
+    console.log("📡 persistUnifiedBucket('carriers') called with", updatedCarriers.length, "items");
+    console.groupEnd();
+  };
+
+  const moveImportToClients = (importId) => {
+    console.group(`👤 moveImportToClients(${importId})`);
+    console.log("BEFORE — imports:", imports.length, "| clients:", clients.length);
+
+    const importItem = imports.find((imp) => imp.id === importId);
+    if (!importItem) {
+      console.error("❌ importItem NOT FOUND for id:", importId);
+      console.groupEnd();
+      return;
+    }
+    console.log("Moving item:", importItem.name, "| id:", importItem.id);
+
+    const { documents, documentContacts, carrierType, ...clientBase } = importItem;
+    const newClient = {
+      ...clientBase,
+      clientType: carrierType === "Nenustatyta" ? "Klientas" : (carrierType || "Klientas"),
+      country: importItem.country || importItem._country || "",
+      contacts: importItem.contacts || importItem.managerContacts || [{ id: 1, name: "", position: "", email: "", phone: "" }],
+      departmentContacts: importItem.departmentContacts || defaultDepartments()
+    };
+    console.log("newClient constructed:", newClient.name, "| id:", newClient.id);
+
+    const updatedImports = imports.filter((imp) => imp.id !== importId);
+    const updatedClients = [...clients, newClient];
+    console.log("AFTER compute — updatedImports:", updatedImports.length, "| updatedClients:", updatedClients.length);
+    console.log("Last client in updatedClients:", updatedClients[updatedClients.length - 1]?.name);
+
+    setImports(updatedImports);
+    setClients(updatedClients);
+    console.log("✅ setState called for imports and clients");
+
+    persistUnifiedBucket("imports", updatedImports);
+    console.log("📡 persistUnifiedBucket('imports') called with", updatedImports.length, "items");
+    persistUnifiedBucket("clients", updatedClients);
+    console.log("📡 persistUnifiedBucket('clients') called with", updatedClients.length, "items");
+    console.groupEnd();
+  };
+
+  const deleteImport = (importId) => {
+    const updatedImports = imports.filter((imp) => imp.id !== importId);
+    setImports(updatedImports);
+    persistUnifiedBucket("imports", updatedImports);
+  };
+
+  const handleImportFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const data = evt.target.result;
+      const wb = XLSX.read(data, { type: "binary" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      const newImports = rows.map((row) => {
+        const get = (...keys) => {
+          for (const k of keys) {
+            const found = Object.keys(row).find(rk => rk.trim().toLowerCase() === k.toLowerCase());
+            if (found && row[found] !== "") return String(row[found]).trim();
+          }
+          return "";
+        };
+        const address = get("Adresas", "Address", "adresas");
+        const addressParts = address.split(",").map(s => s.trim());
+        return {
+          id: "IMP" + Date.now() + Math.floor(Math.random() * 10000),
+          name: get("Pavadinimas", "Name", "Įmonė", "Company", "pavadinimas"),
+          carrierType: get("Tipas", "Type", "carrierType") || "Nenustatyta",
+          companyCode: get("Įmonės kodas", "Kodas", "companyCode", "Company Code", "Reg No"),
+          vatCode: get("PVM kodas", "VAT", "vatCode", "PVM"),
+          email: get("El. paštas", "Email", "email"),
+          phone: get("Telefonas", "Tel", "Phone", "phone"),
+          address,
+          website: get("Svetainė", "Website", "website"),
+          notes: get("Pastabos", "Notes", "notes"),
+          _country: addressParts.length > 1 ? addressParts[addressParts.length - 1] : "",
+          _city: addressParts.length > 1 ? addressParts[addressParts.length - 2] || addressParts[0] : addressParts[0] || "",
+          _importSource: "manual",
+          managerContacts: [{ id: 1, name: "", position: "", email: get("El. paštas", "Email", "email"), phone: get("Telefonas", "Tel", "Phone", "phone") }],
+          documentContacts: defaultDepartments(),
+          documents: defaultCarrierDocuments()
+        };
+      }).filter(imp => imp.name);
+      if (newImports.length === 0) {
+        alert("Nerasta jokių įmonių. Patikrinkite failo formatą.");
+        return;
+      }
+      const updatedImports = [...imports, ...newImports];
+      setImports(updatedImports);
+      persistUnifiedBucket("imports", updatedImports);
+      alert(`✅ Importuota ${newImports.length} įmonių.`);
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = "";
+  };
+
   const emptyClientForm = {
     name: "",
     clientType: "Ekspeditorius",
@@ -256,6 +340,7 @@ function App() {
     email: "",
     phone: "",
     address: "",
+    country: "",
     website: "",
     contacts: [
       { id: 1, name: "", position: "", email: "", phone: "" }
@@ -271,12 +356,16 @@ function App() {
     email: "",
     phone: "",
     address: "",
+    country: "",
     website: "",
     managerContacts: [
       { id: 1, name: "", position: "", email: "", phone: "" }
     ],
     documentContacts: defaultDepartments(),
     documents: defaultCarrierDocuments(),
+    drivers: [],
+    trucks: [],
+    trailers: [],
     notes: ""
   };
 
@@ -288,7 +377,8 @@ function App() {
     { name: "Klientai", key: "clients" },
     { name: "Vežėjai", key: "carriers" },
     { name: "Užsakymai", key: "orders" },
-    { name: "Nustatymai", key: "settings" }
+    { name: "Nustatymai", key: "settings" },
+    { name: "Importas", key: "imports" }
   ];
 
   const selectedClient = useMemo(() => {
@@ -316,7 +406,10 @@ function App() {
         : defaultDepartments(),
       documents: found.documents && found.documents.length > 0
         ? found.documents
-        : defaultCarrierDocuments()
+        : defaultCarrierDocuments(),
+      drivers: found.drivers || [],
+      trucks: found.trucks || [],
+      trailers: found.trailers || []
     };
   }, [carriers, selectedCarrierId]);
 
@@ -368,6 +461,7 @@ function App() {
       email: client.email || "",
       phone: client.phone || "",
       address: client.address || "",
+      country: client.country || "",
       website: client.website || "",
       contacts:
         client.contacts && client.contacts.length > 0
@@ -397,6 +491,7 @@ function App() {
       email: carrier.email || "",
       phone: carrier.phone || "",
       address: carrier.address || "",
+      country: carrier.country || "",
       website: carrier.website || "",
       managerContacts:
         carrier.managerContacts && carrier.managerContacts.length > 0
@@ -410,6 +505,9 @@ function App() {
         carrier.documents && carrier.documents.length > 0
           ? carrier.documents
           : defaultCarrierDocuments(),
+      drivers: carrier.drivers || [],
+      trucks: carrier.trucks || [],
+      trailers: carrier.trailers || [],
       notes: carrier.notes || ""
     });
     setShowCarrierModal(true);
@@ -602,6 +700,39 @@ function App() {
     });
   };
 
+  // ── Drivers ──────────────────────────────────────────────────────────────────
+  const handleCarrierDriverChange = (id, field, value) => {
+    setCarrierForm(prev => ({ ...prev, drivers: prev.drivers.map(d => d.id === id ? { ...d, [field]: value } : d) }));
+  };
+  const addCarrierDriverRow = () => {
+    setCarrierForm(prev => ({ ...prev, drivers: [...(prev.drivers || []), { id: Date.now(), name: "", phone: "", licenseNumber: "" }] }));
+  };
+  const removeCarrierDriverRow = (id) => {
+    setCarrierForm(prev => ({ ...prev, drivers: (prev.drivers || []).filter(d => d.id !== id) }));
+  };
+
+  // ── Trucks ───────────────────────────────────────────────────────────────────
+  const handleCarrierTruckChange = (id, field, value) => {
+    setCarrierForm(prev => ({ ...prev, trucks: prev.trucks.map(t => t.id === id ? { ...t, [field]: value } : t) }));
+  };
+  const addCarrierTruckRow = () => {
+    setCarrierForm(prev => ({ ...prev, trucks: [...(prev.trucks || []), { id: Date.now(), licensePlate: "", model: "", year: "" }] }));
+  };
+  const removeCarrierTruckRow = (id) => {
+    setCarrierForm(prev => ({ ...prev, trucks: (prev.trucks || []).filter(t => t.id !== id) }));
+  };
+
+  // ── Trailers ─────────────────────────────────────────────────────────────────
+  const handleCarrierTrailerChange = (id, field, value) => {
+    setCarrierForm(prev => ({ ...prev, trailers: prev.trailers.map(t => t.id === id ? { ...t, [field]: value } : t) }));
+  };
+  const addCarrierTrailerRow = () => {
+    setCarrierForm(prev => ({ ...prev, trailers: [...(prev.trailers || []), { id: Date.now(), licensePlate: "", model: "", year: "" }] }));
+  };
+  const removeCarrierTrailerRow = (id) => {
+    setCarrierForm(prev => ({ ...prev, trailers: (prev.trailers || []).filter(t => t.id !== id) }));
+  };
+
   const handleCarrierDocumentChange = (documentId, field, value) => {
     setCarrierForm(prev => ({
       ...prev,
@@ -741,6 +872,10 @@ function App() {
       doc.title.trim() || doc.number.trim() || doc.validUntil.trim() || doc.link.trim() || doc.fileName
     );
 
+    const cleanedDrivers = (carrierForm.drivers || []).filter(d => d.name?.trim() || d.phone?.trim() || d.licenseNumber?.trim());
+    const cleanedTrucks = (carrierForm.trucks || []).filter(t => t.licensePlate?.trim() || t.model?.trim());
+    const cleanedTrailers = (carrierForm.trailers || []).filter(t => t.licensePlate?.trim() || t.model?.trim());
+
     if (editingCarrierId) {
       const next = carriers.map(carrier =>
         carrier.id === editingCarrierId
@@ -749,7 +884,10 @@ function App() {
               ...carrierForm,
               managerContacts: cleanedManagers,
               documentContacts: cleanedDepartments,
-              documents: cleanedDocuments
+              documents: cleanedDocuments,
+              drivers: cleanedDrivers,
+              trucks: cleanedTrucks,
+              trailers: cleanedTrailers
             }
           : carrier
       );
@@ -760,7 +898,10 @@ function App() {
         ...carrierForm,
         managerContacts: cleanedManagers,
         documentContacts: cleanedDepartments,
-        documents: cleanedDocuments
+        documents: cleanedDocuments,
+        drivers: cleanedDrivers,
+        trucks: cleanedTrucks,
+        trailers: cleanedTrailers
       };
       saveCarriers([newCarrier, ...carriers]);
     }
@@ -806,19 +947,46 @@ function App() {
   };
 
   const renderClients = () => {
+    const q = clientSearch.trim().toLowerCase();
+    const filtered = q
+      ? clients.filter(c =>
+          (c.name || "").toLowerCase().includes(q) ||
+          (c.companyCode || "").toLowerCase().includes(q) ||
+          (c.vatCode || "").toLowerCase().includes(q) ||
+          (c.email || "").toLowerCase().includes(q)
+        )
+      : clients;
+
     return (
       <div>
         <div style={pageHeaderRow}>
-          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Klientai</h2>
+          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Klientai ({clients.length})</h2>
           <button style={primaryButton} onClick={openNewClientModal}>+ Naujas klientas</button>
         </div>
 
-        {clients.length === 0 ? (
-          <p style={emptyText}>Kol kas nėra klientų.</p>
-        ) : (
+        {clients.length > 0 && (
+          <div style={{ marginBottom: "12px" }}>
+            <input
+              type="text"
+              placeholder="Ieškoti pagal pavadinimą, kodą, PVM ar el. paštą..."
+              value={clientSearch}
+              onChange={(e) => setClientSearch(e.target.value)}
+              style={{ width: "100%", padding: "9px 14px", fontSize: "14px", border: "1px solid #cbd5e1", borderRadius: "6px", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+        )}
+
+        {clients.length === 0 && <p style={emptyText}>Kol kas nėra klientų.</p>}
+
+        {clients.length > 0 && filtered.length === 0 && (
+          <p style={emptyText}>Nerasta klientų pagal paiešką.</p>
+        )}
+
+        {filtered.length > 0 && (
           <table style={tableStyle}>
             <thead>
               <tr style={{ background: "#f8fafc" }}>
+                <th style={{ ...thStyle, textAlign: "right", width: "48px", color: "#94a3b8" }}>Nr.</th>
                 <th style={thStyle}>Pavadinimas</th>
                 <th style={thStyle}>Tipas</th>
                 <th style={thStyle}>Įmonės kodas</th>
@@ -829,8 +997,9 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {clients.map((item) => (
+              {filtered.map((item, index) => (
                 <tr key={item.id}>
+                  <td style={{ ...tdStyle, textAlign: "right", color: "#94a3b8", fontSize: "13px" }}>{index + 1}</td>
                   <td style={tdStyle}>
                     <button onClick={() => openClientProfile(item.id)} style={linkButtonStyle}>
                       {item.name}
@@ -855,19 +1024,46 @@ function App() {
   };
 
   const renderCarriers = () => {
-  return (
+    const q = carrierSearch.trim().toLowerCase();
+    const filtered = q
+      ? carriers.filter(c =>
+          (c.name || "").toLowerCase().includes(q) ||
+          (c.companyCode || "").toLowerCase().includes(q) ||
+          (c.vatCode || "").toLowerCase().includes(q) ||
+          (c.address || "").toLowerCase().includes(q)
+        )
+      : carriers;
+
+    return (
     <div>
       <div style={pageHeaderRow}>
         <h2 style={{ margin: 0, color: "#1e3a8a" }}>Vežėjai ({carriers.length})</h2>
         <button style={primaryButton} onClick={openNewCarrierModal}>+ Pridėti Vežėją</button>
       </div>
 
-      {carriers.length === 0 ? (
-        <p style={emptyText}>Kol kas nėra vežėjų.</p>
-      ) : (
+      {carriers.length > 0 && (
+        <div style={{ marginBottom: "12px" }}>
+          <input
+            type="text"
+            placeholder="Ieškoti pagal pavadinimą, kodą, PVM ar miestą..."
+            value={carrierSearch}
+            onChange={(e) => setCarrierSearch(e.target.value)}
+            style={{ width: "100%", padding: "9px 14px", fontSize: "14px", border: "1px solid #cbd5e1", borderRadius: "6px", outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
+      )}
+
+      {carriers.length === 0 && <p style={emptyText}>Kol kas nėra vežėjų.</p>}
+
+      {carriers.length > 0 && filtered.length === 0 && (
+        <p style={emptyText}>Nerasta vežėjų pagal paiešką.</p>
+      )}
+
+      {filtered.length > 0 && (
         <table style={{ ...tableStyle, tableLayout: "auto" }}>
           <thead>
             <tr style={{ background: "#f1f5f9" }}>
+              <th style={{ ...thStyle, textAlign: "right", width: "48px", color: "#94a3b8" }}>Nr.</th>
               <th style={thStyle}>PAVADINIMAS</th>
               <th style={thStyle}>TIPAS</th>
               <th style={thStyle}>ĮMONĖS KODAS</th>
@@ -880,27 +1076,17 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {carriers.map((item) => {
+            {filtered.map((item, index) => {
               const cmr = item.documents?.find(d => d.title === "CMR draudimas");
               const lic = item.documents?.find(d => d.title === "Transporto licencija");
 
               return (
                 <tr key={item.id} style={{ background: "#f8fafc" }}>
+                  <td style={{ ...tdStyle, textAlign: "right", color: "#94a3b8", fontSize: "13px", whiteSpace: "nowrap" }}>{index + 1}</td>
                   <td style={{ ...tdStyle, whiteSpace: "nowrap", fontWeight: "700" }}><button onClick={() => openCarrierProfile(item.id)} style={linkButtonStyle}>{item.name || "-"}</button></td>
 
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        background: "#dbeafe",
-                        color: "#1e40af",
-                        padding: "4px 10px",
-                        borderRadius: "6px",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        whiteSpace: "nowrap"
-                      }}
-                    >
+                    <span style={{ display: "inline-block", background: "#dbeafe", color: "#1e40af", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", whiteSpace: "nowrap" }}>
                       {item.carrierType === "Nuosavas transportas" ? "Nuosavas" : item.carrierType || "-"}
                     </span>
                   </td>
@@ -912,12 +1098,8 @@ function App() {
 
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "nowrap" }}>
-                      {cmr?.link ? (
-                        <button style={smallActionButton} onClick={() => openCarrierDocumentModal(item, cmr)}>CMR</button>
-                      ) : null}
-                      {lic?.link ? (
-                        <button style={smallActionButton} onClick={() => openCarrierDocumentModal(item, lic)}>LIC</button>
-                      ) : null}
+                      {cmr?.link ? <button style={smallActionButton} onClick={() => openCarrierDocumentModal(item, cmr)}>CMR</button> : null}
+                      {lic?.link ? <button style={smallActionButton} onClick={() => openCarrierDocumentModal(item, lic)}>LIC</button> : null}
                     </div>
                   </td>
 
@@ -955,11 +1137,152 @@ function App() {
     return <SettingsPage settings={settings} saveSettings={saveSettings} />;
   };
 
+  const renderImports = () => {
+    const q = importSearch.trim().toLowerCase();
+    const filtered = q
+      ? imports.filter(imp =>
+          (imp.name || "").toLowerCase().includes(q) ||
+          (imp._country || "").toLowerCase().includes(q) ||
+          (imp._city || "").toLowerCase().includes(q) ||
+          (imp.companyCode || "").toLowerCase().includes(q) ||
+          (imp.vatCode || "").toLowerCase().includes(q)
+        )
+      : imports;
+
+    return (
+      <div>
+        <div style={pageHeaderRow}>
+          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Importas ({imports.length})</h2>
+          <div>
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              style={{ display: "none" }}
+              onChange={handleImportFile}
+            />
+            <button
+              onClick={() => importFileRef.current.click()}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#1e3a8a",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: 600
+              }}
+              onMouseOver={(e) => { e.target.style.backgroundColor = "#1e40af"; }}
+              onMouseOut={(e) => { e.target.style.backgroundColor = "#1e3a8a"; }}
+            >
+              + Importuoti
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: "12px" }}>
+          <input
+            type="text"
+            placeholder="Ieškoti pagal pavadinimą, šalį, miestą ar kodą..."
+            value={importSearch}
+            onChange={(e) => setImportSearch(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "9px 14px",
+              fontSize: "14px",
+              border: "1px solid #cbd5e1",
+              borderRadius: "6px",
+              outline: "none",
+              boxSizing: "border-box"
+            }}
+          />
+        </div>
+
+        {imports.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "#94a3b8", fontSize: "16px" }}>
+            Nėra importuotų įmonių
+          </div>
+        )}
+
+        {imports.length > 0 && filtered.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 20px", color: "#94a3b8", fontSize: "16px" }}>
+            Nerasta įmonių pagal paiešką
+          </div>
+        )}
+
+        {filtered.length > 0 && (
+          <div style={{ backgroundColor: "white", borderRadius: "8px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f8f9fa", borderBottom: "2px solid #dee2e6" }}>
+                  <th style={{ padding: "12px", textAlign: "right", fontWeight: 600, color: "#94a3b8", width: "48px" }}>Nr.</th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: 600 }}>Pavadinimas</th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: 600 }}>Šalis</th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: 600 }}>Miestas</th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: 600 }}>Įmonės kodas</th>
+                  <th style={{ padding: "12px", textAlign: "left", fontWeight: 600 }}>PVM kodas</th>
+                  <th style={{ padding: "12px", textAlign: "center", fontWeight: 600 }}>Veiksmai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((imp, index) => (
+                  <tr
+                    key={imp.id}
+                    style={{
+                      borderBottom: "1px solid #dee2e6",
+                      backgroundColor: index % 2 === 0 ? "white" : "#f8f9fa"
+                    }}
+                  >
+                    <td style={{ padding: "12px", textAlign: "right", color: "#94a3b8", fontSize: "13px" }}>{index + 1}</td>
+                    <td style={{ padding: "12px" }}>{imp.name}</td>
+                    <td style={{ padding: "12px" }}>{imp._country || "-"}</td>
+                    <td style={{ padding: "12px" }}>{imp._city || "-"}</td>
+                    <td style={{ padding: "12px", fontSize: "13px", color: "#666" }}>{imp.companyCode || "-"}</td>
+                    <td style={{ padding: "12px", fontSize: "13px", color: "#666" }}>{imp.vatCode || "-"}</td>
+                    <td style={{ padding: "12px", textAlign: "center" }}>
+                      <button
+                        onClick={() => moveImportToClients(imp.id)}
+                        style={{ padding: "6px 12px", marginRight: "8px", backgroundColor: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: 500 }}
+                        onMouseOver={(e) => { e.target.style.backgroundColor = "#218838"; }}
+                        onMouseOut={(e) => { e.target.style.backgroundColor = "#28a745"; }}
+                      >
+                        → Klientai
+                      </button>
+                      <button
+                        onClick={() => moveImportToCarriers(imp.id)}
+                        style={{ padding: "6px 12px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "13px", fontWeight: 500 }}
+                        onMouseOver={(e) => { e.target.style.backgroundColor = "#0056b3"; }}
+                        onMouseOut={(e) => { e.target.style.backgroundColor = "#007bff"; }}
+                      >
+                        → Vežėjai
+                      </button>
+                      <button
+                        onClick={() => deleteImport(imp.id)}
+                        title="Ištrinti"
+                        style={{ padding: "6px 10px", marginLeft: "8px", backgroundColor: "#dc3545", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "14px", fontWeight: 700, lineHeight: 1 }}
+                        onMouseOver={(e) => { e.target.style.backgroundColor = "#b02a37"; }}
+                        onMouseOut={(e) => { e.target.style.backgroundColor = "#dc3545"; }}
+                      >
+                        ×
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderPage = () => {
     if (page === "dashboard") return renderDashboard();
     if (page === "clients") return renderClients();
     if (page === "carriers") return renderCarriers();
     if (page === "orders") return renderOrders();
+    if (page === "imports") return renderImports();
     return renderSettings();
   };
 
@@ -989,10 +1312,6 @@ function App() {
 
   const documentPreviewLink = normalizeCarrierDocumentLink(currentSelectedCarrierDocument?.link || "");
   const canPreviewDocument = !!documentPreviewLink && documentPreviewLink.startsWith("http");
-
-  useEffect(() => {
-    persistUnifiedAppStorage(initialStorage);
-  }, [initialStorage]);
 
   useEffect(() => {
     if (!currentSelectedCarrierDocument) {
@@ -1106,6 +1425,10 @@ function App() {
               <div style={formGroup}>
                 <label style={labelStyle}>Adresas</label>
                 <input style={inputStyle} value={clientForm.address} onChange={(e) => handleClientFieldChange("address", e.target.value)} />
+              </div>
+              <div style={formGroup}>
+                <label style={labelStyle}>Šalis</label>
+                <input style={inputStyle} value={clientForm.country} onChange={(e) => handleClientFieldChange("country", e.target.value)} />
               </div>
               <div style={formGroup}>
                 <label style={labelStyle}>Web puslapis</label>
@@ -1309,6 +1632,10 @@ function App() {
                 <input style={inputStyle} value={carrierForm.address} onChange={(e) => handleCarrierFieldChange("address", e.target.value)} />
               </div>
               <div style={formGroup}>
+                <label style={labelStyle}>Šalis</label>
+                <input style={inputStyle} value={carrierForm.country} onChange={(e) => handleCarrierFieldChange("country", e.target.value)} />
+              </div>
+              <div style={formGroup}>
                 <label style={labelStyle}>Web puslapis</label>
                 <input style={inputStyle} value={carrierForm.website} onChange={(e) => handleCarrierFieldChange("website", e.target.value)} />
               </div>
@@ -1495,6 +1822,57 @@ function App() {
               <button style={secondaryButton} onClick={addCarrierDocumentRow}>+ Pridėti dokumentą</button>
             </div>
 
+            <div style={sectionTitle}>Vairuotojai</div>
+            {(carrierForm.drivers || []).map((driver, index) => (
+              <div key={driver.id} style={contactCard}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <div style={{ fontWeight: "700", color: "#1e3a8a" }}>Vairuotojas #{index + 1}</div>
+                  <button style={dangerSmallButton} onClick={() => removeCarrierDriverRow(driver.id)}>Pašalinti</button>
+                </div>
+                <div style={twoCol}>
+                  <div style={formGroup}><label style={labelStyle}>Vardas, pavardė *</label><input style={inputStyle} value={driver.name || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "name", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Telefonas</label><input style={inputStyle} value={driver.phone || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "phone", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Pažymėjimo Nr.</label><input style={inputStyle} value={driver.licenseNumber || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "licenseNumber", e.target.value)} /></div>
+                </div>
+              </div>
+            ))}
+            {(carrierForm.drivers || []).length === 0 && <p style={emptyText}>Vairuotojų nėra.</p>}
+            <div style={{ marginTop: "10px" }}><button style={secondaryButton} onClick={addCarrierDriverRow}>+ Pridėti vairuotoją</button></div>
+
+            <div style={sectionTitle}>Vilkikai</div>
+            {(carrierForm.trucks || []).map((truck, index) => (
+              <div key={truck.id} style={contactCard}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <div style={{ fontWeight: "700", color: "#1e3a8a" }}>Vilkikas #{index + 1}</div>
+                  <button style={dangerSmallButton} onClick={() => removeCarrierTruckRow(truck.id)}>Pašalinti</button>
+                </div>
+                <div style={twoCol}>
+                  <div style={formGroup}><label style={labelStyle}>Valst. numeris *</label><input style={inputStyle} value={truck.licensePlate || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "licensePlate", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Modelis</label><input style={inputStyle} value={truck.model || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "model", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Metai</label><input type="number" style={inputStyle} value={truck.year || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "year", e.target.value)} /></div>
+                </div>
+              </div>
+            ))}
+            {(carrierForm.trucks || []).length === 0 && <p style={emptyText}>Vilkikų nėra.</p>}
+            <div style={{ marginTop: "10px" }}><button style={secondaryButton} onClick={addCarrierTruckRow}>+ Pridėti vilkiką</button></div>
+
+            <div style={sectionTitle}>Priekabos</div>
+            {(carrierForm.trailers || []).map((trailer, index) => (
+              <div key={trailer.id} style={contactCard}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <div style={{ fontWeight: "700", color: "#1e3a8a" }}>Priekaba #{index + 1}</div>
+                  <button style={dangerSmallButton} onClick={() => removeCarrierTrailerRow(trailer.id)}>Pašalinti</button>
+                </div>
+                <div style={twoCol}>
+                  <div style={formGroup}><label style={labelStyle}>Valst. numeris *</label><input style={inputStyle} value={trailer.licensePlate || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "licensePlate", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Modelis</label><input style={inputStyle} value={trailer.model || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "model", e.target.value)} /></div>
+                  <div style={formGroup}><label style={labelStyle}>Metai</label><input type="number" style={inputStyle} value={trailer.year || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "year", e.target.value)} /></div>
+                </div>
+              </div>
+            ))}
+            {(carrierForm.trailers || []).length === 0 && <p style={emptyText}>Priekabų nėra.</p>}
+            <div style={{ marginTop: "10px" }}><button style={secondaryButton} onClick={addCarrierTrailerRow}>+ Pridėti priekabą</button></div>
+
             <div style={sectionTitle}>Pastabos</div>
             <div style={formGroup}>
               <textarea
@@ -1616,6 +1994,78 @@ function App() {
               <p style={emptyText}>Dokumentų nėra.</p>
             )}
 
+            <div style={sectionTitle}>Vairuotojai</div>
+            {selectedCarrier.drivers && selectedCarrier.drivers.length > 0 ? (
+              <table style={tableStyle}>
+                <thead>
+                  <tr style={{ background: "#f8fafc" }}>
+                    <th style={thStyle}>Vardas</th>
+                    <th style={thStyle}>Telefonas</th>
+                    <th style={thStyle}>Pažymėjimo Nr.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedCarrier.drivers.map((d) => (
+                    <tr key={d.id}>
+                      <td style={tdStyle}>{d.name || "-"}</td>
+                      <td style={tdStyle}>{d.phone || "-"}</td>
+                      <td style={tdStyle}>{d.licenseNumber || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p style={emptyText}>Vairuotojų nėra.</p>
+            )}
+
+            <div style={sectionTitle}>Vilkikai</div>
+            {selectedCarrier.trucks && selectedCarrier.trucks.length > 0 ? (
+              <table style={tableStyle}>
+                <thead>
+                  <tr style={{ background: "#f8fafc" }}>
+                    <th style={thStyle}>Valst. numeris</th>
+                    <th style={thStyle}>Modelis</th>
+                    <th style={thStyle}>Metai</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedCarrier.trucks.map((t) => (
+                    <tr key={t.id}>
+                      <td style={tdStyle}>{t.licensePlate || "-"}</td>
+                      <td style={tdStyle}>{t.model || "-"}</td>
+                      <td style={tdStyle}>{t.year || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p style={emptyText}>Vilkikų nėra.</p>
+            )}
+
+            <div style={sectionTitle}>Priekabos</div>
+            {selectedCarrier.trailers && selectedCarrier.trailers.length > 0 ? (
+              <table style={tableStyle}>
+                <thead>
+                  <tr style={{ background: "#f8fafc" }}>
+                    <th style={thStyle}>Valst. numeris</th>
+                    <th style={thStyle}>Modelis</th>
+                    <th style={thStyle}>Metai</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedCarrier.trailers.map((t) => (
+                    <tr key={t.id}>
+                      <td style={tdStyle}>{t.licensePlate || "-"}</td>
+                      <td style={tdStyle}>{t.model || "-"}</td>
+                      <td style={tdStyle}>{t.year || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p style={emptyText}>Priekabų nėra.</p>
+            )}
+
             <div style={sectionTitle}>Pastabos</div>
             <div style={profileBlock}>
               {selectedCarrier.notes ? selectedCarrier.notes : "Pastabų nėra."}
@@ -1649,6 +2099,7 @@ function App() {
           clients={clients}
           carriers={carriers}
           saveOrders={saveOrders}
+          saveCarriers={saveCarriers}
           orders={orders}
           settings={settings}
         />

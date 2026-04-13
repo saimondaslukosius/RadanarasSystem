@@ -33,3 +33,142 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* ── Status badges ── */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-new             { background: #dbeafe; color: #1d4ed8; }
+.status-confirmed       { background: #fef9c3; color: #854d0e; }
+.status-in_progress     { background: #ffedd5; color: #9a3412; }
+.status-delivered       { background: #dcfce7; color: #15803d; }
+.status-completed       { background: #bbf7d0; color: #14532d; }
+.status-missing_docs    { background: #fed7aa; color: #7c2d12; }
+.status-missing_invoice { background: #fecaca; color: #991b1b; }
+
+/* ── Template grid ── */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.template-card {
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  cursor: default;
+}
+.template-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+.default-badge {
+  display: inline-block;
+  background: #fef9c3;
+  color: #854d0e;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+/* ========== STICKY TOOLBAR FOR TEMPLATE EDITOR ========== */
+.editor-toolbar {
+  position: fixed !important;
+  top: 60px !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  background: white !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  padding: 10px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+/* ========== MODERN TOOLBAR STYLING ========== */
+
+/* Toolbar container */
+.template-editor-toolbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 18px 20px !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3) !important;
+  margin-bottom: 0 !important;
+}
+
+/* All toolbar buttons */
+.template-editor-toolbar button {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 8px 14px !important;
+  margin: 0 4px !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.template-editor-toolbar button:hover {
+  background: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.template-editor-toolbar button:active {
+  transform: translateY(0px) !important;
+}
+
+/* Select dropdowns */
+.template-editor-toolbar select {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  margin: 0 4px !important;
+  color: #333 !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.template-editor-toolbar select:hover {
+  background: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Color input */
+.template-editor-toolbar input[type="color"] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+  margin: 0 4px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  width: 55px !important;
+  height: 38px !important;
+}
+
+.template-editor-toolbar input[type="color"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Dynamic fields button - special green styling */
+.template-editor-toolbar button[style*="#4CAF50"] {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3) !important;
+}
+
+.template-editor-toolbar button[style*="#4CAF50"]:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%) !important;
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4) !important;
+}

@@ -249,6 +249,14 @@ class LicenseExtractorCLI {
       }
     }
 
+    const isoDates = normalizedText.match(/\d{4}[-/.]\d{2}[-/.]\d{2}/g) || [];
+    if (isoDates.length > 0) {
+      const normalized = this.normalizeDate(isoDates[isoDates.length - 1]);
+      if (normalized) {
+        return normalized;
+      }
+    }
+
     return '';
   }
 
