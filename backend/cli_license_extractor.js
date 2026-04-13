@@ -67,7 +67,11 @@ class LicenseExtractorCLI {
     this.log('Running Tesseract CLI...');
     
     const outputBase = imagePath.replace('.png', '_ocr');
-    const command = `"C:\\Program Files\\Tesseract-OCR\\tesseract.exe" "${imagePath}" "${outputBase}" -l eng --psm 3`;
+    const tesseractBin =
+      process.platform === "win32"
+        ? `"C:\\Program Files\\Tesseract-OCR\\tesseract.exe"`
+        : "tesseract";
+    const command = `${tesseractBin} "${imagePath}" "${outputBase}" -l eng --psm 3`;
     
     try {
       const { stdout, stderr } = await execAsync(command);

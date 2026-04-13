@@ -7,7 +7,9 @@ const path = require("path");
 const fs = require("fs");
 const { PDFParse } = require("pdf-parse");
 const { createWorker } = require("tesseract.js");
-const pdfPoppler = require("pdf-poppler");
+const { exec } = require("child_process");
+const { promisify } = require("util");
+const execAsync = promisify(exec);
 const { parseDocument } = require("./aiParser");
 const LicenseExtractorCLI = require("./cli_license_extractor");
 
@@ -446,19 +448,16 @@ app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
         const outputDir = path.join(__dirname, "temp");
         fs.mkdirSync(outputDir, { recursive: true });
 
-        const opts = {
-          format: "png",
-          out_dir: outputDir,
-          out_prefix: path.basename(req.file.filename, ".pdf"),
-          page: 1
-        };
+        const outPrefix = path.join(outputDir, path.basename(req.file.filename, ".pdf"));
+        const pdftoppmBin =
+          process.platform === "win32"
+            ? `"C:\\poppler\\Library\\bin\\pdftoppm.exe"`
+            : "pdftoppm";
+        await execAsync(
+          `${pdftoppmBin} -r 150 -png -singlefile "${req.file.path}" "${outPrefix}"`
+        );
 
-        opts.poppler_path = "C:\\poppler\\Library\\bin";
-        await pdfPoppler.convert(req.file.path, opts);
-
-        imagePath = path.join(outputDir, `${opts.out_prefix}-1.png`);
-        console.log("OCR IMAGE PATH:", imagePath);
-        console.log("OCR IMAGE EXISTS:", fs.existsSync(imagePath));
+        imagePath = `${outPrefix}.png`;
         console.log("OCR IMAGE PATH:", imagePath);
         console.log("OCR IMAGE EXISTS:", fs.existsSync(imagePath));
       } catch (e) {
