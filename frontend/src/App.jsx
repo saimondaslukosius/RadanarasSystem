@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Modal as OrdersModal, Orders as OrdersPage, Settings as SettingsPage } from "./orders_settings_only";
 import * as XLSX from "xlsx";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+
 const defaultDepartments = () => ([
   { id: 1, title: "Administracija", phone: "", email: "" },
   { id: 2, title: "Buhalterija", phone: "", email: "" },
@@ -63,7 +65,7 @@ const emptyAppData = () => ({
 
 const loadFromBackend = async (signal) => {
   try {
-    const response = await fetch('http://localhost:3001/api/data', { signal });
+    const response = await fetch(`${API_BASE}/api/data`, { signal });
     if (response.ok) {
       const data = await response.json();
       return {
@@ -87,7 +89,7 @@ const persistUnifiedBucket = (bucketName, value) => {
   const normalizedValue = value ?? bucket.emptyValue;
   const serializedValue = JSON.stringify(normalizedValue);
 
-  fetch(`http://localhost:3001/api/data/${bucketName}`, {
+  fetch(`${API_BASE}/api/data/${bucketName}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: serializedValue
@@ -190,7 +192,7 @@ function App() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch(`http://localhost:3001/upload/${type}/${id}`, {
+    const res = await fetch(`${API_BASE}/upload/${type}/${id}`, {
       method: "POST",
       body: formData
     });
@@ -527,8 +529,8 @@ function App() {
   const normalizeCarrierDocumentLink = (link) => {
     if (!link) return "";
     if (link.startsWith("http://") || link.startsWith("https://")) return link;
-    if (link.startsWith("/uploads/")) return `http://localhost:3001${link}`;
-    if (link.startsWith("uploads/")) return `http://localhost:3001/${link}`;
+    if (link.startsWith("/uploads/")) return `${API_BASE}${link}`;
+    if (link.startsWith("uploads/")) return `${API_BASE}/${link}`;
     return link;
   };
 
