@@ -7,13 +7,17 @@ const path = require("path");
 const fs = require("fs");
 const { PDFParse } = require("pdf-parse");
 const { createWorker } = require("tesseract.js");
-const pdfPoppler = require("pdf-poppler");
+const { exec } = require("child_process");
+const { promisify } = require("util");
+const execAsync = promisify(exec);
 const { parseDocument } = require("./aiParser");
 const LicenseExtractorCLI = require("./cli_license_extractor");
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
+const dashboardRouter = require("./routes/dashboard");
+app.use("/api/dashboard", dashboardRouter);
 
 const dataRoot = path.join(__dirname, "data");
 const dataFiles = {
@@ -82,6 +86,18 @@ if (!fs.existsSync(uploadRoot)) {
 }
 
 app.use("/uploads", express.static(uploadRoot));
+
+function roundOrderNumbers(order) {
+  const numericFields = ["clientPrice", "carrierPrice", "klKaina", "vezKaina", "profit", "margin"];
+  const rounded = { ...order };
+  numericFields.forEach(field => {
+    if (rounded[field] !== undefined && rounded[field] !== null && rounded[field] !== "") {
+      const val = parseFloat(rounded[field]);
+      if (!isNaN(val)) rounded[field] = Math.round(val * 100) / 100;
+    }
+  });
+  return rounded;
+}
 
 function safeName(name) {
   return String(name || "")
@@ -198,14 +214,17 @@ const licenseExtractor = new LicenseExtractorCLI();
 app.get("/api/data", (req, res) => {
   try {
     res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
       clients: readDataBucket("clients"),
       carriers: readDataBucket("carriers"),
-      orders: readDataBucket("orders"),
-      settings: readDataBucket("settings")
+      orders: readDataBucket("orders").map(roundOrderNumbers),
+      settings: readDataBucket("settings"),
+      imports: readDataBucket("imports")
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to read app data" });
+    res.status(500).json({ success: false, error: "Failed to read app data" });
   }
 });
 
@@ -228,14 +247,188 @@ app.put("/api/data/:bucket", (req, res) => {
 
     writeDataBucket(bucket, nextValue);
     res.json({
-      ok: true,
+      success: true,
+      timestamp: new Date().toISOString(),
       bucket,
       filePath: dataFiles[bucket],
       data: readDataBucket(bucket)
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to save app data" });
+    res.status(500).json({ success: false, error: "Failed to save app data" });
+  }
+});
+
+// ── Sub-resource helpers ──────────────────────────────────────────────────────
+
+function getCarrierSubArray(carrierId, field) {
+  const carriers = readDataBucket("carriers");
+  const carrier = carriers.find(c => String(c.id) === String(carrierId));
+  if (!carrier) return null;
+  return Array.isArray(carrier[field]) ? carrier[field] : [];
+}
+
+function addToCarrierSubArray(carrierId, field, item) {
+  const carriers = readDataBucket("carriers");
+  const idx = carriers.findIndex(c => String(c.id) === String(carrierId));
+  if (idx === -1) return null;
+  const newItem = { ...item, id: Date.now() };
+  const updatedCarrier = {
+    ...carriers[idx],
+    [field]: [...(Array.isArray(carriers[idx][field]) ? carriers[idx][field] : []), newItem]
+  };
+  const updated = carriers.map((c, i) => i === idx ? updatedCarrier : c);
+  writeDataBucket("carriers", updated);
+  return { carrier: updatedCarrier, item: newItem };
+}
+
+function removeFromCarrierSubArray(carrierId, field, itemId) {
+  const carriers = readDataBucket("carriers");
+  const idx = carriers.findIndex(c => String(c.id) === String(carrierId));
+  if (idx === -1) return null;
+  const updatedCarrier = {
+    ...carriers[idx],
+    [field]: (Array.isArray(carriers[idx][field]) ? carriers[idx][field] : []).filter(x => String(x.id) !== String(itemId))
+  };
+  const updated = carriers.map((c, i) => i === idx ? updatedCarrier : c);
+  writeDataBucket("carriers", updated);
+  return { carrier: updatedCarrier };
+}
+
+function getClientSubArray(clientId, field) {
+  const clients = readDataBucket("clients");
+  const client = clients.find(c => String(c.id) === String(clientId));
+  if (!client) return null;
+  return Array.isArray(client[field]) ? client[field] : [];
+}
+
+function addToClientSubArray(clientId, field, item) {
+  const clients = readDataBucket("clients");
+  const idx = clients.findIndex(c => String(c.id) === String(clientId));
+  if (idx === -1) return null;
+  const newItem = { ...item, id: Date.now() };
+  const updatedClient = {
+    ...clients[idx],
+    [field]: [...(Array.isArray(clients[idx][field]) ? clients[idx][field] : []), newItem]
+  };
+  const updated = clients.map((c, i) => i === idx ? updatedClient : c);
+  writeDataBucket("clients", updated);
+  return { client: updatedClient, item: newItem };
+}
+
+function removeFromClientSubArray(clientId, field, itemId) {
+  const clients = readDataBucket("clients");
+  const idx = clients.findIndex(c => String(c.id) === String(clientId));
+  if (idx === -1) return null;
+  const updatedClient = {
+    ...clients[idx],
+    [field]: (Array.isArray(clients[idx][field]) ? clients[idx][field] : []).filter(x => String(x.id) !== String(itemId))
+  };
+  const updated = clients.map((c, i) => i === idx ? updatedClient : c);
+  writeDataBucket("clients", updated);
+  return { client: updatedClient };
+}
+
+// ── Carrier sub-resource endpoints ───────────────────────────────────────────
+
+// Managers (managerContacts)
+app.get("/api/carriers/:id/managers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "managerContacts");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/managers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "managerContacts", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/managers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "managerContacts", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Drivers
+app.get("/api/carriers/:id/drivers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "drivers");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/drivers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "drivers", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/drivers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "drivers", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Trucks
+app.get("/api/carriers/:id/trucks", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "trucks");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/trucks", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "trucks", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/trucks/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "trucks", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// Trailers
+app.get("/api/carriers/:id/trailers", (req, res) => {
+  const arr = getCarrierSubArray(req.params.id, "trailers");
+  if (arr === null) return res.status(404).json({ error: "Carrier not found" });
+  res.json(arr);
+});
+app.post("/api/carriers/:id/trailers", (req, res) => {
+  const result = addToCarrierSubArray(req.params.id, "trailers", req.body);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, item: result.item, carrier: result.carrier });
+});
+app.delete("/api/carriers/:id/trailers/:itemId", (req, res) => {
+  const result = removeFromCarrierSubArray(req.params.id, "trailers", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Carrier not found" });
+  res.json({ ok: true, carrier: result.carrier });
+});
+
+// ── Client sub-resource endpoints ────────────────────────────────────────────
+
+app.get("/api/clients/:id/contacts", (req, res) => {
+  const arr = getClientSubArray(req.params.id, "contacts");
+  if (arr === null) return res.status(404).json({ error: "Client not found" });
+  res.json(arr);
+});
+app.post("/api/clients/:id/contacts", (req, res) => {
+  const result = addToClientSubArray(req.params.id, "contacts", req.body);
+  if (!result) return res.status(404).json({ error: "Client not found" });
+  res.json({ ok: true, item: result.item, client: result.client });
+});
+app.delete("/api/clients/:id/contacts/:itemId", (req, res) => {
+  const result = removeFromClientSubArray(req.params.id, "contacts", req.params.itemId);
+  if (!result) return res.status(404).json({ error: "Client not found" });
+  res.json({ ok: true, client: result.client });
+});
+
+// ── Email ────────────────────────────────────────────────────────────────────
+const { sendOrderToCarrier } = require("./emailService");
+
+app.post("/api/email/send-order", async (req, res) => {
+  try {
+    const { orderId, documentHtml, toEmail } = req.body;
+    if (!orderId) return res.status(400).json({ success: false, message: "orderId būtinas." });
+    const result = await sendOrderToCarrier({ orderId, documentHtml, toEmail });
+    res.json(result);
+  } catch (err) {
+    console.error("Email send error:", err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -272,19 +465,16 @@ app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
         const outputDir = path.join(__dirname, "temp");
         fs.mkdirSync(outputDir, { recursive: true });
 
-        const opts = {
-          format: "png",
-          out_dir: outputDir,
-          out_prefix: path.basename(req.file.filename, ".pdf"),
-          page: 1
-        };
+        const outPrefix = path.join(outputDir, path.basename(req.file.filename, ".pdf"));
+        const pdftoppmBin =
+          process.platform === "win32"
+            ? `"C:\\poppler\\Library\\bin\\pdftoppm.exe"`
+            : "pdftoppm";
+        await execAsync(
+          `${pdftoppmBin} -r 150 -png -singlefile "${req.file.path}" "${outPrefix}"`
+        );
 
-        opts.poppler_path = "C:\\poppler\\Library\\bin";
-        await pdfPoppler.convert(req.file.path, opts);
-
-        imagePath = path.join(outputDir, `${opts.out_prefix}-1.png`);
-        console.log("OCR IMAGE PATH:", imagePath);
-        console.log("OCR IMAGE EXISTS:", fs.existsSync(imagePath));
+        imagePath = `${outPrefix}.png`;
         console.log("OCR IMAGE PATH:", imagePath);
         console.log("OCR IMAGE EXISTS:", fs.existsSync(imagePath));
       } catch (e) {
@@ -363,6 +553,8 @@ app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
 app.listen(3001, () => {
   console.log("Server started on http://localhost:3001");
 });
+
+
 
 
 

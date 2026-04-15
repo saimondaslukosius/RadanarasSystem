@@ -16,6 +16,8 @@ const LicenseExtractorCLI = require("./cli_license_extractor");
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
+const dashboardRouter = require("./routes/dashboard");
+app.use("/api/dashboard", dashboardRouter);
 
 const dataRoot = path.join(__dirname, "data");
 const dataFiles = {
@@ -84,6 +86,18 @@ if (!fs.existsSync(uploadRoot)) {
 }
 
 app.use("/uploads", express.static(uploadRoot));
+
+function roundOrderNumbers(order) {
+  const numericFields = ["clientPrice", "carrierPrice", "klKaina", "vezKaina", "profit", "margin"];
+  const rounded = { ...order };
+  numericFields.forEach(field => {
+    if (rounded[field] !== undefined && rounded[field] !== null && rounded[field] !== "") {
+      const val = parseFloat(rounded[field]);
+      if (!isNaN(val)) rounded[field] = Math.round(val * 100) / 100;
+    }
+  });
+  return rounded;
+}
 
 function safeName(name) {
   return String(name || "")
@@ -200,15 +214,17 @@ const licenseExtractor = new LicenseExtractorCLI();
 app.get("/api/data", (req, res) => {
   try {
     res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
       clients: readDataBucket("clients"),
       carriers: readDataBucket("carriers"),
-      orders: readDataBucket("orders"),
+      orders: readDataBucket("orders").map(roundOrderNumbers),
       settings: readDataBucket("settings"),
       imports: readDataBucket("imports")
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to read app data" });
+    res.status(500).json({ success: false, error: "Failed to read app data" });
   }
 });
 
@@ -231,14 +247,15 @@ app.put("/api/data/:bucket", (req, res) => {
 
     writeDataBucket(bucket, nextValue);
     res.json({
-      ok: true,
+      success: true,
+      timestamp: new Date().toISOString(),
       bucket,
       filePath: dataFiles[bucket],
       data: readDataBucket(bucket)
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to save app data" });
+    res.status(500).json({ success: false, error: "Failed to save app data" });
   }
 });
 
@@ -536,6 +553,8 @@ app.post("/upload/:type/:id", upload.single("file"), async (req, res) => {
 app.listen(3001, () => {
   console.log("Server started on http://localhost:3001");
 });
+
+
 
 
 

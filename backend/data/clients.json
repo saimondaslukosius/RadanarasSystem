@@ -1,5 +1,50 @@
 [
   {
+    "id": "CL20260413170428",
+    "name": "Test klientas ",
+    "clientType": "Ekspeditorius",
+    "companyCode": "",
+    "vatCode": "",
+    "email": "",
+    "phone": "",
+    "address": "",
+    "country": "",
+    "website": "",
+    "contacts": [],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ]
+  },
+  {
     "id": "CL20260404001700",
     "name": "Veho Lietuva, UAB Mercedes-Benz",
     "clientType": "Tiesioginis klientas",
