@@ -185,7 +185,7 @@ function App() {
       }
 
       try {
-        const statsRes = await fetch("http://localhost:3001/api/dashboard/stats", { signal: abortController.signal });
+        const statsRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/dashboard/stats`, { signal: abortController.signal });
         if (statsRes.ok) {
           const statsJson = await statsRes.json();
           if (statsJson.success) setDashboardStats(statsJson.data);
