@@ -2,6 +2,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { buildFutureDomainBundleFromDrafts } from "./order_draft_domain_adapter";
+import { buildOrderDraftPersistPlan, executeOrderDraftPersistPlan, persistFutureDomainDraftSkeleton } from "./order_draft_persistence_adapter";
+import { analyzeCarrierData, analyzeClientData, analyzeDriverData, analyzeTruckData, analyzeTrailerData } from "./missing_data_engine";
 
 const pageCard = { background: "white", borderRadius: "12px", padding: "30px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" };
 const cardHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
@@ -22,6 +25,45 @@ const formGroup = { display: "flex", flexDirection: "column" };
 const label = { fontSize: "14px", fontWeight: 500, color: "#475569", marginBottom: "8px" };
 const inputBase = { padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "14px" };
 const sectionTitle = { marginBottom: "12px", color: "#1e3a8a", fontSize: "15px" };
+const observerMiniStat = {
+  background: "#eff6ff",
+  border: "1px solid #bfdbfe",
+  borderRadius: "8px",
+  padding: "8px 10px",
+  color: "#1e3a8a",
+  fontWeight: 700,
+  fontSize: "12px"
+};
+const pickerGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: "8px",
+  marginTop: "8px"
+};
+const pickerButton = {
+  border: "1px solid #cbd5e1",
+  background: "#fff",
+  color: "#0f172a",
+  borderRadius: "8px",
+  padding: "10px 12px",
+  textAlign: "left",
+  cursor: "pointer",
+  fontSize: "13px",
+  lineHeight: 1.35
+};
+const pickerButtonActive = {
+  ...pickerButton,
+  border: "2px solid #2563eb",
+  background: "#eff6ff",
+  color: "#1d4ed8",
+  fontWeight: 700
+};
+const dataStatusCardBase = {
+  marginTop: "14px",
+  padding: "14px 16px",
+  borderRadius: "12px",
+  border: "1px solid #cbd5e1",
+};
 const actionButtons = { display: "flex", gap: "10px" };
 const actionBtn = { background: "none", border: "none", padding: "6px 12px", cursor: "pointer", borderRadius: "4px", fontSize: "13px" };
 const defaultTemplateContent = "<div><h1>Transporto užsakymas {{order_number}}</h1></div>";
@@ -48,8 +90,65 @@ const createOrderNumber = (orders = []) => {
   const next = maxSeq > 0 ? maxSeq + 1 : 100001;
   return `RAD${String(next).padStart(6, "0")}`;
 };
+const createProjectId = (orders = []) => {
+  const year = new Date().getFullYear();
+  let maxSeq = 0;
+  for (const order of orders) {
+    const match = String(order.projectId || "").match(/^PRJ-(\d{4})-(\d{4})$/);
+    if (match && Number(match[1]) === year) {
+      maxSeq = Math.max(maxSeq, Number(match[2]));
+    }
+  }
+  return `PRJ-${year}-${String(maxSeq + 1).padStart(4, "0")}`;
+};
+const buildFreshOrderSeed = (orders = [], settings = {}, overrides = {}) => ({
+  ...emptyOrderForm,
+  projectId: createProjectId(orders),
+  orderNumber: createOrderNumber(orders),
+  managerName: resolveDefaultManagerName(settings),
+  ...overrides,
+});
+const resolveDefaultManagerName = (settings = {}) => {
+  return (
+    settings?.email?.from_name ||
+    settings?.company?.contact_person ||
+    "Saimondas Lukosius"
+  );
+};
+const resolveExecutionCost = (executionDraft = {}) =>
+  Number(
+    executionDraft.orderType === "own_transport"
+      ? executionDraft.executionCost || executionDraft.carrierPrice
+      : executionDraft.carrierPrice
+  ) || 0;
+const buildRouteFromDraft = (projectDraft = {}) => {
+  const loading = [projectDraft.loadingCity, projectDraft.loadingCountry].filter(Boolean).join(", ");
+  const unloading = [projectDraft.unloadingCity, projectDraft.unloadingCountry].filter(Boolean).join(", ");
+  if (loading && unloading) return `${loading} → ${unloading}`;
+  if (projectDraft.loadingCity && projectDraft.unloadingCity) return `${projectDraft.loadingCity} → ${projectDraft.unloadingCity}`;
+  return projectDraft.route || "";
+};
 const euro = (value) => `${Number(value || 0).toFixed(2)} €`;
 const badge = (kind) => ({ display: "inline-block", padding: "4px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, background: kind === "success" ? "#dcfce7" : kind === "danger" ? "#fee2e2" : "#fef3c7", color: kind === "success" ? "#16a34a" : kind === "danger" ? "#dc2626" : "#ca8a04" });
+const hasClientContactData = (contact = {}) =>
+  Boolean(contact?.name || contact?.email || contact?.phone);
+const normalizeClientContacts = (contacts = []) =>
+  Array.isArray(contacts)
+    ? contacts
+        .filter((contact) => hasClientContactData(contact))
+        .map((contact, index) => ({
+          ...contact,
+          id: contact?.id ?? `client-contact-${index + 1}`,
+        }))
+    : [];
+const getDefaultClientContact = (client = {}) => {
+  const contacts = normalizeClientContacts(client?.contacts);
+  if (contacts.length === 0) return null;
+  return (
+    contacts.find((contact) => contact.isDefault || contact.isPrimary || contact.default === true) ||
+    contacts[0]
+  );
+};
 const STATUS_MAP = {
   new:              { bg: "#dbeafe", color: "#1d4ed8", label: "Naujas" },
   confirmed:        { bg: "#fef9c3", color: "#854d0e", label: "Patvirtintas" },
@@ -64,7 +163,627 @@ const STATUS_MAP = {
 };
 const statusBadgeStyle = (status) => { const s = STATUS_MAP[status] || { bg: "#f1f5f9", color: "#475569" }; return { display: "inline-block", padding: "4px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, background: s.bg, color: s.color, whiteSpace: "nowrap" }; };
 const statusLabel = (status) => (STATUS_MAP[status]?.label || status || "?");
-const emptyOrderForm = { orderType: "resale_to_carrier", sendToCarrier: true, clientOrderNumber: "", clientPrice: 0, carrierPrice: 0, carrierPriceWithVAT: false, paymentTerm: "14 dienų", cargoType: "", cargo: "", vehicleCount: "1", vinNumbers: "", truckPlate: "", trailerPlate: "", driverName: "", loadingCompanyName: "", loadingCity: "", loadingStreet: "", loadingPostalCode: "", loadingCoordinates: "", unloadingCompanyName: "", unloadingCity: "", unloadingStreet: "", unloadingPostalCode: "", unloadingCoordinates: "", route: "", loadingDate: "", unloadingDate: "", loadRefLoading: "", loadRefUnloading: "", instructions: "", originalsRequired: false, notes: "", documentUploadLink: "", clientId: "", clientName: "", carrierId: "", carrierName: "", carrierType: "", contactName: "", contactPhone: "", contactEmail: "", status: "new", documents: { cmr: "", pod: "", invoice: "" } };
+const emptyOrderForm = { orderType: "resale_to_carrier", sendToCarrier: true, projectId: "", managerName: "", clientOrderNumber: "", clientContactId: "", clientContactName: "", clientContactPhone: "", clientContactEmail: "", clientPrice: 0, carrierPrice: 0, executionCost: 0, carrierPriceWithVAT: false, vatMode: "without_vat", paymentTerm: "14 dienų", cargoType: "", cargo: "", cargoName: "", quantity: "", ldm: "", weight: "", temperature: "", palletCount: "", cargoNotes: "", vehicleCount: "1", vinNumbers: "", truckPlate: "", trailerPlate: "", driverName: "", loadingCompanyName: "", loadingCity: "", loadingStreet: "", loadingPostalCode: "", loadingCoordinates: "", loadingTime: "", loadingCountry: "Lietuva", loadingContact: "", loadingNotes: "", unloadingCompanyName: "", unloadingCity: "", unloadingStreet: "", unloadingPostalCode: "", unloadingCoordinates: "", unloadingTime: "", unloadingCountry: "Lietuva", unloadingContact: "", unloadingNotes: "", route: "", loadingDate: "", unloadingDate: "", loadRefLoading: "", loadRefUnloading: "", instructions: "", originalsRequired: "not_required", notes: "", internalNotes: "", documentUploadLink: "", clientId: "", clientName: "", carrierId: "", carrierName: "", carrierType: "", contactName: "", contactPhone: "", contactEmail: "", status: "new", documents: { cmr: "", pod: "", invoice: "" } };
+const emptyProjectDraft = {
+  projectId: "",
+  managerName: "",
+  clientOrderNumber: "",
+  clientId: "",
+  clientName: "",
+  clientContactId: "",
+  clientContactName: "",
+  clientContactPhone: "",
+  clientContactEmail: "",
+  clientCompanyCode: "",
+  clientVatCode: "",
+  clientPhone: "",
+  clientEmail: "",
+  clientAddress: "",
+  clientPrice: 0,
+  cargoType: "",
+  cargo: "",
+  cargoName: "",
+  quantity: "",
+  ldm: "",
+  weight: "",
+  temperature: "",
+  palletCount: "",
+  cargoNotes: "",
+  vehicleCount: "1",
+  vinNumbers: "",
+  loadingCompanyName: "",
+  loadingCity: "",
+  loadingStreet: "",
+  loadingPostalCode: "",
+  loadingCoordinates: "",
+  loadingTime: "",
+  loadingCountry: "Lietuva",
+  loadingContact: "",
+  loadingNotes: "",
+  unloadingCompanyName: "",
+  unloadingCity: "",
+  unloadingStreet: "",
+  unloadingPostalCode: "",
+  unloadingCoordinates: "",
+  unloadingTime: "",
+  unloadingCountry: "Lietuva",
+  unloadingContact: "",
+  unloadingNotes: "",
+  route: "",
+  loadingDate: "",
+  unloadingDate: "",
+  loadRefLoading: "",
+  loadRefUnloading: "",
+  originalsRequired: "not_required",
+  notes: "",
+  internalNotes: "",
+  documentUploadLink: "",
+  documents: { cmr: "", pod: "", invoice: "" },
+};
+const emptyExecutionDraft = {
+  id: undefined,
+  orderNumber: "",
+  orderType: "resale_to_carrier",
+  status: "new",
+  sendToCarrier: true,
+  carrierId: "",
+  carrierName: "",
+  carrierType: "",
+  carrierCompanyCode: "",
+  carrierVAT: "",
+  carrierPhone: "",
+  carrierEmail: "",
+  carrierAddress: "",
+  carrierPrice: 0,
+  executionCost: 0,
+  carrierPriceWithVAT: false,
+  vatMode: "without_vat",
+  paymentTerm: "14 dienų",
+  truckPlate: "",
+  trailerPlate: "",
+  driverName: "",
+  instructions: "",
+  contactName: "",
+  contactPhone: "",
+  contactEmail: "",
+  _selectedTemplateId: "",
+};
+const normalizeVatMode = (value) => (value === true || value === "with_vat" ? "with_vat" : "without_vat");
+const buildDraftsFromOrderForm = (form = {}) => {
+  const normalized = {
+    ...emptyOrderForm,
+    ...form,
+    documents: { ...emptyOrderForm.documents, ...(form.documents || {}) },
+  };
+  const normalizedVatMode = normalizeVatMode(normalized.vatMode ?? normalized.carrierPriceWithVAT);
+  const normalizedOriginalsRequired = normalizeOriginalsRequired(normalized.originalsRequired);
+
+  return {
+    projectDraft: {
+      ...emptyProjectDraft,
+      projectId: normalized.projectId || "",
+      managerName: normalized.managerName || "",
+      clientOrderNumber: normalized.clientOrderNumber,
+      clientId: normalized.clientId,
+      clientName: normalized.clientName,
+      clientContactId: normalized.clientContactId || "",
+      clientContactName: normalized.clientContactName || "",
+      clientContactPhone: normalized.clientContactPhone || "",
+      clientContactEmail: normalized.clientContactEmail || "",
+      clientCompanyCode: normalized.clientCompanyCode || "",
+      clientVatCode: normalized.clientVatCode || "",
+      clientPhone: normalized.clientPhone || "",
+      clientEmail: normalized.clientEmail || "",
+      clientAddress: normalized.clientAddress || "",
+      clientPrice: normalized.clientPrice,
+      cargoType: normalized.cargoType,
+      cargo: normalized.cargo,
+      cargoName: normalized.cargoName || "",
+      quantity: normalized.quantity || "",
+      ldm: normalized.ldm || "",
+      weight: normalized.weight || "",
+      temperature: normalized.temperature || "",
+      palletCount: normalized.palletCount || "",
+      cargoNotes: normalized.cargoNotes || "",
+      vehicleCount: normalized.vehicleCount,
+      vinNumbers: normalized.vinNumbers,
+      loadingCompanyName: normalized.loadingCompanyName,
+      loadingCity: normalized.loadingCity,
+      loadingStreet: normalized.loadingStreet,
+      loadingPostalCode: normalized.loadingPostalCode,
+      loadingCoordinates: normalized.loadingCoordinates || "",
+      loadingTime: normalized.loadingTime || "",
+      loadingCountry: normalized.loadingCountry || "Lietuva",
+      loadingContact: normalized.loadingContact || "",
+      loadingNotes: normalized.loadingNotes || "",
+      unloadingCompanyName: normalized.unloadingCompanyName,
+      unloadingCity: normalized.unloadingCity,
+      unloadingStreet: normalized.unloadingStreet,
+      unloadingPostalCode: normalized.unloadingPostalCode,
+      unloadingCoordinates: normalized.unloadingCoordinates || "",
+      unloadingTime: normalized.unloadingTime || "",
+      unloadingCountry: normalized.unloadingCountry || "Lietuva",
+      unloadingContact: normalized.unloadingContact || "",
+      unloadingNotes: normalized.unloadingNotes || "",
+      route: normalized.route,
+      loadingDate: normalized.loadingDate,
+      unloadingDate: normalized.unloadingDate,
+      loadRefLoading: normalized.loadRefLoading,
+      loadRefUnloading: normalized.loadRefUnloading,
+      originalsRequired: normalizedOriginalsRequired,
+      notes: normalized.notes,
+      internalNotes: normalized.internalNotes || "",
+      documentUploadLink: normalized.documentUploadLink,
+      documents: { ...emptyProjectDraft.documents, ...(normalized.documents || {}) },
+    },
+    executionDraft: {
+      ...emptyExecutionDraft,
+      id: normalized.id,
+      orderNumber: normalized.orderNumber || "",
+      orderType: normalized.orderType,
+      status: normalized.status,
+      sendToCarrier: normalized.sendToCarrier,
+      carrierId: normalized.carrierId,
+      carrierName: normalized.carrierName,
+      carrierType: normalized.carrierType,
+      carrierCompanyCode: normalized.carrierCompanyCode || "",
+      carrierVAT: normalized.carrierVAT || "",
+      carrierPhone: normalized.carrierPhone || "",
+      carrierEmail: normalized.carrierEmail || "",
+      carrierAddress: normalized.carrierAddress || "",
+      carrierPrice: normalized.carrierPrice,
+      executionCost: normalized.executionCost || normalized.carrierPrice || 0,
+      carrierPriceWithVAT: normalizedVatMode === "with_vat",
+      vatMode: normalizedVatMode,
+      paymentTerm: normalized.paymentTerm,
+      truckPlate: normalized.truckPlate,
+      trailerPlate: normalized.trailerPlate,
+      driverName: normalized.driverName,
+      instructions: normalized.instructions,
+      contactName: normalized.contactName,
+      contactPhone: normalized.contactPhone,
+      contactEmail: normalized.contactEmail,
+      _selectedTemplateId: normalized._selectedTemplateId || "",
+    },
+  };
+};
+const buildLegacyOrderFormFromDrafts = (projectDraft = emptyProjectDraft, executionDraft = emptyExecutionDraft, base = {}) => ({
+  ...emptyOrderForm,
+  ...base,
+  ...projectDraft,
+  ...executionDraft,
+  documents: {
+    ...emptyOrderForm.documents,
+    ...(projectDraft.documents || {}),
+    ...(base.documents || {}),
+  },
+});
+const buildDraftStorageSnapshot = (projectDraft = emptyProjectDraft, executionDraft = emptyExecutionDraft) => ({
+  projectDraft: {
+    ...emptyProjectDraft,
+    ...projectDraft,
+    documents: {
+      ...emptyProjectDraft.documents,
+      ...(projectDraft.documents || {}),
+    },
+  },
+  executionDraft: {
+    ...emptyExecutionDraft,
+    ...executionDraft,
+  },
+});
+const allowedLegacyCompatibilityKeys = new Set([
+  "profit",
+  "profitMargin",
+  "createdAt",
+  "updatedAt",
+]);
+const pickLegacyCompatibilityState = (source = {}) => {
+  const nextState = {};
+  Object.entries(source || {}).forEach(([key, value]) => {
+    if (allowedLegacyCompatibilityKeys.has(key)) {
+      nextState[key] = value;
+    }
+  });
+  return nextState;
+};
+const buildLegacyOrderPayloadFromDrafts = ({
+  projectDraft = emptyProjectDraft,
+  executionDraft = emptyExecutionDraft,
+  base = {},
+  selectedCarrier = {},
+  overrides = {},
+} = {}) => {
+  const basePayload = buildLegacyOrderFormFromDrafts(projectDraft, executionDraft, base);
+
+  return {
+    ...basePayload,
+    ...overrides,
+    projectId: projectDraft.projectId || basePayload.projectId || "",
+    managerName: projectDraft.managerName || basePayload.managerName || "",
+    clientId: projectDraft.clientId || basePayload.clientId || "",
+    clientName: projectDraft.clientName || basePayload.clientName || "",
+    clientContactId: projectDraft.clientContactId || basePayload.clientContactId || "",
+    clientContactName: projectDraft.clientContactName || basePayload.clientContactName || "",
+    clientContactPhone: projectDraft.clientContactPhone || basePayload.clientContactPhone || "",
+    clientContactEmail: projectDraft.clientContactEmail || basePayload.clientContactEmail || "",
+    clientCompanyCode: projectDraft.clientCompanyCode || basePayload.clientCompanyCode || "",
+    clientVatCode: projectDraft.clientVatCode || basePayload.clientVatCode || "",
+    clientPhone: projectDraft.clientPhone || basePayload.clientPhone || "",
+    clientEmail: projectDraft.clientEmail || basePayload.clientEmail || "",
+    clientAddress: projectDraft.clientAddress || basePayload.clientAddress || "",
+    carrierId: executionDraft.carrierId || basePayload.carrierId || "",
+    carrierName: executionDraft.carrierName || selectedCarrier.name || basePayload.carrierName || "",
+    carrierType: executionDraft.carrierType || selectedCarrier.carrierType || basePayload.carrierType || "",
+    carrierCompanyCode: selectedCarrier.companyCode || executionDraft.carrierCompanyCode || basePayload.carrierCompanyCode || "",
+    carrierVAT: selectedCarrier.vatCode || executionDraft.carrierVAT || basePayload.carrierVAT || "",
+    carrierAddress: selectedCarrier.address || executionDraft.carrierAddress || basePayload.carrierAddress || "",
+    carrierPhone: selectedCarrier.phone || executionDraft.carrierPhone || basePayload.carrierPhone || "",
+    carrierEmail: selectedCarrier.email || executionDraft.carrierEmail || basePayload.carrierEmail || "",
+    contactName: executionDraft.contactName || basePayload.contactName || "",
+    contactPhone: executionDraft.contactPhone || basePayload.contactPhone || "",
+    contactEmail: executionDraft.contactEmail || basePayload.contactEmail || "",
+    executionCost: executionDraft.executionCost || basePayload.executionCost || executionDraft.carrierPrice || basePayload.carrierPrice || 0,
+    vatMode: executionDraft.vatMode,
+    carrierPriceWithVAT: executionDraft.vatMode === "with_vat",
+    originalsRequired: projectDraft.originalsRequired,
+    carrierPrice:
+      executionDraft.orderType === "own_transport"
+        ? executionDraft.executionCost || executionDraft.carrierPrice || basePayload.carrierPrice || 0
+        : executionDraft.carrierPrice || basePayload.carrierPrice || 0,
+    cargoName: projectDraft.cargoName || basePayload.cargoName || "",
+    quantity: projectDraft.quantity || basePayload.quantity || "",
+    ldm: projectDraft.ldm || basePayload.ldm || "",
+    weight: projectDraft.weight || basePayload.weight || "",
+    temperature: projectDraft.temperature || basePayload.temperature || "",
+    palletCount: projectDraft.palletCount || basePayload.palletCount || "",
+    cargoNotes: projectDraft.cargoNotes || basePayload.cargoNotes || "",
+    loadingTime: projectDraft.loadingTime || basePayload.loadingTime || "",
+    loadingCountry: projectDraft.loadingCountry || basePayload.loadingCountry || "",
+    loadingContact: projectDraft.loadingContact || basePayload.loadingContact || "",
+    loadingNotes: projectDraft.loadingNotes || basePayload.loadingNotes || "",
+    unloadingTime: projectDraft.unloadingTime || basePayload.unloadingTime || "",
+    unloadingCountry: projectDraft.unloadingCountry || basePayload.unloadingCountry || "",
+    unloadingContact: projectDraft.unloadingContact || basePayload.unloadingContact || "",
+    unloadingNotes: projectDraft.unloadingNotes || basePayload.unloadingNotes || "",
+    internalNotes: projectDraft.internalNotes || basePayload.internalNotes || "",
+    documents: {
+      ...emptyOrderForm.documents,
+      ...(projectDraft.documents || {}),
+      ...(basePayload.documents || {}),
+      ...(overrides.documents || {}),
+    },
+  };
+};
+const normalizeOptionalText = (value) => String(value ?? "").trim();
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+const toHtmlText = (value) => escapeHtml(value).replace(/\r?\n/g, "<br />");
+const hasNumericValue = (value) => value !== "" && value !== null && value !== undefined && !Number.isNaN(Number(value));
+const normalizeOriginalsRequired = (value) => (value === true || value === "required" ? "required" : "not_required");
+const buildOptionalInfoRow = (label, value, { valueColor = "#1f2937", marginBottom = 3 } = {}) => {
+  const text = normalizeOptionalText(value);
+  if (!text) return "";
+  return `<div style="margin-bottom:${marginBottom}px;"><span style="color:#6b7280; font-size:10px; display:block;">${escapeHtml(label)}</span><span style="color:${valueColor}; font-size:11px;">${toHtmlText(text)}</span></div>`;
+};
+const buildOptionalNoteBlock = (label, value) => {
+  const text = normalizeOptionalText(value);
+  if (!text) return "";
+  return `<div style="margin-top:6px; padding:7px 8px; background:#ffffff; border:1px dashed #d1d5db; border-radius:6px;"><div style="color:#6b7280; font-size:10px; margin-bottom:3px;">${escapeHtml(label)}</div><div style="color:#334155; font-size:11px; line-height:1.45;">${toHtmlText(text)}</div></div>`;
+};
+const upgradeLegacyOrderTemplateBodyHtml = (html = "") => {
+  let nextHtml = String(html || "");
+  if (!nextHtml) return nextHtml;
+  if (!nextHtml.includes("{{loading_contact_block}}")) {
+    nextHtml = nextHtml.replace(
+      '<div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#059669; font-weight:600; font-size:11px;">{{loading_date}}</span></div>',
+      '<div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#059669; font-weight:600; font-size:11px;">{{loading_date}}</span></div>{{loading_contact_block}}{{loading_ref_number_block}}{{loading_notes_block}}'
+    );
+  }
+  if (!nextHtml.includes("{{unloading_contact_block}}")) {
+    nextHtml = nextHtml.replace(
+      '<div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#dc2626; font-weight:600; font-size:11px;">{{unloading_date}}</span></div>',
+      '<div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#dc2626; font-weight:600; font-size:11px;">{{unloading_date}}</span></div>{{unloading_contact_block}}{{unloading_ref_number_block}}{{unloading_notes_block}}'
+    );
+  }
+  if (!nextHtml.includes("{{execution_transport_block}}")) {
+    nextHtml = nextHtml.replace(
+      /<div style="background:#eff6ff; padding:8px; border-radius:6px; margin-bottom:8px;">[\s\S]*?<\/div>\s*<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">/,
+      '{{execution_transport_block}}<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">'
+    );
+  }
+  if (!nextHtml.includes("{{reference_numbers_block}}")) {
+    nextHtml = nextHtml.replace(
+      /<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">\s*<div><span style="color:#6b7280; font-size:10px; display:block; margin-bottom:2px;">Load Nr<\/span><span style="color:#1f2937; font-weight:500; font-size:12px;">{{load_number}}<\/span><\/div>\s*<div><span style="color:#6b7280; font-size:10px; display:block; margin-bottom:2px;">Ref Nr<\/span><span style="color:#1f2937; font-weight:500; font-size:12px;">{{ref_number}}<\/span><\/div>\s*<\/div>/,
+      '{{reference_numbers_block}}'
+    );
+  }
+  if (!nextHtml.includes("{{vat_mode_badge}}")) {
+    nextHtml = nextHtml.replace(
+      '<span class="vezejo-kaina" style="color:white; font-size:18px; font-weight:700;">{{carrier_price}}</span>',
+      '<div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;"><span class="vezejo-kaina" style="color:white; font-size:18px; font-weight:700;">{{carrier_price}}</span>{{vat_mode_badge}}</div>'
+    );
+  }
+  return nextHtml;
+};
+const buildDocumentTemplateValuesFromDrafts = ({
+  projectDraft = emptyProjectDraft,
+  executionDraft = emptyExecutionDraft,
+  draftPayload = {},
+  selectedCarrier = {},
+  settings = {},
+  template = null,
+} = {}) => {
+  const companyProfile = {
+    name: settings?.company?.name || "",
+    code: settings?.company?.code || "",
+    vat: settings?.company?.vat || "",
+    phone: settings?.company?.phone || "",
+    email: settings?.company?.email || "",
+    address: settings?.company?.address || "",
+    bankName: settings?.company?.bank_name || "",
+    bankAccount: settings?.company?.bank_account || "",
+    swift: settings?.company?.swift || "",
+  };
+  const customerProfile = {
+    name: projectDraft.clientName || "",
+    code: projectDraft.clientCompanyCode || "",
+    vat: projectDraft.clientVatCode || "",
+    phone: projectDraft.clientPhone || "",
+    email: projectDraft.clientEmail || "",
+    address: projectDraft.clientAddress || "",
+    contactName: projectDraft.clientContactName || "",
+    contactPhone: projectDraft.clientContactPhone || "",
+    contactEmail: projectDraft.clientContactEmail || "",
+  };
+  const carrierProfile = {
+    name:
+      executionDraft.carrierName ||
+      selectedCarrier?.name ||
+      (executionDraft.orderType === "own_transport" ? "Nuosavas transportas" : ""),
+    code: selectedCarrier?.companyCode || executionDraft.carrierCompanyCode || "",
+    vat: selectedCarrier?.vatCode || executionDraft.carrierVAT || "",
+    phone: selectedCarrier?.phone || executionDraft.carrierPhone || "",
+    email: selectedCarrier?.email || executionDraft.carrierEmail || "",
+    address: selectedCarrier?.address || executionDraft.carrierAddress || "",
+    contactName: executionDraft.contactName || "",
+    contactPhone: executionDraft.contactPhone || "",
+    contactEmail: executionDraft.contactEmail || "",
+  };
+  const companyStampToken = settings?.companyStampSignature || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+  const companyContactName = settings?.email?.from_name || projectDraft.managerName || "";
+  const companyContactPhone = companyProfile.phone || "";
+  const companyContactEmail = settings?.email?.from_address || companyProfile.email || "";
+  const originalsRequired = normalizeOriginalsRequired(projectDraft.originalsRequired);
+  const vatModeKey = normalizeVatMode(executionDraft.vatMode ?? executionDraft.carrierPriceWithVAT);
+  const vatModeLabel = vatModeKey === "with_vat" ? "+ PVM" : "be PVM";
+  const loadingContact = normalizeOptionalText(projectDraft.loadingContact);
+  const unloadingContact = normalizeOptionalText(projectDraft.unloadingContact);
+  const loadingRefNumber = normalizeOptionalText(projectDraft.loadRefLoading);
+  const unloadingRefNumber = normalizeOptionalText(projectDraft.loadRefUnloading);
+  const loadingNotes = normalizeOptionalText(projectDraft.loadingNotes);
+  const unloadingNotes = normalizeOptionalText(projectDraft.unloadingNotes);
+  const driverName = normalizeOptionalText(executionDraft.driverName);
+  const truckNumber = normalizeOptionalText(executionDraft.truckPlate);
+  const trailerNumber = normalizeOptionalText(executionDraft.trailerPlate);
+  const instructionLines = [
+    executionDraft.instructions ? `<div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92);">${executionDraft.instructions}</div>` : "",
+    projectDraft.vinNumbers ? `<div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92); margin-top:8px;"><strong>VIN numeriai:</strong> ${projectDraft.vinNumbers}</div>` : "",
+  ].filter(Boolean).join("");
+  const executionTransportRows = [
+    buildOptionalInfoRow("Vairuotojas", driverName, { valueColor: "#1f2937", marginBottom: 0 }),
+    buildOptionalInfoRow("Vilkikas", truckNumber, { valueColor: "#1f2937", marginBottom: 0 }),
+    buildOptionalInfoRow("Priekaba", trailerNumber, { valueColor: "#1f2937", marginBottom: 0 }),
+  ].filter(Boolean).join("");
+  const executionTransportBlock = executionTransportRows
+    ? `<div style="background:#eff6ff; padding:8px; border-radius:6px; margin-bottom:8px;"><div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">${executionTransportRows}</div></div>`
+    : "";
+  const referenceNumbersBlock = loadingRefNumber || unloadingRefNumber
+    ? `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">${buildOptionalInfoRow("Pakrovimo REF nr.", loadingRefNumber, { marginBottom: 0 })}${buildOptionalInfoRow("Iškrovimo REF nr.", unloadingRefNumber, { marginBottom: 0 })}</div>`
+    : "";
+  const vatModeBadge = `<span style="display:inline-block; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:10px; font-weight:700; white-space:nowrap;">${escapeHtml(vatModeLabel)}</span>`;
+
+  return {
+    order_number: executionDraft.orderNumber || draftPayload.orderNumber || "—",
+    project_id: projectDraft.projectId || draftPayload.projectId || "—",
+    client_order_number: projectDraft.clientOrderNumber || "—",
+    // Legacy alias: old templates use client_* for our company (ordering party).
+    // Canonical templates should use company_* / customer_* / carrier_*.
+    client_name: companyProfile.name || "—",
+    client_code: companyProfile.code || "—",
+    client_vat: companyProfile.vat || "—",
+    client_company_code: companyProfile.code || "—",
+    client_vat_code: companyProfile.vat || "—",
+    client_phone: companyProfile.phone || "—",
+    client_email: companyProfile.email || "—",
+    client_address: companyProfile.address || "—",
+    carrier_name: carrierProfile.name || "—",
+    carrier_code: carrierProfile.code || "—",
+    carrier_vat: carrierProfile.vat || "—",
+    route: projectDraft.route || "—",
+    loading_date: projectDraft.loadingDate || "—",
+    unloading_date: projectDraft.unloadingDate || "—",
+    carrier_price: hasNumericValue(executionDraft.carrierPrice) ? `${Number(executionDraft.carrierPrice).toFixed(2)} EUR ${vatModeLabel}` : "—",
+    client_price: hasNumericValue(projectDraft.clientPrice) ? `${Number(projectDraft.clientPrice).toFixed(2)} EUR` : "—",
+    payment_term: executionDraft.paymentTerm || "—",
+    today_date: new Date().toLocaleDateString("lt-LT"),
+    creation_date: new Date().toLocaleDateString("lt-LT"),
+    cargo: projectDraft.cargoName || projectDraft.cargo || "—",
+    cargo_type: projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || "—",
+    quantity: projectDraft.quantity || projectDraft.vehicleCount || "—",
+    cargo_quantity: projectDraft.quantity || projectDraft.vehicleCount || "—",
+    sender_name: projectDraft.loadingCompanyName || "—",
+    loading_address: [projectDraft.loadingStreet, projectDraft.loadingCity, projectDraft.loadingPostalCode].filter(Boolean).join(", ") || "—",
+    loading_postcode: projectDraft.loadingPostalCode || "",
+    loading_contact: loadingContact,
+    loading_ref_number: loadingRefNumber,
+    loading_notes: loadingNotes,
+    receiver_name: projectDraft.unloadingCompanyName || "—",
+    unloading_address: [projectDraft.unloadingStreet, projectDraft.unloadingCity, projectDraft.unloadingPostalCode].filter(Boolean).join(", ") || "—",
+    unloading_postcode: projectDraft.unloadingPostalCode || "",
+    unloading_contact: unloadingContact,
+    unloading_ref_number: unloadingRefNumber,
+    unloading_notes: unloadingNotes,
+    driver_name: driverName || "—",
+    truck_number: truckNumber || "—",
+    trailer_number: trailerNumber || "—",
+    load_number: loadingRefNumber || "—",
+    ref_number: unloadingRefNumber || "—",
+    vin_numbers: projectDraft.vinNumbers || "—",
+    instructions: executionDraft.instructions || "—",
+    manager_name: projectDraft.managerName || "—",
+    company_name: companyProfile.name || "—",
+    company_code: companyProfile.code || "—",
+    company_vat: companyProfile.vat || "—",
+    company_phone: companyProfile.phone || "—",
+    company_email: companyProfile.email || "—",
+    company_address: companyProfile.address || "—",
+    company_bank_name: companyProfile.bankName || "—",
+    company_bank_account: companyProfile.bankAccount || "—",
+    company_swift: companyProfile.swift || "—",
+    company_contact_name: companyContactName || "—",
+    company_contact_phone: companyContactPhone || "—",
+    company_contact_email: companyContactEmail || "—",
+    customer_name: customerProfile.name || "—",
+    customer_company_code: customerProfile.code || "—",
+    customer_vat_code: customerProfile.vat || "—",
+    customer_phone: customerProfile.phone || "—",
+    customer_email: customerProfile.email || "—",
+    customer_address: customerProfile.address || "—",
+    customer_contact_name: customerProfile.contactName || "—",
+    customer_contact_phone: customerProfile.contactPhone || "—",
+    customer_contact_email: customerProfile.contactEmail || "—",
+    // Legacy alias: old templates often use client_contact_* for the actual customer contact.
+    client_contact_name: customerProfile.contactName || "—",
+    client_contact_phone: customerProfile.contactPhone || "—",
+    client_contact_email: customerProfile.contactEmail || "—",
+    carrier_company_code: carrierProfile.code || "—",
+    carrier_vat_code: carrierProfile.vat || "—",
+    carrier_phone: carrierProfile.phone || "—",
+    carrier_email: carrierProfile.email || "—",
+    carrier_address: carrierProfile.address || "—",
+    carrier_contact_name: carrierProfile.contactName || "—",
+    carrier_contact_phone: carrierProfile.contactPhone || "—",
+    carrier_contact_email: carrierProfile.contactEmail || "—",
+    company_stamp_signature: companyStampToken,
+    company_stamp: companyStampToken,
+    company_signature: companyStampToken,
+    customer_stamp_signature: "",
+    customer_stamp: "",
+    customer_signature: "",
+    carrier_stamp_signature: "",
+    carrier_stamp: "",
+    carrier_signature: "",
+    company_logo: settings?.company?.logo_url || template?.editorState?.manual?.assets?.logoSrc || "",
+    instructions_block: instructionLines ? `<div style="padding:16px 18px; background:#0f172a; border-radius:18px; color:#ffffff; margin-bottom:20px;"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.72); margin-bottom:8px;">Instrukcijos vežėjui</div>${instructionLines}</div>` : "",
+    contact_name: carrierProfile.contactName || "—",
+    contact_phone: carrierProfile.contactPhone || "—",
+    contact_email: carrierProfile.contactEmail || "—",
+    loading_contact_block: buildOptionalInfoRow("Kontaktas", loadingContact, { valueColor: "#1f2937" }),
+    unloading_contact_block: buildOptionalInfoRow("Kontaktas", unloadingContact, { valueColor: "#1f2937" }),
+    loading_ref_number_block: buildOptionalInfoRow("REF nr.", loadingRefNumber, { valueColor: "#1f2937" }),
+    unloading_ref_number_block: buildOptionalInfoRow("REF nr.", unloadingRefNumber, { valueColor: "#1f2937" }),
+    loading_notes_block: buildOptionalNoteBlock("Pakrovimo pastabos", loadingNotes),
+    unloading_notes_block: buildOptionalNoteBlock("Iškrovimo pastabos", unloadingNotes),
+    execution_transport_block: executionTransportBlock,
+    reference_numbers_block: referenceNumbersBlock,
+    vat_mode: vatModeLabel,
+    vat_mode_key: vatModeKey,
+    vat_mode_badge: vatModeBadge,
+    originals_required: originalsRequired,
+    originals_required_label: originalsRequired === "required" ? "Reikalingi" : "Nereikalingi",
+    requires_original_documents_warning: originalsRequired === "required" ? `<div style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%); border-radius:12px; padding:16px 20px; margin:20px 0; box-shadow:0 4px 12px rgba(239,68,68,0.3);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:24px;">⚠️</span><span style="color:white; font-size:14px; font-weight:600;">Šiam užsakymui reikalingi originalūs CMR / vykdymo dokumentai.</span></div></div>` : "",
+  };
+};
+const calculateExecutionFinancials = ({ projectDraft = emptyProjectDraft, executionDraft = emptyExecutionDraft } = {}) => {
+  const clientPrice = Number(projectDraft.clientPrice) || 0;
+  const executionCost = resolveExecutionCost(executionDraft);
+  const profit = clientPrice - executionCost;
+  const profitMargin = executionCost ? (profit / executionCost) * 100 : 0;
+
+  return {
+    clientPrice,
+    carrierPrice: executionCost,
+    executionCost,
+    profit,
+    profitMargin,
+  };
+};
+const applyLegacyFinancialsToPayload = (payload = {}) => {
+  if (payload.orderType !== "resale_to_carrier") return payload;
+  if (!payload.clientPrice || !payload.carrierPrice) return payload;
+
+  const profit = payload.clientPrice - payload.carrierPrice;
+  const profitMargin = payload.carrierPrice ? (profit / payload.carrierPrice) * 100 : 0;
+
+  return {
+    ...payload,
+    profit,
+    profitMargin,
+  };
+};
+const validateCarrierOrderGeneration = ({ executionDraft = emptyExecutionDraft } = {}) => {
+  if (!executionDraft.orderType) return "Pasirinkite užsakymo tipą.";
+  if (executionDraft.orderType !== "resale_to_carrier") return "Orderis vežėjui generuojamas tik pasirinkus pardavimą vežėjui.";
+  if (!executionDraft.carrierId) return "Pasirinkite vežėją.";
+  return null;
+};
+const validateDraftBeforeSave = ({ projectDraft = emptyProjectDraft, executionDraft = emptyExecutionDraft } = {}) => {
+  if (!executionDraft.orderType) {
+    return { error: "Pasirinkite užsakymo tipą.", needsNegativeProfitConfirmation: false, financials: null };
+  }
+
+  if (!projectDraft.projectId) {
+    return { error: "Nesugeneruotas projekto ID.", needsNegativeProfitConfirmation: false, financials: null };
+  }
+
+  if (!projectDraft.clientId || !projectDraft.clientName) {
+    return { error: "Pasirinkite projekto klientą.", needsNegativeProfitConfirmation: false, financials: null };
+  }
+
+  if (!projectDraft.loadingDate || !projectDraft.unloadingDate) {
+    return { error: "Užpildykite pakrovimo ir iškrovimo datas.", needsNegativeProfitConfirmation: false, financials: null };
+  }
+
+  if (!projectDraft.loadingCity || !projectDraft.unloadingCity) {
+    return { error: "Užpildykite pakrovimo ir iškrovimo miestus.", needsNegativeProfitConfirmation: false, financials: null };
+  }
+
+  const financials = calculateExecutionFinancials({ projectDraft, executionDraft });
+
+  if (executionDraft.orderType === "resale_to_carrier") {
+    if (!executionDraft.carrierId) {
+      return { error: "Perpardavimui būtinas vežėjas.", needsNegativeProfitConfirmation: false, financials };
+    }
+    if (!executionDraft.carrierPrice) {
+      return { error: "Įveskite vežėjo kainą.", needsNegativeProfitConfirmation: false, financials };
+    }
+    return {
+      error: null,
+      needsNegativeProfitConfirmation: financials.profit < 0,
+      financials,
+    };
+  }
+
+  if (executionDraft.orderType === "own_transport") {
+    if (!executionDraft.driverName) {
+      return { error: "Nuosavam transportui pasirinkite arba įveskite vairuotoją.", needsNegativeProfitConfirmation: false, financials };
+    }
+  }
+
+  return {
+    error: null,
+    needsNegativeProfitConfirmation: false,
+    financials,
+  };
+};
+const projectDraftFieldKeys = new Set(Object.keys(emptyProjectDraft));
+const executionDraftFieldKeys = new Set(Object.keys(emptyExecutionDraft));
 function readFileAsDataUrl(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result || "")); reader.onerror = reject; reader.readAsDataURL(file); }); }
 
 const mmToPx = (mm) => mm * 3.7795275591;
@@ -79,16 +798,46 @@ const dynamicFieldCategories = [
     ]
   },
   {
-    title: "Klientas",
+    title: "Mūsų įmonė",
     fields: [
-      { key: "client_name", label: "Kliento pavadinimas" },
+      { key: "company_name", label: "Įmonės pavadinimas" },
+      { key: "company_code", label: "Įmonės kodas" },
+      { key: "company_vat", label: "Įmonės PVM kodas" },
+      { key: "company_address", label: "Įmonės adresas" },
+      { key: "company_email", label: "Įmonės email" },
+      { key: "company_phone", label: "Įmonės telefonas" },
+      { key: "company_contact_name", label: "Įmonės kontaktas" },
+      { key: "company_contact_email", label: "Įmonės kontakto email" },
+      { key: "company_contact_phone", label: "Įmonės kontakto telefonas" },
+      { key: "company_stamp_signature", label: "Įmonės antspaudas / parašas" },
+      { key: "company_logo", label: "Įmonės logotipas" },
+      { key: "client_name", label: "Legacy alias: company_name" },
+      { key: "client_code", label: "Legacy alias: company_code" },
+      { key: "client_vat", label: "Legacy alias: company_vat" },
+      { key: "client_company_code", label: "Legacy alias: company_code" },
+      { key: "client_vat_code", label: "Legacy alias: company_vat" },
+      { key: "client_address", label: "Legacy alias: company_address" },
+      { key: "client_email", label: "Legacy alias: company_email" },
+      { key: "client_phone", label: "Legacy alias: company_phone" }
+    ]
+  },
+  {
+    title: "Projekto klientas",
+    fields: [
       { key: "client_order_number", label: "Kliento užsakymo Nr." },
       { key: "client_price", label: "Kliento kaina" },
-      { key: "client_code", label: "Kliento įmonės kodas" },
-      { key: "client_vat", label: "Kliento PVM kodas" },
-      { key: "client_address", label: "Kliento adresas" },
-      { key: "client_email", label: "Kliento email" },
-      { key: "client_phone", label: "Kliento telefonas" }
+      { key: "customer_name", label: "Kliento pavadinimas" },
+      { key: "customer_company_code", label: "Kliento įmonės kodas" },
+      { key: "customer_vat_code", label: "Kliento PVM kodas" },
+      { key: "customer_address", label: "Kliento adresas" },
+      { key: "customer_email", label: "Kliento email" },
+      { key: "customer_phone", label: "Kliento telefonas" },
+      { key: "customer_contact_name", label: "Kliento kontaktas" },
+      { key: "customer_contact_email", label: "Kliento kontakto email" },
+      { key: "customer_contact_phone", label: "Kliento kontakto telefonas" },
+      { key: "client_contact_name", label: "Legacy alias: customer_contact_name" },
+      { key: "client_contact_email", label: "Legacy alias: customer_contact_email" },
+      { key: "client_contact_phone", label: "Legacy alias: customer_contact_phone" }
     ]
   },
   {
@@ -96,11 +845,18 @@ const dynamicFieldCategories = [
     fields: [
       { key: "carrier_name", label: "Vežėjo pavadinimas" },
       { key: "carrier_price", label: "Vežėjo kaina" },
-      { key: "carrier_code", label: "Vežėjo įmonės kodas" },
-      { key: "carrier_vat", label: "Vežėjo PVM kodas" },
+      { key: "carrier_company_code", label: "Vežėjo įmonės kodas" },
+      { key: "carrier_vat_code", label: "Vežėjo PVM kodas" },
       { key: "carrier_address", label: "Vežėjo adresas" },
       { key: "carrier_email", label: "Vežėjo email" },
-      { key: "carrier_phone", label: "Vežėjo telefonas" }
+      { key: "carrier_phone", label: "Vežėjo telefonas" },
+      { key: "carrier_contact_name", label: "Vežėjo kontaktas" },
+      { key: "carrier_contact_email", label: "Vežėjo kontakto email" },
+      { key: "carrier_contact_phone", label: "Vežėjo kontakto telefonas" },
+      { key: "carrier_code", label: "Legacy alias: carrier_company_code" },
+      { key: "carrier_vat", label: "Legacy alias: carrier_vat_code" },
+      { key: "carrier_signature", label: "Vežėjo parašas" },
+      { key: "carrier_stamp", label: "Vežėjo antspaudas" }
     ]
   },
   {
@@ -109,8 +865,16 @@ const dynamicFieldCategories = [
       { key: "route", label: "Maršrutas (pilnas)" },
       { key: "loading_address", label: "Pakrovimo adresas" },
       { key: "loading_date", label: "Pakrovimo data" },
+      { key: "loading_postcode", label: "Pakrovimo pašto kodas" },
+      { key: "loading_contact", label: "Pakrovimo kontaktas" },
+      { key: "loading_ref_number", label: "Pakrovimo REF nr." },
+      { key: "loading_notes", label: "Pakrovimo pastabos" },
       { key: "unloading_address", label: "Iškrovimo adresas" },
-      { key: "unloading_date", label: "Iškrovimo data" }
+      { key: "unloading_date", label: "Iškrovimo data" },
+      { key: "unloading_postcode", label: "Iškrovimo pašto kodas" },
+      { key: "unloading_contact", label: "Iškrovimo kontaktas" },
+      { key: "unloading_ref_number", label: "Iškrovimo REF nr." },
+      { key: "unloading_notes", label: "Iškrovimo pastabos" }
     ]
   },
   {
@@ -138,6 +902,17 @@ const dynamicFieldCategories = [
       { key: "today_date", label: "Šiandienos data" },
       { key: "load_number", label: "Load numeris" },
       { key: "ref_number", label: "Ref numeris" },
+      { key: "vat_mode", label: "PVM režimas" },
+      { key: "originals_required", label: "Originalų režimas" },
+      { key: "loading_contact_block", label: "Pakrovimo kontaktas (blokas)" },
+      { key: "unloading_contact_block", label: "Iškrovimo kontaktas (blokas)" },
+      { key: "loading_ref_number_block", label: "Pakrovimo REF (blokas)" },
+      { key: "unloading_ref_number_block", label: "Iškrovimo REF (blokas)" },
+      { key: "loading_notes_block", label: "Pakrovimo pastabos (blokas)" },
+      { key: "unloading_notes_block", label: "Iškrovimo pastabos (blokas)" },
+      { key: "reference_numbers_block", label: "REF numeriai (blokas)" },
+      { key: "execution_transport_block", label: "Transporto blokas" },
+      { key: "vat_mode_badge", label: "PVM žyma" },
       { key: "instructions", label: "Instrukcijos vežėjui" }
     ]
   }
@@ -145,19 +920,84 @@ const dynamicFieldCategories = [
 const buildPreviewFields = (settings, manualState) => ({
   order_number: "RAD-2026-014",
   today_date: "2026-04-04",
-  client_name: "MB Radanaras",
+  company_name: settings?.company?.name || "MB Radanaras",
+  company_code: settings?.company?.code || "302000000",
+  company_vat: settings?.company?.vat || "LT100000000000",
+  company_address: settings?.company?.address || "Vilnius, Lietuva",
+  company_email: settings?.company?.email || "info@radanaras.lt",
+  company_phone: settings?.company?.phone || "+370 600 00000",
+  company_contact_name: settings?.email?.from_name || "Saimondas Lukosius",
+  company_contact_email: settings?.email?.from_address || settings?.company?.email || "info@radanaras.lt",
+  company_contact_phone: settings?.company?.phone || "+370 600 00000",
+  client_name: settings?.company?.name || "MB Radanaras",
+  client_code: settings?.company?.code || "302000000",
+  client_vat: settings?.company?.vat || "LT100000000000",
+  client_company_code: settings?.company?.code || "302000000",
+  client_vat_code: settings?.company?.vat || "LT100000000000",
+  client_address: settings?.company?.address || "Vilnius, Lietuva",
+  client_email: settings?.company?.email || "info@radanaras.lt",
+  client_phone: settings?.company?.phone || "+370 600 00000",
+  customer_name: "UAB Kliento Projektas",
+  customer_company_code: "304000000",
+  customer_vat_code: "LT100000000001",
+  customer_address: "Kaunas, Lietuva",
+  customer_email: "transport@customer.lt",
+  customer_phone: "+370 611 11111",
+  customer_contact_name: "Projektų vadybininkė",
+  customer_contact_email: "transport@customer.lt",
+  customer_contact_phone: "+370 611 11111",
+  client_contact_name: "Projektų vadybininkė",
+  client_contact_email: "transport@customer.lt",
+  client_contact_phone: "+370 611 11111",
   carrier_name: "UAB Baltic Carrier",
+  carrier_company_code: "305555555",
+  carrier_vat_code: "LT100000000123",
+  carrier_code: "305555555",
+  carrier_vat: "LT100000000123",
+  carrier_address: "Klaipėda, Lietuva",
+  carrier_email: "ops@carrier.lt",
+  carrier_phone: "+370 622 22222",
+  carrier_contact_name: "Jonas Jonaitis",
+  carrier_contact_email: "jonas@carrier.lt",
+  carrier_contact_phone: "+370 600 00000",
   cargo: "Automobilių pervežimas",
   route: "Hamburg, DE → Vilnius, LT",
   loading_date: "2026-04-07",
   unloading_date: "2026-04-09",
   client_price: "",
-  carrier_price: "1180.00 EUR",
+  carrier_price: "1180.00 EUR + PVM",
   payment_term: "14 dienų",
   company_logo: manualState?.assets?.logoSrc || settings?.company?.logo_url || buildPlaceholderImage("LOGO", "#2563eb"),
   company_stamp_signature: settings?.companyStampSignature || buildPlaceholderImage("STAMP", "#0f766e"),
+  company_stamp: settings?.companyStampSignature || buildPlaceholderImage("STAMP", "#0f766e"),
+  company_signature: settings?.companyStampSignature || buildPlaceholderImage("STAMP", "#0f766e"),
+  customer_stamp_signature: "",
+  customer_stamp: "",
+  customer_signature: "",
+  carrier_stamp_signature: "",
+  carrier_stamp: "",
+  carrier_signature: "",
+  loading_postcode: "20457",
+  unloading_postcode: "02100",
+  loading_contact: "Jonas, +37060000000",
+  unloading_contact: "Sandėlis, +37061111111",
+  loading_ref_number: "LOAD-001",
+  unloading_ref_number: "UNLOAD-001",
+  loading_notes: "Skambinti 30 min. prieš atvykimą.",
+  unloading_notes: "Atvykus kreiptis į apsaugą.",
+  loading_contact_block: `<div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Kontaktas</span><span style="color:#1f2937; font-size:11px;">Jonas, +37060000000</span></div>`,
+  unloading_contact_block: `<div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Kontaktas</span><span style="color:#1f2937; font-size:11px;">Sandėlis, +37061111111</span></div>`,
+  loading_ref_number_block: `<div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">REF nr.</span><span style="color:#1f2937; font-size:11px;">LOAD-001</span></div>`,
+  unloading_ref_number_block: `<div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">REF nr.</span><span style="color:#1f2937; font-size:11px;">UNLOAD-001</span></div>`,
+  loading_notes_block: `<div style="margin-top:6px; padding:7px 8px; background:#ffffff; border:1px dashed #d1d5db; border-radius:6px;"><div style="color:#6b7280; font-size:10px; margin-bottom:3px;">Pakrovimo pastabos</div><div style="color:#334155; font-size:11px; line-height:1.45;">Skambinti 30 min. prieš atvykimą.</div></div>`,
+  unloading_notes_block: `<div style="margin-top:6px; padding:7px 8px; background:#ffffff; border:1px dashed #d1d5db; border-radius:6px;"><div style="color:#6b7280; font-size:10px; margin-bottom:3px;">Iškrovimo pastabos</div><div style="color:#334155; font-size:11px; line-height:1.45;">Atvykus kreiptis į apsaugą.</div></div>`,
+  reference_numbers_block: `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"><div style="margin-bottom:0;"><span style="color:#6b7280; font-size:10px; display:block;">Pakrovimo REF nr.</span><span style="color:#1f2937; font-size:11px;">LOAD-001</span></div><div style="margin-bottom:0;"><span style="color:#6b7280; font-size:10px; display:block;">Iškrovimo REF nr.</span><span style="color:#1f2937; font-size:11px;">UNLOAD-001</span></div></div>`,
+  execution_transport_block: `<div style="background:#eff6ff; padding:8px; border-radius:6px; margin-bottom:8px;"><div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;"><div style="margin-bottom:0;"><span style="color:#6b7280; font-size:10px; display:block;">Vairuotojas</span><span style="color:#1f2937; font-size:11px;">Jonas Jonaitis</span></div><div style="margin-bottom:0;"><span style="color:#6b7280; font-size:10px; display:block;">Vilkikas</span><span style="color:#1f2937; font-size:11px;">ABC123</span></div><div style="margin-bottom:0;"><span style="color:#6b7280; font-size:10px; display:block;">Priekaba</span><span style="color:#1f2937; font-size:11px;">TRL501</span></div></div></div>`,
+  vat_mode: "+ PVM",
+  vat_mode_badge: `<span style="display:inline-block; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,0.16); color:#ffffff; font-size:10px; font-weight:700; white-space:nowrap;">+ PVM</span>`,
+  originals_required: "required",
   instructions_block: `<div style="padding:16px 18px; background:#0f172a; border-radius:18px; color:#ffffff; margin-bottom:20px;"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.72); margin-bottom:8px;">Instrukcijos vežėjui</div><div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92);">Atvykimą patvirtinti telefonu. CMR ir POD dokumentus pateikti laiku.</div></div>`,
-  requires_original_documents_warning: "",
+  requires_original_documents_warning: `<div style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%); border-radius:12px; padding:16px 20px; margin:20px 0; box-shadow:0 4px 12px rgba(239,68,68,0.3);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:24px;">⚠️</span><span style="color:white; font-size:14px; font-weight:600;">Šiam užsakymui reikalingi originalūs CMR / vykdymo dokumentai.</span></div></div>`,
   contact_name: "Jonas Jonaitis",
   contact_phone: "+370 600 00000",
   contact_email: "jonas@carrier.lt"
@@ -197,7 +1037,7 @@ const modernOrderBodyHtml = `
 
     <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
       <h3 style="margin: 0 0 15px 0; color: #1976d2;">SUTARTIES ŠALYS</h3>
-      <p><strong>Užsakovas:</strong> {{client_name}} | <strong>Vežėjas:</strong> {{carrier_name}}</p>
+      <p><strong>Mūsų įmonė:</strong> {{company_name}} | <strong>Vežėjas:</strong> {{carrier_name}}</p>
       <p><strong>Maršrutas:</strong> {{route}}</p>
     </div>
 
@@ -242,18 +1082,18 @@ const modernOrderBodyHtml = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
           <h4 style="color: #1976d2;">UŽSAKOVAS</h4>
-          <p><strong>Pavadinimas:</strong> {{client_name}}</p>
-          <p><strong>Kodas:</strong> {{client_code}}</p>
-          <p><strong>PVM:</strong> {{client_vat}}</p>
-          <p><strong>Adresas:</strong> {{client_address}}</p>
-          <p><strong>Tel:</strong> {{client_phone}}</p>
-          <p><strong>Email:</strong> {{client_email}}</p>
+          <p><strong>Pavadinimas:</strong> {{company_name}}</p>
+          <p><strong>Kodas:</strong> {{company_code}}</p>
+          <p><strong>PVM:</strong> {{company_vat}}</p>
+          <p><strong>Adresas:</strong> {{company_address}}</p>
+          <p><strong>Tel:</strong> {{company_phone}}</p>
+          <p><strong>Email:</strong> {{company_email}}</p>
         </div>
         <div>
           <h4 style="color: #1976d2;">VEŽĖJAS</h4>
           <p><strong>Pavadinimas:</strong> {{carrier_name}}</p>
-          <p><strong>Kodas:</strong> {{carrier_code}}</p>
-          <p><strong>PVM:</strong> {{carrier_vat}}</p>
+          <p><strong>Kodas:</strong> {{carrier_company_code}}</p>
+          <p><strong>PVM:</strong> {{carrier_vat_code}}</p>
           <p><strong>Adresas:</strong> {{carrier_address}}</p>
           <p><strong>Tel:</strong> {{carrier_phone}}</p>
           <p><strong>Email:</strong> {{carrier_email}}</p>
@@ -290,7 +1130,7 @@ const defaultManualTemplateState = () => ({
                 <div><strong style="color:#ffffff;">Data:</strong> {{today_date}}</div>
                 <div><strong style="color:#ffffff;">Vežėjas:</strong> {{carrier_name}}</div>
                 <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.15);">
-                  <div><strong style="color:#ffffff;">Vadybininkas:</strong> {{contact_name}}</div>
+                  <div><strong style="color:#ffffff;">Vežėjo vadybininkas:</strong> {{contact_name}}</div>
                   <div><strong style="color:#ffffff;">Tel:</strong> {{contact_phone}}</div>
                   <div><strong style="color:#ffffff;">Email:</strong> {{contact_email}}</div>
                 </div>
@@ -306,7 +1146,7 @@ const defaultManualTemplateState = () => ({
       <div style="padding:8px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; margin-bottom:10px;">
         <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:4px;">Sutarties šalys</div>
         <div style="font-size:12px; line-height:1.5;">
-          Tarp <strong>{{carrier_name}}</strong>, toliau Vežėjas, ir <strong>{{client_name}}</strong>, toliau Užsakovas, sudaromas šis transporto užsakymas.
+          Tarp <strong>{{carrier_name}}</strong>, toliau Vežėjas, ir <strong>{{company_name}}</strong>, toliau Užsakovas, sudaromas šis transporto užsakymas.
         </div>
       </div>
       <div class="doc-info-card" style="background:white; border:1px solid #e5e7eb; border-radius:10px; padding:12px; margin:10px 0;">
@@ -321,30 +1161,27 @@ const defaultManualTemplateState = () => ({
             <div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Siuntėjas</span><span style="color:#1f2937; font-weight:500; font-size:11px;">{{sender_name}}</span></div>
             <div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Adresas</span><span style="color:#1f2937; font-size:11px;">{{loading_address}}</span></div>
             <div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#059669; font-weight:600; font-size:11px;">{{loading_date}}</span></div>
+            {{loading_contact_block}}
+            {{loading_ref_number_block}}
+            {{loading_notes_block}}
           </div>
           <div style="background:#f9fafb; padding:8px; border-radius:6px; border-left:3px solid #ef4444;">
             <div style="color:#dc2626; font-weight:600; font-size:11px; margin-bottom:4px;">IŠKROVIMAS</div>
             <div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Gavėjas</span><span style="color:#1f2937; font-weight:500; font-size:11px;">{{receiver_name}}</span></div>
             <div style="margin-bottom:3px;"><span style="color:#6b7280; font-size:10px; display:block;">Adresas</span><span style="color:#1f2937; font-size:11px;">{{unloading_address}}</span></div>
             <div><span style="color:#6b7280; font-size:10px; display:block;">Data</span><span style="color:#dc2626; font-weight:600; font-size:11px;">{{unloading_date}}</span></div>
+            {{unloading_contact_block}}
+            {{unloading_ref_number_block}}
+            {{unloading_notes_block}}
           </div>
         </div>
-        <div style="background:#eff6ff; padding:8px; border-radius:6px; margin-bottom:8px;">
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-            <div><span style="color:#1e40af; font-size:10px; display:block; margin-bottom:2px;">Vairuotojas</span><span style="color:#1f2937; font-weight:500; font-size:11px;">{{driver_name}}</span></div>
-            <div><span style="color:#1e40af; font-size:10px; display:block; margin-bottom:2px;">Vilkikas</span><span style="color:#1f2937; font-weight:500; font-size:11px;">{{truck_number}}</span></div>
-            <div><span style="color:#1e40af; font-size:10px; display:block; margin-bottom:2px;">Priekaba</span><span style="color:#1f2937; font-weight:500; font-size:11px;">{{trailer_number}}</span></div>
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <div><span style="color:#6b7280; font-size:10px; display:block; margin-bottom:2px;">Load Nr</span><span style="color:#1f2937; font-weight:500; font-size:12px;">{{load_number}}</span></div>
-          <div><span style="color:#6b7280; font-size:10px; display:block; margin-bottom:2px;">Ref Nr</span><span style="color:#1f2937; font-weight:500; font-size:12px;">{{ref_number}}</span></div>
-        </div>
+        {{execution_transport_block}}
+        {{reference_numbers_block}}
       </div>
       <div class="doc-price-pill" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:10px; padding:10px 16px; margin:10px 0; box-shadow:0 3px 8px rgba(102,126,234,0.3);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="color:white; font-size:12px; font-weight:500;">Vežėjo kaina</span>
-          <span class="vezejo-kaina" style="color:white; font-size:18px; font-weight:700;">{{carrier_price}}</span>
+          <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;"><span class="vezejo-kaina" style="color:white; font-size:18px; font-weight:700;">{{carrier_price}}</span>{{vat_mode_badge}}</div>
         </div>
       </div>
       {{requires_original_documents_warning}}
@@ -396,13 +1233,13 @@ const defaultManualTemplateState = () => ({
         <div class="doc-parties-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
           <div style="padding:18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px;">
             <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#64748b; margin-bottom:10px;">Užsakovas</div>
-            <div style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:8px;">{{client_name}}</div>
+            <div style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:8px;">{{company_name}}</div>
             <div style="font-size:12px; color:#475569; line-height:1.9;">
-              <div>Įmonės kodas: {{client_company_code}}</div>
-              <div>PVM kodas: {{client_vat_code}}</div>
-              <div>Tel: {{client_phone}}</div>
-              <div>Email: {{client_email}}</div>
-              <div>Adresas: {{client_address}}</div>
+              <div>Įmonės kodas: {{company_code}}</div>
+              <div>PVM kodas: {{company_vat}}</div>
+              <div>Tel: {{company_phone}}</div>
+              <div>Email: {{company_email}}</div>
+              <div>Adresas: {{company_address}}</div>
             </div>
           </div>
           <div style="padding:18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px;">
@@ -458,7 +1295,7 @@ const defaultManualTemplateState = () => ({
 const buildTemplateMarkup = (state) => {
   const { layout } = state;
   const padding = `${layout.marginTop}mm ${layout.marginRight}mm ${layout.marginBottom}mm ${layout.marginLeft}mm`;
-  const bodyContent = String(prepareTemplateSection(state.bodyHtml, state, { persistLogo: true }) || "").replace(
+  const bodyContent = String(prepareTemplateSection(upgradeLegacyOrderTemplateBodyHtml(state.bodyHtml), state, { persistLogo: true }) || "").replace(
     /<div[^>]*data-page-break="true"[^>]*>[\s\S]*?<\/div>/g,
     '<div data-page-break="true" style="page-break-before:always; height:0; overflow:hidden;"></div>'
   );
@@ -473,6 +1310,297 @@ const buildTemplateMarkup = (state) => {
       </div>
     </div>
   `;
+};
+const ORDER_PAGE_SPLIT_REGEX = /<div[^>]+data-page-break="true"[^>]*>[\s\S]*?<\/div>/;
+const WORD_LOGO_MAX_HEIGHT_PX = 56;
+const WORD_LOGO_MAX_WIDTH_PX = 160;
+const getOrderDocumentPageSize = (orientation = "portrait") =>
+  orientation === "landscape"
+    ? { widthPx: 1123, heightPx: 794, widthMm: 297, heightMm: 210 }
+    : { widthPx: 794, heightPx: 1123, widthMm: 210, heightMm: 297 };
+const splitOrderDocumentPages = (html = "") => {
+  const pages = String(html || "").split(ORDER_PAGE_SPLIT_REGEX);
+  const trimmed = pages.map((page) => page.trim()).filter(Boolean);
+  return trimmed.length > 0 ? trimmed : [String(html || "")];
+};
+const buildOrderDocumentPageMarkup = ({
+  headerHtml = "",
+  bodyHtml = "",
+  footerHtml = "",
+  layout = {},
+} = {}) => {
+  const pageSize = getOrderDocumentPageSize(layout.orientation);
+  const pagePadding = `${layout.marginTop}mm ${layout.marginRight}mm ${layout.marginBottom}mm ${layout.marginLeft}mm`;
+  const contentHeightMm = Math.max(
+    20,
+    pageSize.heightMm - (Number(layout.marginTop || 0) + Number(layout.marginBottom || 0))
+  );
+  return `
+    <section data-order-page="true" data-orientation="${layout.orientation || "portrait"}" style="width:${pageSize.widthMm}mm; height:${pageSize.heightMm}mm; min-height:${pageSize.heightMm}mm; overflow:hidden; box-sizing:border-box;">
+      <div data-order-page-inner="true" style="height:${pageSize.heightMm}mm; min-height:${pageSize.heightMm}mm; box-sizing:border-box; padding:${pagePadding}; overflow:hidden;">
+        <div data-order-page-content="true" style="height:${contentHeightMm}mm; min-height:${contentHeightMm}mm; display:flex; flex-direction:column; overflow:hidden;">
+          <div data-template-header style="flex:0 0 auto; margin-bottom:${layout.headerSpacing || 0}mm;">${headerHtml}</div>
+          <div data-template-body style="flex:1 1 auto; min-height:0; overflow:hidden;">${bodyHtml}</div>
+          <div data-template-footer style="flex:0 0 auto; margin-top:${layout.footerSpacing || 0}mm;">${footerHtml}</div>
+        </div>
+      </div>
+    </section>
+  `;
+};
+const buildOrderDocumentPagesMarkup = ({ pages = [], headerHtml = "", footerHtml = "", layout = {} } = {}) =>
+  `
+    <div data-order-pages-root="true">
+      ${pages.map((page) => buildOrderDocumentPageMarkup({ headerHtml, bodyHtml: page, footerHtml, layout })).join("")}
+    </div>
+  `;
+const buildCanonicalOrderDocumentCss = () => `
+  ${DOC_CSS}
+
+  [data-order-pages-root="true"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  [data-order-page="true"] {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+  [data-order-page="true"][data-orientation="landscape"] {
+    width: 297mm;
+    min-height: 210mm;
+  }
+  [data-order-page-inner="true"] {
+    background: #ffffff;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  [data-order-page-content="true"] {
+    overflow: hidden;
+  }
+  [data-template-body] {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  @media screen {
+    html { background: #525659; }
+    body { margin: 0; padding: 24px 0 40px; background: #525659; }
+    [data-order-page="true"] {
+        box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    [data-template-root] { width: auto; box-shadow: none; }
+    [data-page-break="true"] { display: none !important; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 0; }
+    html, body { margin: 0; padding: 0; background: #fff; }
+    [data-order-pages-root="true"] { display: block; }
+    [data-order-page="true"] {
+      width: 210mm !important;
+      height: 297mm !important;
+      min-height: 297mm !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      page-break-after: always;
+      break-after: page;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+    [data-order-page="true"][data-orientation="landscape"] {
+      width: 297mm !important;
+      height: 210mm !important;
+      min-height: 210mm !important;
+    }
+    [data-order-page="true"]:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+    [data-order-page-inner="true"] {
+      height: 100% !important;
+      min-height: 100% !important;
+      overflow: hidden !important;
+    }
+    [data-order-page-content="true"] { overflow: hidden !important; }
+    [data-template-body] { overflow: hidden !important; }
+    [data-template-root] { width: auto; box-shadow: none; }
+    [data-page-break="true"] { display: none !important; }
+  }
+`;
+const buildOrderDocumentFullHtml = ({ html = "", css = "", title = "Dokumentas" } = {}) => `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${String(title || "Dokumentas")}</title><style>body{margin:0;font-family:Arial,Helvetica,sans-serif;}${css}</style></head><body>${html}</body></html>`;
+const buildOrderDocumentFrameHtml = ({
+  html = "",
+  css = "",
+  title = "Dokumentas",
+  bodyStyle = "margin:0;padding:0;background:#fff;",
+  extraCss = "",
+} = {}) => `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${String(title || "Dokumentas")}</title><style>body{margin:0;font-family:Arial,Helvetica,sans-serif;}${css}
+html,body{${bodyStyle}}
+[data-order-pages-root="true"]{display:block !important;gap:0 !important;}
+[data-order-page="true"]{margin:0 auto !important;box-shadow:none !important;}
+[data-order-page-inner="true"]{background:#fff !important;}
+[data-template-root]{box-shadow:none !important;}
+${extraCss}
+</style></head><body>${html}</body></html>`;
+const buildOrderDocumentPageDocHtml = ({
+  pageHtml = "",
+  headerHtml = "",
+  footerHtml = "",
+  layout = {},
+  title = "Dokumentas",
+} = {}) => {
+  const pageMarkup = buildOrderDocumentPageMarkup({
+    headerHtml,
+    bodyHtml: pageHtml,
+    footerHtml,
+    layout,
+  });
+  const pageCss = `
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;overflow:hidden;background:#fff;}
+body{font-family:Arial,Helvetica,sans-serif;color:#0f172a;}
+${buildCanonicalOrderDocumentCss()}
+[data-order-pages-root="true"]{display:block !important;}
+[data-order-page="true"]{margin:0 !important;box-shadow:none !important;overflow:hidden !important;}
+[data-order-page-inner="true"]{overflow:hidden !important;}
+[data-order-page-content="true"]{overflow:hidden !important;}
+[data-template-body]{overflow:hidden !important;}
+[data-page-break="true"]{display:none!important;}
+img[data-template-logo="true"]{
+  max-width:100% !important;
+  max-height:${layout.logoMaxHeight || 80}px !important;
+  width:auto !important;
+  height:auto !important;
+  display:block !important;
+  object-fit:contain !important;
+}
+img[data-stamp="true"]{
+  max-width:180px !important;
+  max-height:92px !important;
+  width:auto !important;
+  height:auto !important;
+  display:block !important;
+  object-fit:contain !important;
+}
+`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${String(title || "Dokumentas")}</title><style>${pageCss}</style></head><body>${pageMarkup}</body></html>`;
+};
+const buildOrderDocumentWordHtml = ({ html = "", css = "", title = "Uzsakymas" } = {}) =>
+  `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${String(title || "Uzsakymas")}</title><style>body{margin:0;font-family:Arial,Helvetica,sans-serif;}${css}
+html,body{margin:0;padding:0;background:#fff !important;}
+[data-order-pages-root="true"]{display:block !important;gap:0 !important;}
+[data-order-page="true"]{margin:0 auto 12mm auto !important;box-shadow:none !important;page-break-after:always;break-after:page;}
+[data-order-page="true"]:last-child{page-break-after:auto;break-after:auto;}
+[data-order-page-inner="true"]{background:#fff !important;}
+[data-order-page-content="true"]{overflow:hidden !important;}
+[data-template-body]{overflow:hidden !important;}
+[data-template-root]{box-shadow:none !important;}
+[data-page-break="true"]{display:none !important;}
+img[data-template-logo="true"]{
+  max-width:${WORD_LOGO_MAX_WIDTH_PX}px !important;
+  max-height:${WORD_LOGO_MAX_HEIGHT_PX}px !important;
+  width:auto !important;
+  height:auto !important;
+  display:block !important;
+  object-fit:contain !important;
+}
+img[data-stamp="true"]{
+  max-width:180px !important;
+  max-height:92px !important;
+  width:auto !important;
+  height:auto !important;
+  display:block !important;
+  object-fit:contain !important;
+}
+</style></head><body>${html}</body></html>`;
+const renderOrderDocument = ({
+  projectDraft = emptyProjectDraft,
+  executionDraft = emptyExecutionDraft,
+  settings = {},
+  carriers = [],
+  draftPayload = {},
+  templateId = null,
+  title = "Dokumentas",
+} = {}) => {
+  const resolvedTemplateId = templateId || executionDraft._selectedTemplateId || settings.templates?.find((item) => item.isDefault)?.id || settings.templates?.[0]?.id;
+  const template = settings.templates?.find((item) => String(item.id) === String(resolvedTemplateId));
+  if (!template) {
+    return { error: "Pasirinkite šabloną." };
+  }
+  const selectedCarrier = carriers.find((carrier) => String(carrier.id) === String(executionDraft.carrierId || draftPayload.carrierId));
+  const values = buildDocumentTemplateValuesFromDrafts({
+    projectDraft,
+    executionDraft,
+    draftPayload,
+    selectedCarrier,
+    settings,
+    template,
+  });
+  const editorManual = template.editorState?.manual;
+  const css = buildCanonicalOrderDocumentCss();
+  const manualState = editorManual
+    ? {
+        ...defaultManualTemplateState(),
+        ...editorManual,
+        layout: { ...defaultManualTemplateState().layout, ...(editorManual.layout || {}) },
+        assets: { ...defaultManualTemplateState().assets, ...(editorManual.assets || {}) },
+      }
+    : null;
+  let documentHtml = "";
+  let pageHtmlDocs = [];
+  let pageBodies = [];
+  let renderedHeaderHtml = "";
+  let renderedFooterHtml = "";
+  let pageSize = getOrderDocumentPageSize(manualState?.layout?.orientation || "portrait");
+
+  if (manualState) {
+    renderedHeaderHtml = renderTemplateTokens(prepareTemplateSection(manualState.headerHtml, manualState, { persistLogo: true }), values);
+    const renderedBody = renderTemplateTokens(prepareTemplateSection(upgradeLegacyOrderTemplateBodyHtml(manualState.bodyHtml), manualState, { persistLogo: true }), values);
+    renderedFooterHtml = renderTemplateTokens(prepareTemplateSection(manualState.footerHtml, manualState, { persistLogo: true }), values);
+    const pages = splitOrderDocumentPages(renderedBody);
+    pageBodies = pages;
+    documentHtml = buildOrderDocumentPagesMarkup({
+      pages,
+      headerHtml: renderedHeaderHtml,
+      footerHtml: renderedFooterHtml,
+      layout: manualState.layout,
+    });
+    pageSize = getOrderDocumentPageSize(manualState.layout.orientation);
+    pageHtmlDocs = pages.map((page) =>
+      buildOrderDocumentPageDocHtml({
+        pageHtml: page,
+        headerHtml: renderedHeaderHtml,
+        footerHtml: renderedFooterHtml,
+        layout: manualState.layout,
+        title,
+      })
+    );
+  } else {
+    const compiledHtml = String(template.content || "");
+    const legacyHtml = compiledHtml.replace(/{{\s*([^}]+)\s*}}/g, (_, key) => values[key.trim()] ?? "");
+    documentHtml = legacyHtml;
+    pageBodies = [legacyHtml];
+    pageHtmlDocs = [buildOrderDocumentFrameHtml({ html: legacyHtml, css, title })];
+  }
+  return {
+    html: documentHtml,
+    css,
+    fullHtml: buildOrderDocumentFullHtml({ html: documentHtml, css, title }),
+    pageHtmlDocs,
+    pageBodies,
+    renderedHeaderHtml,
+    renderedFooterHtml,
+    layout: manualState?.layout || null,
+    pageSize,
+    template,
+    values,
+    draftPayload,
+    selectedCarrier,
+  };
 };
 const restoreManualTemplateState = (template) => {
   const defaults = defaultManualTemplateState();
@@ -531,7 +1659,7 @@ export function TemplateManager({ settings, saveSettings }) {
 
   const previewFields = useMemo(() => buildPreviewFields(settings, manualState), [settings, manualState]);
   const renderedHeader = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.headerHtml, manualState), previewFields), [manualState, previewFields]);
-  const renderedBody = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.bodyHtml, manualState), previewFields), [manualState, previewFields]);
+  const renderedBody = useMemo(() => renderTemplateTokens(prepareTemplateSection(upgradeLegacyOrderTemplateBodyHtml(manualState.bodyHtml), manualState), previewFields), [manualState, previewFields]);
   const renderedFooter = useMemo(() => renderTemplateTokens(prepareTemplateSection(manualState.footerHtml, manualState), previewFields), [manualState, previewFields]);
   /* Split rendered body at every [data-page-break="true"] div — each chunk is one A4 page */
   const previewPages = useMemo(() => {
@@ -1773,130 +2901,807 @@ export function Settings({ settings, saveSettings }) {
     </div>
   );
 }
-export function Orders({ orders, saveOrders, clients, carriers, openModal }) {
+export function Orders({
+  orders,
+  saveOrders,
+  clients,
+  carriers,
+  openModal,
+  title = "Užsakymai",
+  showCreateButton = true,
+  createButtonLabel = "+ Naujas Užsakymas",
+  onCreate = null,
+  emptyTitle = "Nėra užsakymų",
+  emptyDescription = "Sukurkite pirmą užsakymą",
+  variant = "default",
+}) {
   const deleteOrder = (id) => {
     if (window.confirm("Ar tikrai norite ištrinti šį užsakymą?")) {
       saveOrders(orders.filter((item) => item.id !== id));
     }
   };
 
+  const resolveTypeLabel = (order) => {
+    if (order.orderType === "own_transport") return "Own fleet";
+    return "Ekspedijavimas";
+  };
+
+  const resolveExecutorLabel = (order) => {
+    if (order.orderType === "own_transport") {
+      const truck = order.truckPlate || "—";
+      const driver = order.driverName || "—";
+      return `Radanaras MB / ${truck} / ${driver}`;
+    }
+
+    return order.carrierName || "—";
+  };
+
+  const resolveProjectId = (order) =>
+    order.projectId || order.projectNumber || order.id || order.orderNumber || "—";
+
+  const resolveExecutionCost = (order) => {
+    if (order.carrierPrice || order.carrierPrice === 0) return Number(order.carrierPrice || 0);
+    if (order.executionCost || order.executionCost === 0) return Number(order.executionCost || 0);
+    return null;
+  };
+
+  const resolveProfit = (order) => {
+    const clientPrice = Number(order.clientPrice || 0);
+    const executionCost = resolveExecutionCost(order);
+    if (executionCost === null || !clientPrice) return null;
+    return clientPrice - executionCost;
+  };
+
+  const resolveDocState = (rawState, fallback) => {
+    if (rawState === "present" || rawState === "uploaded" || rawState === "verified" || rawState === true) return "present";
+    if (rawState === "missing" || rawState === false) return "missing";
+    if (rawState === "not_applicable" || rawState === "n/a") return "na";
+    return fallback;
+  };
+
+  const getCmrState = (order) =>
+    resolveDocState(order.cmrStatus, order.documents?.cmr ? "present" : "missing");
+
+  const getCarrierInvoiceState = (order) => {
+    if (order.orderType === "own_transport") return "na";
+    return resolveDocState(order.carrierInvoiceStatus, order.documents?.carrierInvoice ? "present" : "missing");
+  };
+
+  const getClientInvoiceState = (order) =>
+    resolveDocState(order.clientInvoiceStatus, order.documents?.invoice ? "present" : "missing");
+
+  const renderTrafficLight = (state, labelMap = { present: "Yra", missing: "Nėra", na: "N/A" }) => {
+    const meta = state === "present"
+      ? { bg: "#dcfce7", color: "#166534", border: "#86efac" }
+      : state === "missing"
+        ? { bg: "#fee2e2", color: "#991b1b", border: "#fca5a5" }
+        : { bg: "#f1f5f9", color: "#475569", border: "#cbd5e1" };
+
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          padding: "4px 10px",
+          borderRadius: "999px",
+          background: meta.bg,
+          color: meta.color,
+          border: `1px solid ${meta.border}`,
+          fontSize: "12px",
+          fontWeight: 700,
+          whiteSpace: "nowrap",
+        }}
+      >
+        <span
+          style={{
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: meta.color,
+            display: "inline-block",
+          }}
+        />
+        {labelMap[state] || labelMap.na}
+      </span>
+    );
+  };
+
+  const renderPrice = (value) => {
+    if (value === null || value === undefined || value === "") return "—";
+    return euro(value);
+  };
+
+  const renderProfit = (order) => {
+    const profit = resolveProfit(order);
+    if (profit === null) return "—";
+
+    return (
+      <span style={{ fontWeight: 700, color: profit >= 0 ? "#059669" : "#dc2626" }}>
+        {profit >= 0 ? "+" : ""}
+        {profit.toFixed(2)} €
+      </span>
+    );
+  };
+
+  const renderActions = (order) => (
+    <div style={actionButtons}>
+      {order.__demo ? (
+        <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>Demo</span>
+      ) : variant === "projects" || variant === "expedition" ? (
+        <button style={actionBtn} onClick={() => openModal("order", order)} title="Atidaryti projektą">✎</button>
+      ) : (
+        <>
+          <button style={actionBtn} onClick={() => openModal("order", order)} title="Atidaryti / redaguoti">✎</button>
+          <button style={actionBtn} onClick={() => deleteOrder(order.id)} title="Ištrinti">🗑</button>
+        </>
+      )}
+    </div>
+  );
+
+  const renderProjectsTable = () => (
+    <table style={table}>
+      <thead>
+        <tr>
+          <th style={th}>Projekto ID</th>
+          <th style={th}>Mūsų Nr.</th>
+          <th style={th}>Kliento užsakymo Nr.</th>
+          <th style={th}>Klientas</th>
+          <th style={th}>Tipas</th>
+          <th style={th}>Vykdytojas</th>
+          <th style={th}>Maršrutas</th>
+          <th style={th}>Pakrovimas</th>
+          <th style={th}>Iškrovimas</th>
+          <th style={th}>Kliento kaina</th>
+          <th style={th}>Vykdymo kaina</th>
+          <th style={th}>Pelnas</th>
+          <th style={th}>CMR</th>
+          <th style={th}>Vežėjo SF</th>
+          <th style={th}>Kliento SF</th>
+          <th style={th}>Statusas</th>
+          <th style={th}>Veiksmai</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order) => (
+          <tr key={order.id}>
+            <td style={td}><strong>{resolveProjectId(order)}</strong></td>
+            <td style={td}>
+              {order.__demo ? (
+                <span>{order.orderNumber || "—"} <span style={{ color: "#64748b", fontSize: "11px" }}>(demo)</span></span>
+              ) : (
+                <strong style={{ cursor: "pointer", color: "#3b82f6", textDecoration: "underline" }} onClick={() => openModal("order", order)}>
+                  {order.orderNumber || "—"}
+                </strong>
+              )}
+            </td>
+            <td style={{ ...td, fontSize: "12px" }}>{order.clientOrderNumber || "—"}</td>
+            <td style={td}>{order.clientName || "—"}</td>
+            <td style={td}>
+              <span style={{
+                display: "inline-block",
+                padding: "4px 10px",
+                borderRadius: "999px",
+                background: order.orderType === "own_transport" ? "#dcfce7" : "#dbeafe",
+                color: order.orderType === "own_transport" ? "#166534" : "#1d4ed8",
+                fontSize: "12px",
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+              }}>
+                {resolveTypeLabel(order)}
+              </span>
+            </td>
+            <td style={{ ...td, maxWidth: "220px" }}>{resolveExecutorLabel(order)}</td>
+            <td style={{ ...td, fontSize: "12px", maxWidth: "180px" }}>{order.route || "—"}</td>
+            <td style={td}>{order.loadingDate || "—"}</td>
+            <td style={td}>{order.unloadingDate || "—"}</td>
+            <td style={td}>{renderPrice(order.clientPrice)}</td>
+            <td style={td}>{renderPrice(resolveExecutionCost(order))}</td>
+            <td style={td}>{renderProfit(order)}</td>
+            <td style={td}>{renderTrafficLight(getCmrState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}>{renderTrafficLight(getCarrierInvoiceState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}>{renderTrafficLight(getClientInvoiceState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}><span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span></td>
+            <td style={td}>{renderActions(order)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  const renderExpeditionTable = () => (
+    <table style={table}>
+      <thead>
+        <tr>
+          <th style={th}>Projekto ID</th>
+          <th style={th}>Kliento užsakymo Nr.</th>
+          <th style={th}>Klientas</th>
+          <th style={th}>Vežėjas</th>
+          <th style={th}>Maršrutas</th>
+          <th style={th}>Pakrovimas</th>
+          <th style={th}>Iškrovimas</th>
+          <th style={th}>Kliento kaina</th>
+          <th style={th}>Vežėjo kaina</th>
+          <th style={th}>Pelnas</th>
+          <th style={th}>CMR</th>
+          <th style={th}>Statusas</th>
+          <th style={th}>Veiksmai</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order) => (
+          <tr key={order.id}>
+            <td style={td}><strong>{resolveProjectId(order)}</strong></td>
+            <td style={{ ...td, fontSize: "12px" }}>{order.clientOrderNumber || "—"}</td>
+            <td style={td}>{order.clientName || "—"}</td>
+            <td style={td}>{order.carrierName || "—"}</td>
+            <td style={{ ...td, fontSize: "12px", maxWidth: "180px" }}>{order.route || "—"}</td>
+            <td style={td}>{order.loadingDate || "—"}</td>
+            <td style={td}>{order.unloadingDate || "—"}</td>
+            <td style={td}>{renderPrice(order.clientPrice)}</td>
+            <td style={td}>{renderPrice(resolveExecutionCost(order))}</td>
+            <td style={td}>{renderProfit(order)}</td>
+            <td style={td}>{renderTrafficLight(getCmrState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}><span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span></td>
+            <td style={td}>{renderActions(order)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  const renderOwnFleetTable = () => (
+    <table style={table}>
+      <thead>
+        <tr>
+          <th style={th}>Projekto ID</th>
+          <th style={th}>Mūsų Nr.</th>
+          <th style={th}>Kliento užsakymo Nr.</th>
+          <th style={th}>Klientas</th>
+          <th style={th}>Vairuotojas</th>
+          <th style={th}>Vilkikas</th>
+          <th style={th}>Priekaba</th>
+          <th style={th}>Maršrutas</th>
+          <th style={th}>Pakrovimas</th>
+          <th style={th}>Iškrovimas</th>
+          <th style={th}>Kliento kaina</th>
+          <th style={th}>Savikaina</th>
+          <th style={th}>Pelnas</th>
+          <th style={th}>CMR</th>
+          <th style={th}>Kliento SF</th>
+          <th style={th}>Statusas</th>
+          <th style={th}>Veiksmai</th>
+        </tr>
+      </thead>
+      <tbody>
+        {orders.map((order) => (
+          <tr key={order.id}>
+            <td style={td}><strong>{resolveProjectId(order)}</strong></td>
+            <td style={td}>
+              {order.__demo ? (
+                <span>{order.orderNumber || "—"} <span style={{ color: "#64748b", fontSize: "11px" }}>(demo)</span></span>
+              ) : (
+                <strong style={{ cursor: "pointer", color: "#3b82f6", textDecoration: "underline" }} onClick={() => openModal("order", order)}>
+                  {order.orderNumber || "—"}
+                </strong>
+              )}
+            </td>
+            <td style={{ ...td, fontSize: "12px" }}>{order.clientOrderNumber || "—"}</td>
+            <td style={td}>{order.clientName || "—"}</td>
+            <td style={td}>{order.driverName || "—"}</td>
+            <td style={td}>{order.truckPlate || "—"}</td>
+            <td style={td}>{order.trailerPlate || "—"}</td>
+            <td style={{ ...td, fontSize: "12px", maxWidth: "180px" }}>{order.route || "—"}</td>
+            <td style={td}>{order.loadingDate || "—"}</td>
+            <td style={td}>{order.unloadingDate || "—"}</td>
+            <td style={td}>{renderPrice(order.clientPrice)}</td>
+            <td style={td}>{renderPrice(resolveExecutionCost(order))}</td>
+            <td style={td}>{renderProfit(order)}</td>
+            <td style={td}>{renderTrafficLight(getCmrState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}>{renderTrafficLight(getClientInvoiceState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+            <td style={td}><span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span></td>
+            <td style={td}>{renderActions(order)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
   return (
     <div style={pageCard}>
       <div style={cardHeader}>
-        <h2 style={cardTitle}>Užsakymai ({orders.length})</h2>
-        <button style={btn} onClick={() => openModal("order", null)}>+ Naujas Užsakymas</button>
+        <h2 style={cardTitle}>{title} ({orders.length})</h2>
+        {showCreateButton ? (
+          <button style={btn} onClick={() => (onCreate ? onCreate() : openModal("order", null))}>{createButtonLabel}</button>
+        ) : null}
       </div>
-      {orders.length > 0 ? (() => {
-        const totalClient = orders.reduce((s, o) => s + (Number(o.clientPrice) || 0), 0);
-        const totalCarrier = orders.reduce((s, o) => s + (Number(o.carrierPrice) || 0), 0);
-        const totalProfit = totalClient - totalCarrier;
-        return (
-          <table style={table}>
-            <thead>
-              <tr>
-                <th style={th}>Mūsų Užs. Nr.</th>
-                <th style={th}>Kl. Užs. Nr.</th>
-                <th style={th}>Klientas</th>
-                <th style={th}>Vežėjas</th>
-                <th style={th}>Maršrutas</th>
-                <th style={th}>Kl. Kaina</th>
-                <th style={th}>Vež. Kaina</th>
-                <th style={th}>Pelnas</th>
-                <th style={th}>Statusas</th>
-                <th style={th}>Veiksmai</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const profit = (order.clientPrice || 0) - (order.carrierPrice || 0);
-                const margin = order.carrierPrice ? ((profit / order.carrierPrice) * 100).toFixed(1) : 0;
-                return (
-                  <tr key={order.id}>
-                    <td style={td}><strong style={{ cursor: "pointer", color: "#3b82f6", textDecoration: "underline" }} onClick={() => openModal("order", order)}>{order.orderNumber || "-"}</strong></td>
-                    <td style={{ ...td, fontSize: "12px" }}>{order.clientOrderNumber || "-"}</td>
-                    <td style={td}>{order.clientName || "-"}</td>
-                    <td style={td}>{order.carrierName || "-"}</td>
-                    <td style={{ ...td, fontSize: "12px", maxWidth: "160px" }}>{order.route || "-"}</td>
-                    <td style={td}>{order.clientPrice ? euro(order.clientPrice) : "-"}</td>
-                    <td style={td}>{order.carrierPrice ? euro(order.carrierPrice) : "-"}</td>
-                    <td style={td}>
-                      {order.clientPrice && order.carrierPrice
-                        ? <span style={{ fontWeight: 600, color: profit >= 0 ? "#059669" : "#dc2626" }}>
-                            {profit >= 0 ? "+" : ""}{profit.toFixed(2)} €
-                            <div style={{ fontSize: "10px", color: "#64748b" }}>({margin}%)</div>
-                          </span>
-                        : "-"}
-                    </td>
-                    <td style={td}><span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span></td>
-                    <td style={td}>
-                      <div style={actionButtons}>
-                        <button style={actionBtn} onClick={() => openModal("order", order)} title="Redaguoti">✎</button>
-                        <button style={actionBtn} onClick={() => deleteOrder(order.id)} title="Ištrinti">🗑</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr style={{ background: "#f9fafb", fontWeight: 600, borderTop: "2px solid #e5e7eb" }}>
-                <td colSpan={5} style={{ ...td, textAlign: "right", color: "#64748b", fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Iš viso ({orders.length} užs.):</td>
-                <td style={{ ...td, color: "#059669", fontWeight: 700 }}>{totalClient.toFixed(2)} €</td>
-                <td style={{ ...td, color: "#3b82f6", fontWeight: 700 }}>{totalCarrier.toFixed(2)} €</td>
-                <td style={{ ...td, fontWeight: 700, color: totalProfit >= 0 ? "#059669" : "#dc2626" }}>{totalProfit >= 0 ? "+" : ""}{totalProfit.toFixed(2)} €</td>
-                <td colSpan={2} style={td}></td>
-              </tr>
-            </tfoot>
-          </table>
-        );
-      })() : <div style={emptyState}><div style={{ fontSize: "64px", marginBottom: "16px", opacity: 0.3 }}>📦</div><h3>Nėra užsakymų</h3><p>Sukurkite pirmą užsakymą</p></div>}
+      {orders.length > 0 ? (
+        variant === "projects"
+          ? renderProjectsTable()
+          : variant === "expedition"
+            ? renderExpeditionTable()
+            : variant === "own_fleet"
+              ? renderOwnFleetTable()
+            : renderProjectsTable()
+      ) : <div style={emptyState}><div style={{ fontSize: "64px", marginBottom: "16px", opacity: 0.3 }}>📦</div><h3>{emptyTitle}</h3><p>{emptyDescription}</p></div>}
     </div>
   );
 }
-export function Modal({ type, initialData, onClose, clients, carriers, saveOrders, saveCarriers, orders, settings }) {
-  const [formData, setFormData] = useState(emptyOrderForm);
+export function Modal({ type, initialData, onClose, clients, carriers, saveOrders, saveCarriers, saveClients, orders, settings, persistFutureDomain, persistTarget, workflowMode = "default" }) {
+  const [projectDraft, setProjectDraft] = useState(() => buildDraftsFromOrderForm(emptyOrderForm).projectDraft);
+  const [executionDraft, setExecutionDraft] = useState(() => buildDraftsFromOrderForm(emptyOrderForm).executionDraft);
+  const [legacyCompatibilityState, setLegacyCompatibilityState] = useState({});
   const [previewHtml, setPreviewHtml] = useState(null);
+  const [previewDocument, setPreviewDocument] = useState(null);
   const [previewZoom, setPreviewZoom] = useState(100);
+  const [formActionMessage, setFormActionMessage] = useState("");
+  const [clientPickerSearch, setClientPickerSearch] = useState("");
+  const [carrierPickerSearch, setCarrierPickerSearch] = useState("");
+  const [selectedClientContactId, setSelectedClientContactId] = useState("");
+  const [selectedManagerId, setSelectedManagerId] = useState("");
+  const [selectedTruckId, setSelectedTruckId] = useState("");
+  const [selectedTrailerId, setSelectedTrailerId] = useState("");
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [showNewClientModal, setShowNewClientModal] = useState(false);
+  const [newClientDraft, setNewClientDraft] = useState({ name: "", companyCode: "", vatCode: "", email: "", phone: "", address: "", contactName: "", contactEmail: "", contactPhone: "" });
+  const [entityEditModal, setEntityEditModal] = useState(null);
+  const lastPreparedFutureBundleRef = useRef(null);
   // quickAdd: null | { type: "manager"|"driver"|"truck"|"trailer", fields: {...} }
   const [quickAdd, setQuickAdd] = useState(null);
 
-  const companyAsClient = {
-    clientId: "COMPANY_SETTINGS",
-    clientName: settings?.company?.name || "",
-    clientCompanyCode: settings?.company?.code || "",
-    clientVatCode: settings?.company?.vat || "",
-    clientPhone: settings?.company?.phone || "",
-    clientEmail: settings?.company?.email || "",
-    clientAddress: settings?.company?.address || "",
+  const applyLegacyCompatibleForm = (nextForm) => {
+    const drafts = buildDraftsFromOrderForm(nextForm);
+    setProjectDraft(drafts.projectDraft);
+    setExecutionDraft(drafts.executionDraft);
+    setLegacyCompatibilityState(pickLegacyCompatibilityState(nextForm));
   };
+
+  const buildLegacyPayloadFromDrafts = (overrides = {}) => {
+    const selectedCarrier = carriers.find((c) => String(c.id) === String(executionDraft.carrierId)) || {};
+    return buildLegacyOrderPayloadFromDrafts({
+      projectDraft,
+      executionDraft,
+      base: legacyCompatibilityState,
+      selectedCarrier,
+      overrides,
+    });
+  };
+  const buildPreparedSaveArtifacts = ({ status, id, orderNumber, overrides = {} } = {}) => {
+    const draftPayload = buildLegacyPayloadFromDrafts();
+    const resolvedId = id ?? executionDraft.id ?? draftPayload.id ?? Date.now();
+    const resolvedOrderNumber = orderNumber ?? executionDraft.orderNumber ?? draftPayload.orderNumber ?? createOrderNumber(orders);
+    const legacyPayload = applyLegacyFinancialsToPayload(buildLegacyPayloadFromDrafts({
+      ...overrides,
+      id: resolvedId,
+      orderNumber: resolvedOrderNumber,
+      ...(status ? { status } : {}),
+    }));
+    const futureBundle = buildFutureDomainBundleFromDrafts({
+      projectDraft,
+      executionDraft: {
+        ...executionDraft,
+        ...overrides,
+        id: resolvedId,
+        orderNumber: resolvedOrderNumber,
+        ...(status ? { status } : {}),
+      },
+      settings,
+      selectedCarrier,
+      idFactory: () => Date.now().toString(36),
+      now: new Date().toISOString(),
+    });
+
+    return {
+      legacyPayload,
+      futureBundle,
+    };
+  };
+  const buildFinalLegacyOrderPayload = ({ status, id, orderNumber, overrides = {} } = {}) => {
+    return buildPreparedSaveArtifacts({
+      status,
+      id,
+      orderNumber,
+      overrides,
+    }).legacyPayload;
+  };
+  const persistLegacyOrderFromDrafts = ({
+    status,
+    id,
+    orderNumber,
+    overrides = {},
+    afterSave = null,
+    syncDraftState = true,
+    persistTarget,
+  } = {}) => {
+    const { legacyPayload, futureBundle } = buildPreparedSaveArtifacts({
+      status,
+      id,
+      orderNumber,
+      overrides,
+    });
+    const persistPlan = buildOrderDraftPersistPlan({
+      legacyPayload,
+      futureBundle,
+      target: persistTarget,
+    });
+    lastPreparedFutureBundleRef.current = persistPlan.futureBundle;
+    const persistResult = executeOrderDraftPersistPlan({
+      persistPlan,
+      persistLegacy: upsertOrder,
+      persistFutureDomain: persistFutureDomain || persistFutureDomainDraftSkeleton,
+    });
+    const saved = persistResult.saved || {
+      id: legacyPayload.id,
+      orderNumber: legacyPayload.orderNumber,
+      status: legacyPayload.status,
+    };
+
+    if (syncDraftState && saved) {
+      updateFormData({
+        id: saved.id,
+        orderNumber: saved.orderNumber,
+        status: saved.status,
+      });
+    }
+
+    if (typeof afterSave === "function") {
+      afterSave(saved, persistPlan.futureBundle, persistResult);
+    }
+
+    return {
+      saved,
+      futureBundle: persistPlan.futureBundle,
+      persistPlan,
+      persistResult,
+    };
+  };
+
+  const selectedCarrier = useMemo(
+    () => carriers.find((c) => String(c.id) === String(executionDraft.carrierId)) || null,
+    [carriers, executionDraft.carrierId]
+  );
+  const selectedClient = useMemo(
+    () => clients.find((c) => String(c.id) === String(projectDraft.clientId)) || null,
+    [clients, projectDraft.clientId]
+  );
+  const ownFleetCarrier = useMemo(
+    () => carriers.find((carrier) => carrier.isOwnCompany) || null,
+    [carriers]
+  );
+  const selectedClientContacts = useMemo(
+    () => normalizeClientContacts(selectedClient?.contacts),
+    [selectedClient]
+  );
+  const executionParty = executionDraft.orderType === "own_transport" ? ownFleetCarrier : selectedCarrier;
+  const selectedCarrierManagers = selectedCarrier?.managerContacts || [];
+  const selectedExecutionTrucks = executionParty?.trucks || [];
+  const selectedExecutionTrailers = executionParty?.trailers || [];
+  const selectedExecutionDrivers = executionParty?.drivers || [];
+  const filteredClientOptions = useMemo(() => {
+    const query = clientPickerSearch.trim().toLowerCase();
+    if (!query) return clients;
+    return clients.filter((client) =>
+      (client.name || "").toLowerCase().includes(query) ||
+      (client.companyCode || "").toLowerCase().includes(query) ||
+      (client.vatCode || "").toLowerCase().includes(query) ||
+      (client.email || "").toLowerCase().includes(query)
+    );
+  }, [clients, clientPickerSearch]);
+  const filteredCarrierOptions = useMemo(() => {
+    const query = carrierPickerSearch.trim().toLowerCase();
+    const baseOptions = carriers.filter((carrier) => !carrier.isOwnCompany);
+    if (!query) return baseOptions;
+    return baseOptions.filter((carrier) =>
+      (carrier.name || "").toLowerCase().includes(query) ||
+      (carrier.companyCode || "").toLowerCase().includes(query) ||
+      (carrier.vatCode || "").toLowerCase().includes(query) ||
+      (carrier.email || "").toLowerCase().includes(query) ||
+      (carrier.phone || "").toLowerCase().includes(query)
+    );
+  }, [carriers, carrierPickerSearch]);
+  const matchedClientContactId = useMemo(() => {
+    const matchedContact = selectedClientContacts.find((contact) =>
+      (contact.name || "") === (projectDraft.clientContactName || "") &&
+      (contact.phone || "") === (projectDraft.clientContactPhone || "") &&
+      (contact.email || "") === (projectDraft.clientContactEmail || "")
+    );
+    return matchedContact ? String(matchedContact.id) : "";
+  }, [selectedClientContacts, projectDraft.clientContactName, projectDraft.clientContactPhone, projectDraft.clientContactEmail]);
+  const matchedManagerId = useMemo(() => {
+    const matchedManager = selectedCarrierManagers.find((manager) =>
+      (manager.name || "") === (executionDraft.contactName || "") &&
+      (manager.phone || "") === (executionDraft.contactPhone || "") &&
+      (manager.email || "") === (executionDraft.contactEmail || "")
+    );
+    return matchedManager ? String(matchedManager.id) : "";
+  }, [selectedCarrierManagers, executionDraft.contactName, executionDraft.contactPhone, executionDraft.contactEmail]);
+  const matchedTruckId = useMemo(() => {
+    const matchedTruck = selectedExecutionTrucks.find(
+      (truck) => String(truck.licensePlate || "").toUpperCase() === String(executionDraft.truckPlate || "").toUpperCase()
+    );
+    return matchedTruck ? String(matchedTruck.id) : "";
+  }, [selectedExecutionTrucks, executionDraft.truckPlate]);
+  const matchedTrailerId = useMemo(() => {
+    const matchedTrailer = selectedExecutionTrailers.find(
+      (trailer) => String(trailer.licensePlate || "").toUpperCase() === String(executionDraft.trailerPlate || "").toUpperCase()
+    );
+    return matchedTrailer ? String(matchedTrailer.id) : "";
+  }, [selectedExecutionTrailers, executionDraft.trailerPlate]);
+  const matchedDriverId = useMemo(() => {
+    const matchedDriver = selectedExecutionDrivers.find(
+      (driver) => String(driver.name || "").trim() === String(executionDraft.driverName || "").trim()
+    );
+    return matchedDriver ? String(matchedDriver.id) : "";
+  }, [selectedExecutionDrivers, executionDraft.driverName]);
+  const selectedDriverRecord = useMemo(
+    () => selectedExecutionDrivers.find((driver) => String(driver.id || "") === String(selectedDriverId || matchedDriverId))
+      || selectedExecutionDrivers.find((driver) => String(driver.name || "").trim() === String(executionDraft.driverName || "").trim())
+      || null,
+    [selectedExecutionDrivers, selectedDriverId, matchedDriverId, executionDraft.driverName]
+  );
+  const selectedTruckRecord = useMemo(
+    () => selectedExecutionTrucks.find((truck) => String(truck.id || "") === String(selectedTruckId || matchedTruckId))
+      || selectedExecutionTrucks.find((truck) => String(truck.licensePlate || "").toUpperCase() === String(executionDraft.truckPlate || "").toUpperCase())
+      || null,
+    [selectedExecutionTrucks, selectedTruckId, matchedTruckId, executionDraft.truckPlate]
+  );
+  const selectedTrailerRecord = useMemo(
+    () => selectedExecutionTrailers.find((trailer) => String(trailer.id || "") === String(selectedTrailerId || matchedTrailerId))
+      || selectedExecutionTrailers.find((trailer) => String(trailer.licensePlate || "").toUpperCase() === String(executionDraft.trailerPlate || "").toUpperCase())
+      || null,
+    [selectedExecutionTrailers, selectedTrailerId, matchedTrailerId, executionDraft.trailerPlate]
+  );
+  const companyProfile = settings?.company || {};
+  const selectedClientHealth = useMemo(
+    () => (selectedClient ? analyzeClientData(selectedClient) : null),
+    [selectedClient]
+  );
+  const selectedCarrierHealth = useMemo(
+    () => (selectedCarrier ? analyzeCarrierData(selectedCarrier) : null),
+    [selectedCarrier]
+  );
+  const selectedDriverHealth = useMemo(
+    () => (selectedDriverRecord ? analyzeDriverData(selectedDriverRecord) : null),
+    [selectedDriverRecord]
+  );
+  const selectedTruckHealth = useMemo(
+    () => (selectedTruckRecord ? analyzeTruckData(selectedTruckRecord) : null),
+    [selectedTruckRecord]
+  );
+  const selectedTrailerHealth = useMemo(
+    () => (selectedTrailerRecord ? analyzeTrailerData(selectedTrailerRecord) : null),
+    [selectedTrailerRecord]
+  );
+  const currentFinancials = calculateExecutionFinancials({ projectDraft, executionDraft });
+  const currentProfit = currentFinancials.profit;
+  const currentMargin = currentFinancials.profitMargin;
+  const vatModeValue = executionDraft.vatMode || "without_vat";
+  console.log('🟡 vatModeValue calculated:', vatModeValue, 'from executionDraft.vatMode:', executionDraft.vatMode);
+  const originalsRequiredValue = projectDraft.originalsRequired || "not_required";
+  console.log('🟠 originalsRequiredValue calculated:', originalsRequiredValue, 'from projectDraft.originalsRequired:', projectDraft.originalsRequired);
+  const documentPreviewContext = useMemo(() => ({
+    orderNumber: executionDraft.orderNumber || "Naujas užsakymas",
+    carrierLabel: executionDraft.carrierName || selectedCarrier?.name || "vežėjas nepasirinktas",
+    carrierEmail: selectedCarrier?.email || executionDraft.carrierEmail || "",
+    wordFileName: `uzsakymas_${executionDraft.orderNumber || "doc"}.doc`,
+    mailSubject: `Transporto užsakymas ${executionDraft.orderNumber || ""}`,
+  }), [executionDraft.orderNumber, executionDraft.carrierName, executionDraft.carrierEmail, selectedCarrier]);
+  const forcedExecutionMode = workflowMode === "expedition"
+    ? "resale_to_carrier"
+    : workflowMode === "own_transport"
+      ? "own_transport"
+      : null;
+  const isWorkflowLocked = Boolean(forcedExecutionMode);
+  const workflowTitle = forcedExecutionMode === "resale_to_carrier"
+    ? "Ekspedijavimo workflow"
+    : forcedExecutionMode === "own_transport"
+      ? "Nuosavo transporto workflow"
+      : "Universalus užsakymo workflow";
+  const workflowDescription = forcedExecutionMode === "resale_to_carrier"
+    ? "Projektas kuriamas ekspedijavimo modulyje. Čia pildomi projekto kliento duomenys ir išorinio vežėjo vykdymo dalis."
+    : forcedExecutionMode === "own_transport"
+      ? "Projektas kuriamas nuosavo transporto modulyje. Čia pildomi projekto kliento duomenys ir mūsų fleet vykdymo dalis."
+      : "Pereinamasis bendras workflow. Vėliau visi kūrimo keliai bus pilnai atskirti pagal modulį.";
+  const customerLabel = projectDraft.clientName || selectedClient?.name || "Klientas nepasirinktas";
+  const executionLabel = executionDraft.orderType === "own_transport"
+    ? (executionDraft.driverName || executionDraft.truckPlate || ownFleetCarrier?.name || "Fleet vykdytojas nepasirinktas")
+    : (executionDraft.carrierName || selectedCarrier?.name || "Vežėjas nepasirinktas");
+  const currentManagerName = useMemo(() => resolveDefaultManagerName(settings), [settings]);
+  const executionCostLabel = executionDraft.orderType === "own_transport" ? "Savikaina" : "Vykdymo kaina";
+  const workflowEntityLabel = executionDraft.orderType === "own_transport" ? "own_fleet projektas" : "expedicijos projektas";
+  const saveButtonLabel = initialData?.id
+    ? "Išsaugoti pakeitimus"
+    : executionDraft.orderType === "own_transport"
+      ? "Išsaugoti own_fleet projektą"
+      : "Išsaugoti ekspedicijos projektą";
+  const isCarrierDocumentBlocked = executionDraft.orderType === "resale_to_carrier" && Boolean(selectedCarrierHealth?.hasCriticalIssues);
+  const carrierBlockingReasons = selectedCarrierHealth?.missingCriticalFields || [];
+
+  useEffect(() => {
+    if (type !== "order" || initialData?.id || projectDraft.projectId) return;
+    setProjectDraft((prev) => ({ ...prev, projectId: createProjectId(orders) }));
+  }, [type, initialData?.id, projectDraft.projectId, orders]);
+
+  useEffect(() => {
+    if (type !== "order" || initialData?.id || executionDraft.orderNumber) return;
+    setExecutionDraft((prev) => ({ ...prev, orderNumber: createOrderNumber(orders) }));
+  }, [type, initialData?.id, executionDraft.orderNumber, orders]);
+
+  useEffect(() => {
+    if (type !== "order" || projectDraft.managerName) return;
+    setProjectDraft((prev) => ({ ...prev, managerName: currentManagerName }));
+  }, [type, projectDraft.managerName, currentManagerName]);
+
+  /* REDUNDANT: normalization already happens in updateFormData at the write site
+  useEffect(() => {
+    const normalizedVatMode = normalizeVatMode(executionDraft.vatMode ?? executionDraft.carrierPriceWithVAT);
+    const normalizedCarrierPriceWithVat = normalizedVatMode === "with_vat";
+    if (
+      executionDraft.vatMode !== normalizedVatMode ||
+      Boolean(executionDraft.carrierPriceWithVAT) !== normalizedCarrierPriceWithVat
+    ) {
+      setExecutionDraft((prev) => ({
+        ...prev,
+        vatMode: normalizedVatMode,
+        carrierPriceWithVAT: normalizedCarrierPriceWithVat,
+      }));
+    }
+  }, [executionDraft.vatMode, executionDraft.carrierPriceWithVAT]);
+  */
+
+  /* REDUNDANT: normalization already happens in updateFormData at the write site
+  useEffect(() => {
+    const normalizedOriginalsRequired = normalizeOriginalsRequired(projectDraft.originalsRequired);
+    if (projectDraft.originalsRequired !== normalizedOriginalsRequired) {
+      setProjectDraft((prev) => ({
+        ...prev,
+        originalsRequired: normalizedOriginalsRequired,
+      }));
+    }
+  }, [projectDraft.originalsRequired]);
+  */
+
+  useEffect(() => {
+    const nextRoute = buildRouteFromDraft(projectDraft);
+    if (nextRoute !== (projectDraft.route || "")) {
+      setProjectDraft((prev) => ({ ...prev, route: nextRoute }));
+    }
+  }, [projectDraft.loadingCity, projectDraft.loadingCountry, projectDraft.unloadingCity, projectDraft.unloadingCountry]);
 
   useEffect(() => {
     if (type !== "order") return;
+    lastPreparedFutureBundleRef.current = null;
     if (initialData) {
-      setFormData((prev) => ({ ...prev, ...companyAsClient, ...initialData, ...companyAsClient }));
+      applyLegacyCompatibleForm({ ...emptyOrderForm, ...initialData });
+      return;
+    }
+    if (workflowMode === "expedition") {
+      applyLegacyCompatibleForm(buildFreshOrderSeed(orders, settings, { orderType: "resale_to_carrier", sendToCarrier: true }));
+      return;
+    }
+    if (workflowMode === "own_transport") {
+      applyLegacyCompatibleForm(buildFreshOrderSeed(orders, settings, { orderType: "own_transport", sendToCarrier: false }));
       return;
     }
     try {
       const savedDraft = JSON.parse(localStorage.getItem("currentOrderDraftForm") || "null");
+      if (savedDraft?.projectDraft || savedDraft?.executionDraft) {
+        const mergedProjectDraft = {
+          ...emptyProjectDraft,
+          projectId: createProjectId(orders),
+          managerName: resolveDefaultManagerName(settings),
+          ...(savedDraft.projectDraft || {}),
+          documents: {
+            ...emptyProjectDraft.documents,
+            ...(savedDraft.projectDraft?.documents || {}),
+          },
+        };
+        const mergedExecutionDraft = {
+          ...emptyExecutionDraft,
+          orderNumber: createOrderNumber(orders),
+          ...(savedDraft.executionDraft || {}),
+        };
+
+        setProjectDraft(mergedProjectDraft);
+        setExecutionDraft(mergedExecutionDraft);
+        setLegacyCompatibilityState({});
+        return;
+      }
       if (savedDraft) {
-        setFormData((prev) => ({ ...prev, ...savedDraft, ...companyAsClient }));
+        applyLegacyCompatibleForm(buildFreshOrderSeed(orders, settings, savedDraft));
         return;
       }
     } catch {}
-    setFormData({ ...emptyOrderForm, ...companyAsClient });
-  }, [type, initialData]);
+    applyLegacyCompatibleForm(buildFreshOrderSeed(orders, settings));
+  }, [type, initialData, workflowMode]);
 
   useEffect(() => {
     if (type === "order") {
-      localStorage.setItem("currentOrderDraftForm", JSON.stringify(formData));
+      localStorage.setItem("currentOrderDraftForm", JSON.stringify(buildDraftStorageSnapshot(projectDraft, executionDraft)));
     }
-  }, [type, formData]);
+  }, [type, projectDraft, executionDraft]);
 
-  const updateFormData = (updates) => setFormData((prev) => ({ ...prev, ...updates }));
+  useEffect(() => {
+    setSelectedManagerId("");
+    setSelectedTruckId("");
+    setSelectedTrailerId("");
+    setSelectedDriverId("");
+  }, [executionDraft.carrierId, executionDraft.orderType]);
+
+  const updateFormData = (updates) => {
+    console.log('🔵 updateFormData called with:', JSON.stringify(updates, null, 2));
+    const projectUpdates = {};
+    const executionUpdates = {};
+    const legacyOnlyUpdates = {};
+
+    Object.entries(updates || {}).forEach(([key, value]) => {
+      if (key === "documents") {
+        projectUpdates.documents = {
+          ...(projectDraft.documents || {}),
+          ...(value || {}),
+        };
+        return;
+      }
+
+      if (key === "vatMode") {
+        const normalizedVatMode = normalizeVatMode(value);
+        executionUpdates.vatMode = normalizedVatMode;
+        executionUpdates.carrierPriceWithVAT = normalizedVatMode === "with_vat";
+        return;
+      }
+
+      if (key === "carrierPriceWithVAT") {
+        const normalizedVatMode = normalizeVatMode(value);
+        executionUpdates.carrierPriceWithVAT = normalizedVatMode === "with_vat";
+        executionUpdates.vatMode = normalizedVatMode;
+        return;
+      }
+
+      if (key === "originalsRequired") {
+        projectUpdates.originalsRequired = normalizeOriginalsRequired(value);
+        return;
+      }
+
+      if (projectDraftFieldKeys.has(key)) {
+        projectUpdates[key] = value;
+        return;
+      }
+
+      if (executionDraftFieldKeys.has(key)) {
+        executionUpdates[key] = value;
+        return;
+      }
+
+      legacyOnlyUpdates[key] = value;
+    });
+
+    const nextProjectDraft = {
+      ...projectDraft,
+      ...projectUpdates,
+      documents: projectUpdates.documents || projectDraft.documents,
+    };
+    const nextExecutionDraft = {
+      ...executionDraft,
+      ...executionUpdates,
+    };
+    const nextLegacyCompatibilityState = pickLegacyCompatibilityState({
+      ...legacyCompatibilityState,
+      ...legacyOnlyUpdates,
+    });
+
+    setProjectDraft(nextProjectDraft);
+    setExecutionDraft(nextExecutionDraft);
+    console.log('🟢 executionDraft updated:', JSON.stringify(executionUpdates, null, 2));
+    console.log('🟢 BEFORE update, executionDraft.vatMode was:', executionDraft.vatMode);
+    setLegacyCompatibilityState(nextLegacyCompatibilityState);
+  };
 
   const saveQuickAddEntity = () => {
-    if (!quickAdd || !formData.carrierId) return;
-    const carrier = carriers.find((c) => String(c.id) === String(formData.carrierId));
+    const targetCarrierId = executionDraft.orderType === "own_transport"
+      ? ownFleetCarrier?.id
+      : executionDraft.carrierId;
+    if (!quickAdd || !targetCarrierId) return;
+    const carrier = carriers.find((c) => String(c.id) === String(targetCarrierId));
     if (!carrier) return;
 
     const fieldMap = { manager: "managerContacts", driver: "drivers", truck: "trucks", trailer: "trailers" };
@@ -1905,7 +3710,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
     const updatedCarrier = { ...carrier, [field]: [...(carrier[field] || []), newItem] };
 
     if (saveCarriers) {
-      saveCarriers(carriers.map((c) => String(c.id) === String(formData.carrierId) ? updatedCarrier : c));
+      saveCarriers(carriers.map((c) => String(c.id) === String(targetCarrierId) ? updatedCarrier : c));
     }
 
     // Auto-fill the order form with the newly created entity
@@ -1922,6 +3727,423 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
     setQuickAdd(null);
   };
 
+  const applySelectedClientContact = (contactId) => {
+    const contact = selectedClientContacts.find((item) => String(item.id) === String(contactId));
+    if (!contact) {
+      setSelectedClientContactId("");
+      updateFormData({
+        clientContactId: "",
+        clientContactName: "",
+        clientContactPhone: "",
+        clientContactEmail: "",
+      });
+      return;
+    }
+    setSelectedClientContactId(String(contact.id));
+    updateFormData({
+      clientContactId: String(contact.id),
+      clientContactName: contact.name || "",
+      clientContactPhone: contact.phone || "",
+      clientContactEmail: contact.email || "",
+    });
+  };
+
+  const saveNewClientIntoBase = () => {
+    if (!saveClients) return;
+    if (!newClientDraft.name.trim()) {
+      window.alert("Įveskite kliento pavadinimą.");
+      return;
+    }
+    const clientId = `CL-${Date.now()}`;
+    const createdClient = {
+      id: clientId,
+      name: newClientDraft.name.trim(),
+      clientType: "Tiesioginis klientas",
+      companyCode: newClientDraft.companyCode.trim(),
+      vatCode: newClientDraft.vatCode.trim(),
+      email: newClientDraft.email.trim(),
+      phone: newClientDraft.phone.trim(),
+      address: newClientDraft.address.trim(),
+      invoiceEmail: newClientDraft.email.trim(),
+      cmrEmail: newClientDraft.email.trim(),
+      podEmail: newClientDraft.email.trim(),
+      contacts: [
+        {
+          id: 1,
+          name: newClientDraft.contactName.trim(),
+          position: "",
+          email: newClientDraft.contactEmail.trim(),
+          phone: newClientDraft.contactPhone.trim(),
+        },
+      ],
+      departmentContacts: [],
+      notes: "",
+    };
+    saveClients([...clients, createdClient]);
+    setShowNewClientModal(false);
+    setNewClientDraft({ name: "", companyCode: "", vatCode: "", email: "", phone: "", address: "", contactName: "", contactEmail: "", contactPhone: "" });
+    applySelectedClient(clientId);
+  };
+
+  const applySelectedClient = (clientId) => {
+    const client = clients.find((c) => String(c.id) === String(clientId));
+    if (!client) {
+      setFormActionMessage("");
+      updateFormData({
+        clientId: "",
+        clientName: "",
+        clientCompanyCode: "",
+        clientVatCode: "",
+        clientPhone: "",
+        clientEmail: "",
+        clientAddress: "",
+        clientContactId: "",
+        clientContactName: "",
+        clientContactPhone: "",
+        clientContactEmail: "",
+      });
+      return;
+    }
+
+    const defaultContact = getDefaultClientContact(client);
+
+    updateFormData({
+      clientId: String(client.id),
+      clientName: client.name || "",
+      clientCompanyCode: client.companyCode || "",
+      clientVatCode: client.vatCode || "",
+      clientPhone: client.phone || "",
+      clientEmail: client.email || "",
+      clientAddress: client.address || "",
+      clientContactId: defaultContact ? String(defaultContact.id) : "",
+      clientContactName: defaultContact?.name || "",
+      clientContactPhone: defaultContact?.phone || "",
+      clientContactEmail: defaultContact?.email || "",
+    });
+    setSelectedClientContactId(defaultContact ? String(defaultContact.id) : "");
+    setFormActionMessage(`Pasirinktas klientas: ${client.name || "be pavadinimo"}`);
+  };
+
+  const openEntityEditModal = (entityType) => {
+    if (entityType === "client" && selectedClient) {
+      const contact = selectedClientHealth?.defaultContact || selectedClientContacts[0] || {};
+      setEntityEditModal({
+        entityType,
+        draft: {
+          name: selectedClient.name || "",
+          companyCode: selectedClient.companyCode || "",
+          vatCode: selectedClient.vatCode || "",
+          email: selectedClient.email || "",
+          phone: selectedClient.phone || "",
+          address: selectedClient.address || "",
+          contactName: contact.name || "",
+          contactEmail: contact.email || "",
+          contactPhone: contact.phone || "",
+        },
+      });
+      return;
+    }
+
+    if (entityType === "carrier" && selectedCarrier) {
+      const manager = selectedCarrierHealth?.defaultContact || selectedCarrierManagers[0] || {};
+      const cmrDocument = selectedCarrierHealth?.documentHealth?.cmrDocument || {};
+      const licenseDocument = selectedCarrierHealth?.documentHealth?.licenseDocument || {};
+      setEntityEditModal({
+        entityType,
+        draft: {
+          name: selectedCarrier.name || "",
+          companyCode: selectedCarrier.companyCode || "",
+          vatCode: selectedCarrier.vatCode || "",
+          email: selectedCarrier.email || "",
+          phone: selectedCarrier.phone || "",
+          address: selectedCarrier.address || "",
+          contactName: manager.name || "",
+          contactEmail: manager.email || "",
+          contactPhone: manager.phone || "",
+          cmrExpiry: cmrDocument.validUntil || "",
+          licenseExpiry: licenseDocument.validUntil || "",
+        },
+      });
+      return;
+    }
+
+    if (entityType === "driver" && (selectedDriverRecord || executionDraft.driverName)) {
+      setEntityEditModal({
+        entityType,
+        draft: {
+          name: selectedDriverRecord?.name || executionDraft.driverName || "",
+          phone: selectedDriverRecord?.phone || "",
+        },
+      });
+      return;
+    }
+
+    if (entityType === "truck" && (selectedTruckRecord || executionDraft.truckPlate)) {
+      setEntityEditModal({
+        entityType,
+        draft: {
+          licensePlate: selectedTruckRecord?.licensePlate || executionDraft.truckPlate || "",
+          status: selectedTruckRecord?.status || "",
+          model: selectedTruckRecord?.model || "",
+        },
+      });
+      return;
+    }
+
+    if (entityType === "trailer" && (selectedTrailerRecord || executionDraft.trailerPlate)) {
+      setEntityEditModal({
+        entityType,
+        draft: {
+          licensePlate: selectedTrailerRecord?.licensePlate || executionDraft.trailerPlate || "",
+          status: selectedTrailerRecord?.status || "",
+          model: selectedTrailerRecord?.model || "",
+        },
+      });
+    }
+  };
+
+  const updateEntityEditDraft = (field, value) => {
+    setEntityEditModal((prev) => (prev ? { ...prev, draft: { ...prev.draft, [field]: value } } : prev));
+  };
+
+  const saveEntityEditModal = () => {
+    if (!entityEditModal) return;
+
+    if (entityEditModal.entityType === "client" && selectedClient && saveClients) {
+      const primaryContact = {
+        id: selectedClient.contacts?.[0]?.id || 1,
+        ...(selectedClient.contacts?.[0] || {}),
+        name: entityEditModal.draft.contactName || "",
+        email: entityEditModal.draft.contactEmail || "",
+        phone: entityEditModal.draft.contactPhone || "",
+      };
+      const updatedClient = {
+        ...selectedClient,
+        name: entityEditModal.draft.name || "",
+        companyCode: entityEditModal.draft.companyCode || "",
+        vatCode: entityEditModal.draft.vatCode || "",
+        email: entityEditModal.draft.email || "",
+        phone: entityEditModal.draft.phone || "",
+        address: entityEditModal.draft.address || "",
+        contacts: [primaryContact, ...(selectedClient.contacts || []).slice(1)],
+      };
+      saveClients(clients.map((client) => String(client.id) === String(selectedClient.id) ? updatedClient : client));
+      updateFormData({
+        clientId: String(updatedClient.id),
+        clientName: updatedClient.name || "",
+        clientCompanyCode: updatedClient.companyCode || "",
+        clientVatCode: updatedClient.vatCode || "",
+        clientPhone: updatedClient.phone || "",
+        clientEmail: updatedClient.email || "",
+        clientAddress: updatedClient.address || "",
+        clientContactId: String(primaryContact.id || ""),
+        clientContactName: primaryContact.name || "",
+        clientContactPhone: primaryContact.phone || "",
+        clientContactEmail: primaryContact.email || "",
+      });
+      setSelectedClientContactId(String(primaryContact.id || ""));
+      setEntityEditModal(null);
+      return;
+    }
+
+    if (entityEditModal.entityType === "carrier" && selectedCarrier && saveCarriers) {
+      const cmrIndex = (selectedCarrier.documents || []).findIndex((doc) => String(doc.title || "").toLowerCase().includes("cmr"));
+      const licenseIndex = (selectedCarrier.documents || []).findIndex((doc) => String(doc.title || "").toLowerCase().includes("licenc"));
+      const nextDocuments = [...(selectedCarrier.documents || [])];
+      const ensureDoc = (index, title, validUntil) => {
+        if (index >= 0) {
+          nextDocuments[index] = { ...nextDocuments[index], title, validUntil };
+        } else {
+          nextDocuments.push({ id: Date.now() + nextDocuments.length, title, number: "", validUntil, link: "" });
+        }
+      };
+      ensureDoc(cmrIndex, "CMR draudimas", entityEditModal.draft.cmrExpiry || "");
+      ensureDoc(licenseIndex, "Transporto licencija", entityEditModal.draft.licenseExpiry || "");
+
+      const primaryManager = {
+        id: selectedCarrier.managerContacts?.[0]?.id || 1,
+        ...(selectedCarrier.managerContacts?.[0] || {}),
+        name: entityEditModal.draft.contactName || "",
+        email: entityEditModal.draft.contactEmail || "",
+        phone: entityEditModal.draft.contactPhone || "",
+      };
+
+      const updatedCarrier = {
+        ...selectedCarrier,
+        name: entityEditModal.draft.name || "",
+        companyCode: entityEditModal.draft.companyCode || "",
+        vatCode: entityEditModal.draft.vatCode || "",
+        email: entityEditModal.draft.email || "",
+        phone: entityEditModal.draft.phone || "",
+        address: entityEditModal.draft.address || "",
+        managerContacts: [primaryManager, ...(selectedCarrier.managerContacts || []).slice(1)],
+        documents: nextDocuments,
+      };
+
+      saveCarriers(carriers.map((carrier) => String(carrier.id) === String(selectedCarrier.id) ? updatedCarrier : carrier));
+      updateFormData({
+        carrierId: String(updatedCarrier.id),
+        carrierName: updatedCarrier.name || "",
+        carrierCompanyCode: updatedCarrier.companyCode || "",
+        carrierVAT: updatedCarrier.vatCode || "",
+        carrierEmail: updatedCarrier.email || "",
+        carrierPhone: updatedCarrier.phone || "",
+        carrierAddress: updatedCarrier.address || "",
+        contactName: primaryManager.name || "",
+        contactPhone: primaryManager.phone || "",
+        contactEmail: primaryManager.email || "",
+      });
+      setEntityEditModal(null);
+      return;
+    }
+
+    const targetCarrier = executionDraft.orderType === "own_transport" ? ownFleetCarrier : selectedCarrier;
+    if (!targetCarrier || !saveCarriers) {
+      setEntityEditModal(null);
+      return;
+    }
+
+    const entityMap = {
+      driver: {
+        field: "drivers",
+        match: (item) => String(item.id || "") === String(selectedDriverRecord?.id || "") || String(item.name || "").trim() === String(selectedDriverRecord?.name || executionDraft.driverName || "").trim(),
+        applyToDraft: (item) => updateFormData({ driverName: item.name || "" }),
+      },
+      truck: {
+        field: "trucks",
+        match: (item) => String(item.id || "") === String(selectedTruckRecord?.id || "") || String(item.licensePlate || "").toUpperCase() === String(selectedTruckRecord?.licensePlate || executionDraft.truckPlate || "").toUpperCase(),
+        applyToDraft: (item) => updateFormData({ truckPlate: String(item.licensePlate || "").toUpperCase() }),
+      },
+      trailer: {
+        field: "trailers",
+        match: (item) => String(item.id || "") === String(selectedTrailerRecord?.id || "") || String(item.licensePlate || "").toUpperCase() === String(selectedTrailerRecord?.licensePlate || executionDraft.trailerPlate || "").toUpperCase(),
+        applyToDraft: (item) => updateFormData({ trailerPlate: String(item.licensePlate || "").toUpperCase() }),
+      },
+    };
+
+    const config = entityMap[entityEditModal.entityType];
+    if (!config) {
+      setEntityEditModal(null);
+      return;
+    }
+
+    const updatedList = (targetCarrier[config.field] || []).map((item) =>
+      config.match(item) ? { ...item, ...entityEditModal.draft } : item
+    );
+    const updatedCarrier = { ...targetCarrier, [config.field]: updatedList };
+    saveCarriers(carriers.map((carrier) => String(carrier.id) === String(targetCarrier.id) ? updatedCarrier : carrier));
+    const updatedEntity = updatedList.find((item) => config.match(item));
+    if (updatedEntity) {
+      config.applyToDraft(updatedEntity);
+    }
+    setEntityEditModal(null);
+  };
+
+  const renderEntityHealthBlock = ({
+    title,
+    result,
+    criticalPrefix = "Kritinė problema",
+    recommendedPrefix = "Trūksta duomenų",
+    okLabel = "Duomenys pilni",
+    onEdit,
+    extraActions = null,
+  }) => {
+    if (!result) return null;
+
+    const hasCritical = result.hasCriticalIssues;
+    const hasRecommended = result.missingRecommendedFields.length > 0;
+    const style = hasCritical
+      ? { ...dataStatusCardBase, background: "#fef2f2", borderColor: "#fca5a5" }
+      : hasRecommended
+        ? { ...dataStatusCardBase, background: "#fff7ed", borderColor: "#fdba74" }
+        : { ...dataStatusCardBase, background: "#ecfdf5", borderColor: "#86efac" };
+
+    return (
+      <div style={style}>
+        <div style={{ fontSize: "13px", fontWeight: 800, color: hasCritical ? "#991b1b" : hasRecommended ? "#9a3412" : "#166534", marginBottom: "8px" }}>
+          {title}
+        </div>
+        {hasCritical ? (
+          <div style={{ color: "#991b1b", fontSize: "13px", lineHeight: 1.6 }}>
+            <strong>{criticalPrefix}:</strong> {result.missingCriticalFields.join(", ")}
+          </div>
+        ) : hasRecommended ? (
+          <div style={{ color: "#9a3412", fontSize: "13px", lineHeight: 1.6 }}>
+            <strong>{recommendedPrefix}:</strong> {result.missingRecommendedFields.join(", ")}
+          </div>
+        ) : (
+          <div style={{ color: "#166534", fontSize: "13px", lineHeight: 1.6 }}>{okLabel}</div>
+        )}
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "10px" }}>
+          {onEdit ? (
+            <button type="button" style={{ ...btnSecondary, fontSize: "12px", padding: "7px 14px" }} onClick={onEdit}>
+              Papildyti dabar
+            </button>
+          ) : null}
+          {extraActions}
+        </div>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (!projectDraft.clientId) {
+      if (selectedClientContactId) {
+        setSelectedClientContactId("");
+      }
+      return;
+    }
+
+    if (selectedClientContacts.length === 0) {
+      if (
+        projectDraft.clientContactId ||
+        projectDraft.clientContactName ||
+        projectDraft.clientContactPhone ||
+        projectDraft.clientContactEmail ||
+        selectedClientContactId
+      ) {
+        setSelectedClientContactId("");
+        updateFormData({
+          clientContactId: "",
+          clientContactName: "",
+          clientContactPhone: "",
+          clientContactEmail: "",
+        });
+      }
+      return;
+    }
+
+    const activeContactId = projectDraft.clientContactId || selectedClientContactId || matchedClientContactId;
+    const matchedContact = selectedClientContacts.find((contact) => String(contact.id) === String(activeContactId));
+    if (matchedContact) {
+      if (String(selectedClientContactId || "") !== String(matchedContact.id)) {
+        setSelectedClientContactId(String(matchedContact.id));
+      }
+      return;
+    }
+
+    const defaultContact = getDefaultClientContact(selectedClient);
+    if (!defaultContact) return;
+
+    setSelectedClientContactId(String(defaultContact.id));
+    updateFormData({
+      clientContactId: String(defaultContact.id),
+      clientContactName: defaultContact.name || "",
+      clientContactPhone: defaultContact.phone || "",
+      clientContactEmail: defaultContact.email || "",
+    });
+  }, [
+    projectDraft.clientId,
+    projectDraft.clientContactId,
+    projectDraft.clientContactName,
+    projectDraft.clientContactPhone,
+    projectDraft.clientContactEmail,
+    selectedClient,
+    selectedClientContacts,
+    selectedClientContactId,
+    matchedClientContactId,
+  ]);
+
   const upsertOrder = (payload) => {
     const existingIndex = orders.findIndex((item) => item.id === payload.id);
     if (existingIndex >= 0) {
@@ -1936,114 +4158,136 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
   };
 
   const saveOrderAsDraft = (status = "draft", silent = false) => {
-    const selectedCarrier = carriers.find((c) => c.id == formData.carrierId) || {};
-    const payload = { ...formData, id: formData.id, orderNumber: formData.orderNumber || createOrderNumber(orders), status, clientName: formData.clientName || "", carrierName: formData.carrierName || selectedCarrier.name || "", carrierCompanyCode: selectedCarrier.companyCode || formData.carrierCompanyCode || "", carrierVAT: selectedCarrier.vatCode || formData.carrierVAT || "", carrierAddress: selectedCarrier.address || formData.carrierAddress || "", carrierPhone: selectedCarrier.phone || formData.carrierPhone || "", carrierEmail: selectedCarrier.email || formData.carrierEmail || "" };
-    if (payload.orderType === "resale_to_carrier" && payload.clientPrice && payload.carrierPrice) {
-      payload.profit = payload.clientPrice - payload.carrierPrice;
-      payload.profitMargin = payload.carrierPrice ? (payload.profit / payload.carrierPrice) * 100 : 0;
-    }
-    const saved = upsertOrder(payload);
-    setFormData((prev) => ({ ...prev, id: saved.id, orderNumber: saved.orderNumber }));
+    const { saved } = persistLegacyOrderFromDrafts({
+      status,
+      id: executionDraft.id,
+      orderNumber: executionDraft.orderNumber || createOrderNumber(orders),
+      persistTarget,
+    });
+    setFormActionMessage(`Juodraštis išsaugotas (${saved.orderNumber})`);
     if (!silent) window.alert(`Juodraštis išsaugotas (${saved.orderNumber})`);
     return saved;
   };
 
-  const buildDocumentHtml = () => {
-    const templateId = formData._selectedTemplateId || settings.templates?.find((t) => t.isDefault)?.id || settings.templates?.[0]?.id;
-    const template = settings.templates?.find((t) => String(t.id) === String(templateId));
-    if (!template) { window.alert("Pasirinkite šabloną."); return null; }
-    const _instrLines = [
-      formData.instructions ? `<div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92);">${formData.instructions}</div>` : "",
-      formData.vinNumbers ? `<div style="font-size:13px; line-height:1.7; color:rgba(255,255,255,0.92); margin-top:8px;"><strong>VIN numeriai:</strong> ${formData.vinNumbers}</div>` : "",
-    ].filter(Boolean).join("");
-    const values = {
-      order_number: formData.orderNumber || "—",
-      client_order_number: formData.clientOrderNumber || "—",
-      client_name: formData.clientName || "—",
-      carrier_name: formData.carrierName || "—",
-      route: formData.route || "—",
-      loading_date: formData.loadingDate || "—",
-      unloading_date: formData.unloadingDate || "—",
-      carrier_price: formData.carrierPrice ? `${Number(formData.carrierPrice).toFixed(2)} EUR${formData.carrierPriceWithVAT ? " + PVM" : ""}` : "—",
-      client_price: formData.clientPrice ? `${Number(formData.clientPrice).toFixed(2)} EUR` : "—",
-      payment_term: formData.paymentTerm || "—",
-      today_date: new Date().toLocaleDateString("lt-LT"),
-      creation_date: new Date().toLocaleDateString("lt-LT"),
-      cargo: formData.cargo || "—",
-      cargo_type: formData.cargoType || formData.cargo || "—",
-      quantity: formData.vehicleCount || "—",
-      sender_name: formData.loadingCompanyName || "—",
-      loading_address: [formData.loadingStreet, formData.loadingCity, formData.loadingPostalCode].filter(Boolean).join(", ") || "—",
-      receiver_name: formData.unloadingCompanyName || "—",
-      unloading_address: [formData.unloadingStreet, formData.unloadingCity, formData.unloadingPostalCode].filter(Boolean).join(", ") || "—",
-      driver_name: formData.driverName || "—",
-      truck_number: formData.truckPlate || "—",
-      trailer_number: formData.trailerPlate || "—",
-      load_number: formData.loadRefLoading || "—",
-      ref_number: formData.loadRefUnloading || "—",
-      vin_numbers: formData.vinNumbers || "—",
-      instructions: formData.instructions || "—",
-      client_company_code: formData.clientCompanyCode || "—",
-      client_vat_code: formData.clientVatCode || "—",
-      client_phone: formData.clientPhone || "—",
-      client_email: formData.clientEmail || "—",
-      client_address: formData.clientAddress || "—",
-      carrier_company_code: carriers.find((c) => String(c.id) === String(formData.carrierId))?.companyCode || formData.carrierCompanyCode || "—",
-      carrier_vat_code: carriers.find((c) => String(c.id) === String(formData.carrierId))?.vatCode || "—",
-      carrier_phone: carriers.find((c) => String(c.id) === String(formData.carrierId))?.phone || formData.carrierPhone || "—",
-      carrier_email: carriers.find((c) => String(c.id) === String(formData.carrierId))?.email || formData.carrierEmail || "—",
-      carrier_address: carriers.find((c) => String(c.id) === String(formData.carrierId))?.address || formData.carrierAddress || "—",
-      // Transparent 1×1 PNG when stamp not set — prevents broken-image icon in the output.
-      // The CSS in DOC_CSS hides these via img[data-stamp][src^="data:image/png;base64,iVBOR"].
-      company_stamp_signature: settings?.companyStampSignature || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-      company_logo: settings?.company?.logo_url || template.editorState?.manual?.assets?.logoSrc || "",
-      instructions_block: _instrLines ? `<div style="padding:16px 18px; background:#0f172a; border-radius:18px; color:#ffffff; margin-bottom:20px;"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(255,255,255,0.72); margin-bottom:8px;">Instrukcijos vežėjui</div>${_instrLines}</div>` : "",
-      contact_name: formData.contactName || "—",
-      contact_phone: formData.contactPhone || "—",
-      contact_email: formData.contactEmail || "—",
-      requires_original_documents_warning: formData.originalsRequired === "required" ? `<div style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%); border-radius:12px; padding:16px 20px; margin:20px 0; box-shadow:0 4px 12px rgba(239,68,68,0.3);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:24px;">⚠️</span><span style="color:white; font-size:14px; font-weight:600;">Šiam užsakymui bus reikalingi originalūs dokumentai</span></div></div>` : "",
-    };
-    // Re-compile from editorState.manual so the rendered document always contains the full
-    // current token set (stamp, logo, etc.) regardless of when template.content was last saved.
-    // Fall back to template.content for legacy templates that have no editorState.
-    const editorManual = template.editorState?.manual;
-    const compiledHtml = editorManual
-      ? buildTemplateMarkup({
-          ...defaultManualTemplateState(),
-          ...editorManual,
-          layout: { ...defaultManualTemplateState().layout, ...(editorManual.layout || {}) },
-          assets: { ...defaultManualTemplateState().assets, ...(editorManual.assets || {}) },
-        })
-      : String(template.content || "");
-    return compiledHtml.replace(/{{\s*([^}]+)\s*}}/g, (_, k) => values[k.trim()] ?? "");
+  const closePreview = () => {
+    setPreviewHtml(null);
+    setPreviewDocument(null);
   };
 
+  const renderDocumentFromDrafts = () => {
+    const renderedDocument = renderOrderDocument({
+      projectDraft,
+      executionDraft,
+      settings,
+      carriers,
+      draftPayload: buildLegacyPayloadFromDrafts(),
+      title: documentPreviewContext.orderNumber || "Dokumentas",
+    });
+    if (renderedDocument.error) {
+      window.alert(renderedDocument.error);
+      return null;
+    }
+    return renderedDocument;
+  };
+  const openRenderedDocumentWindow = (renderedDocument, { autoPrint = false, title = "Dokumentas" } = {}) => {
+    const win = window.open("", "_blank");
+    if (!win) return null;
+    const printableHtml = autoPrint
+      ? renderedDocument.fullHtml.replace("</body>", "<script>window.onload=()=>window.print();<\/script></body>")
+      : renderedDocument.fullHtml;
+    win.document.write(printableHtml.replace(/<title>.*?<\/title>/, `<title>${title}</title>`));
+    win.document.close();
+    return win;
+  };
+  const openPreviewFromDrafts = () => {
+    if (isCarrierDocumentBlocked) {
+      window.alert(`Pirmiausia atnaujinkite vežėjo dokumentus prieš generuojant užsakymą.\n\n${carrierBlockingReasons.join("\n")}`);
+      return;
+    }
+    const renderedDocument = renderDocumentFromDrafts();
+    if (renderedDocument) {
+      setPreviewDocument(renderedDocument);
+      setPreviewHtml(renderedDocument.html);
+      setFormActionMessage("Dokumento peržiūra sugeneruota.");
+    }
+  };
+  const sendPreviewToCarrier = () => {
+    if (!documentPreviewContext.carrierEmail) {
+      return window.alert("Vežėjo el. paštas nenurodytas.");
+    }
+    window.location.href = `mailto:${documentPreviewContext.carrierEmail}?subject=${documentPreviewContext.mailSubject}&body=Prašome rasti pridėtą transporto užsakymą.`;
+  };
+  const printPreviewDocument = () => {
+    const renderedDocument = previewDocument || renderDocumentFromDrafts();
+    if (!renderedDocument) return;
+    openRenderedDocumentWindow(renderedDocument, { autoPrint: true, title: "Dokumentas" });
+  };
+  const exportPreviewAsWord = () => {
+    const renderedDocument = previewDocument || renderDocumentFromDrafts();
+    if (!renderedDocument) return;
+    const wordHtmlSource =
+      renderedDocument.pageBodies?.length && renderedDocument.layout
+        ? buildOrderDocumentPagesMarkup({
+            pages: renderedDocument.pageBodies,
+            headerHtml: renderedDocument.renderedHeaderHtml || "",
+            footerHtml: renderedDocument.renderedFooterHtml || "",
+            layout: renderedDocument.layout,
+          })
+        : renderedDocument.html;
+    const docHtml = buildOrderDocumentWordHtml({
+      html: wordHtmlSource,
+      css: renderedDocument.css,
+      title: documentPreviewContext.orderNumber || "Uzsakymas",
+    });
+    const blob = new Blob([docHtml], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = documentPreviewContext.wordFileName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+  const savePreviewAsPdf = () => {
+    const renderedDocument = previewDocument || renderDocumentFromDrafts();
+    if (!renderedDocument) return;
+    openRenderedDocumentWindow(renderedDocument, { autoPrint: true, title: "Uzsakymas_PDF" });
+  };
+  const previewPageSize = previewDocument?.pageSize || getOrderDocumentPageSize("portrait");
+  const previewPageScale = Math.max(0.25, previewZoom / 100);
+  const previewPageDocs = previewDocument?.pageHtmlDocs?.length
+    ? previewDocument.pageHtmlDocs
+    : previewDocument?.fullHtml
+      ? [previewDocument.fullHtml]
+      : [];
+
   const generateCarrierOrder = () => {
-    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
-    if (formData.orderType !== "resale_to_carrier") return window.alert("Orderis vežėjui generuojamas tik pasirinkus pardavimą vežėjui.");
-    if (!formData.carrierId) return window.alert("Pasirinkite vežėją.");
+    if (isCarrierDocumentBlocked) {
+      return window.alert(`Vežėjo užsakymo generuoti negalima.\n\n${carrierBlockingReasons.join("\n")}`);
+    }
+    const validationError = validateCarrierOrderGeneration({ executionDraft });
+    if (validationError) return window.alert(validationError);
     saveOrderAsDraft("generated", true);
+    setFormActionMessage("Užsakymas pažymėtas kaip paruoštas siuntimui.");
     window.alert("Užsakymas pažymėtas kaip paruoštas siuntimui.");
   };
 
   const saveToDb = () => {
-    if (!formData.orderType) return window.alert("Pasirinkite užsakymo tipą.");
-    if (formData.orderType === "resale_to_carrier") {
-      if (!formData.carrierId) return window.alert("Perpardavimui būtinas vežėjas.");
-      if (!formData.carrierPrice) return window.alert("Įveskite vežėjo kainą.");
-      const profit = (formData.clientPrice || 0) - (formData.carrierPrice || 0);
-      if (profit < 0 && !window.confirm(`DĖMESIO: Neigiamas pelnas (${profit.toFixed(2)} EUR). Ar tikrai norite tęsti?`)) return;
+    if (isCarrierDocumentBlocked) {
+      return window.alert(`Negalima tęsti su šiuo vežėju, kol nebus atnaujinti dokumentai.\n\n${carrierBlockingReasons.join("\n")}`);
     }
-    const selectedCarrier = carriers.find((c) => c.id === formData.carrierId);
-    const newItem = { ...formData, id: formData.id || Date.now(), orderNumber: formData.orderNumber || createOrderNumber(orders), status: "active", clientName: formData.clientName || "", carrierName: selectedCarrier?.name || formData.carrierName || "" };
-    if (newItem.orderType === "resale_to_carrier" && newItem.clientPrice && newItem.carrierPrice) {
-      newItem.profit = newItem.clientPrice - newItem.carrierPrice;
-      newItem.profitMargin = (newItem.profit / newItem.carrierPrice) * 100;
-    }
-    upsertOrder(newItem);
-    localStorage.removeItem("currentOrderDraftForm");
-    setPreviewHtml(null);
-    onClose();
+    const validation = validateDraftBeforeSave({ projectDraft, executionDraft });
+    if (validation.error) return window.alert(validation.error);
+    if (validation.needsNegativeProfitConfirmation && !window.confirm(`DĖMESIO: Neigiamas pelnas (${validation.financials.profit.toFixed(2)} EUR). Ar tikrai norite tęsti?`)) return;
+    persistLegacyOrderFromDrafts({
+      status: "active",
+      persistTarget,
+      afterSave: () => {
+        setFormActionMessage("Užsakymas išsaugotas.");
+        localStorage.removeItem("currentOrderDraftForm");
+        closePreview();
+        onClose();
+      },
+    });
   };
 
   const handleSubmit = (e) => {
@@ -2051,144 +4295,576 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
     saveToDb();
   };
 
-  const printCss = `
-    /* ── Shared document classes (identical to Page preview iframes) ─ */
-    ${DOC_CSS}
-
-    /* ── SCREEN: single scrollable document on grey desk ─────── */
-    @media screen {
-      html { background: #525659; }
-      body { margin: 0; padding: 24px 0 40px; background: #525659; }
-      [data-template-root] {
-        width: 210mm;
-        margin: 0 auto;
-        background: #fff;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.5);
-      }
-      /* Page-break divs become visible grey bands between pages */
-      [data-page-break="true"] {
-        display: block !important;
-        height: 24px !important;
-        overflow: visible !important;
-        background: #525659;
-        margin: 0 -14mm;
-        box-shadow: inset 0 2px 3px rgba(0,0,0,0.2), inset 0 -2px 3px rgba(0,0,0,0.2);
-      }
-    }
-
-    /* ── PRINT: native A4 output ─────────────────────────────── */
-    @media print {
-      @page { size: A4; margin: 15mm; }
-      html, body { margin: 0; padding: 0; background: #fff; }
-      [data-template-root] { width: auto; box-shadow: none; }
-      [data-page-break="true"] { page-break-before: always; break-before: page; display: block !important; height: 0 !important; background: transparent !important; margin: 0 !important; box-shadow: none !important; overflow: hidden !important; }
-    }
-  `;
-
-  /* No JavaScript page splitting — CSS handles the layout. */
-  const previewScript = ``;
-
   if (type !== "order") return null;
   return (
     <>
     <div style={modalOverlay} onClick={onClose}>
       <div style={modal} onClick={(e) => e.stopPropagation()}>
         <div style={modalHeader}>
-          <h2 style={{ fontSize: "20px", color: "#1e3a8a", margin: 0 }}>{initialData ? "Redaguoti Užsakymą" : "Naujas Užsakymas"}</h2>
+          <h2 style={{ fontSize: "20px", color: "#1e3a8a", margin: 0 }}>
+            {initialData?.id
+              ? "Redaguoti krovinį"
+              : workflowMode === "expedition"
+                ? "Naujas ekspedicijos krovinys"
+                : workflowMode === "own_transport"
+                  ? "Naujas nuosavo transporto krovinys"
+                  : "Naujas krovinys"}
+          </h2>
           <button style={closeBtn} onClick={onClose}>×</button>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", marginBottom: "12px", fontWeight: 600, color: "#1e3a8a" }}>1. Užsakymo tipas *</label>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
-              {["own_transport", "resale_to_carrier"].map((choice) => (
-                <div key={choice} onClick={() => updateFormData({ orderType: choice })} style={{ padding: "16px", border: `2px solid ${formData.orderType === choice ? "#3b82f6" : "#e2e8f0"}`, borderRadius: "8px", cursor: "pointer", background: formData.orderType === choice ? "#eff6ff" : "#fff", textAlign: "center" }}>
-                  <div style={{ fontSize: "24px", marginBottom: "8px" }}>{choice === "own_transport" ? "🚛" : "🔄"}</div>
-                  <div style={{ fontSize: "13px", fontWeight: 600 }}>{choice === "own_transport" ? "Nuosavas transportas" : "Pardavimas vežėjui"}</div>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div style={{ marginBottom: "20px", padding: "18px", background: "linear-gradient(135deg, #eff6ff, #f8fafc)", border: "1px solid #bfdbfe", borderRadius: "14px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: 800, letterSpacing: "0.04em", textTransform: "uppercase", color: "#2563eb", marginBottom: "6px" }}>
+                  {workflowTitle}
                 </div>
-              ))}
+                <div style={{ fontSize: "14px", color: "#334155", lineHeight: 1.55, maxWidth: "760px" }}>
+                  {workflowDescription}
+                </div>
+              </div>
+              {!isWorkflowLocked && (
+                <div style={{ minWidth: "260px" }}>
+                  <label style={{ display: "block", marginBottom: "10px", fontWeight: 600, color: "#1e3a8a" }}>Užsakymo tipas *</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
+                    {["own_transport", "resale_to_carrier"].map((choice) => (
+                      <button
+                        key={choice}
+                        type="button"
+                        onClick={() => updateFormData({ orderType: choice })}
+                        style={{
+                          padding: "14px",
+                          border: `2px solid ${executionDraft.orderType === choice ? "#3b82f6" : "#e2e8f0"}`,
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          background: executionDraft.orderType === choice ? "#dbeafe" : "#fff",
+                          textAlign: "center",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {choice === "own_transport" ? "Nuosavas transportas" : "Ekspedijavimas"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(140px, 1fr))", gap: "10px", marginTop: "16px" }}>
+              <div style={observerMiniStat}>Modulis: {forcedExecutionMode === "resale_to_carrier" ? "Ekspedijavimas" : forcedExecutionMode === "own_transport" ? "Nuosavas transportas" : "Bendras"}</div>
+              <div style={observerMiniStat}>Klientas: {customerLabel}</div>
+              <div style={observerMiniStat}>Vykdymas: {executionLabel}</div>
+              <div style={observerMiniStat}>Projektų registras: įrašas po išsaugojimo</div>
             </div>
           </div>
-          <div style={formGrid}>
-            <div style={formGroup}>
-              <label style={label}>Kliento užsakymo numeris</label>
-              <input style={inputBase} value={formData.clientOrderNumber || ""} onChange={(e) => updateFormData({ clientOrderNumber: e.target.value })} placeholder="pvz. PO-2026-0042" />
-            </div>
-            <div style={formGroup}>
-              <label style={label}>Statusas</label>
-              <select style={inputBase} value={formData.status || "new"} onChange={(e) => updateFormData({ status: e.target.value })}>
-                {Object.entries(STATUS_MAP).filter(([k]) => !["active","draft","generated"].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-              </select>
-            </div>
-          </div>
-          <div style={formGrid}>
-            <div style={formGroup}>
-              <label style={label}>2. Klientas (užsakovas)</label>
-              <input style={{ ...inputBase, background: "#f3f4f6", cursor: "not-allowed", color: "#374151", fontWeight: 500 }} type="text" value={formData.clientName || settings?.company?.name || ""} disabled />
-              <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "4px" }}>Automatiškai užpildyta iš Nustatymų → Įmonės duomenys</div>
-            </div>
-            <div style={formGroup}><label style={label}>Kliento kaina (EUR) *</label><input style={inputBase} type="number" step="0.01" required value={formData.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholder="1200.00" /></div>
-          </div>
-          {formData.orderType === "resale_to_carrier" && (
-            <>
-              <div style={{ ...formGrid, marginTop: "16px" }}>
+
+          <div style={{ display: "grid", gap: "18px", marginBottom: "18px" }}>
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>1. PROJEKTAS</div>
+              <div style={formGrid}>
                 <div style={formGroup}>
-                  <label style={label}>3. Vežėjas (vykdytojas) *</label>
-                  <select
-                    style={inputBase}
-                    required
-                    value={formData.carrierId || ""}
-                    onChange={(e) => {
-                      const carrier = carriers.find((c) => String(c.id) === String(e.target.value));
-                      const mgr = carrier?.managerContacts?.[0];
-                      setQuickAdd(null);
-                      updateFormData({
-                        carrierId: e.target.value,
-                        carrierName: carrier?.name || "",
-                        carrierType: carrier?.carrierType || "",
-                        contactName: mgr?.name || "",
-                        contactPhone: mgr?.phone || "",
-                        contactEmail: mgr?.email || "",
-                        driverName: "",
-                        truckPlate: "",
-                        trailerPlate: ""
-                      });
-                    }}
-                  >
-                    <option value="">Pasirinkite...</option>
-                    {carriers
-                      .filter((c) => !c.isOwnCompany)
-                      .map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} 🚛
-                        </option>
-                      ))}
-                  </select>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
-                    Rodomi tik išoriniai vežėjai
+                  <label style={label}>Projekto ID</label>
+                  <input style={{ ...inputBase, background: "#f8fafc" }} value={projectDraft.projectId || ""} readOnly />
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Mūsų Nr.</label>
+                  <input style={{ ...inputBase, background: "#f8fafc" }} value={executionDraft.orderNumber || ""} readOnly />
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Projekto tipas</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
+                    {[
+                      { value: "resale_to_carrier", label: "Ekspedijavimas" },
+                      { value: "own_transport", label: "Nuosavas transportas" },
+                    ].map((choice) => (
+                      <button
+                        key={choice.value}
+                        type="button"
+                        disabled={isWorkflowLocked}
+                        onClick={() => updateFormData({ orderType: choice.value })}
+                        style={{
+                          ...((executionDraft.orderType === choice.value) ? pickerButtonActive : pickerButton),
+                          textAlign: "center",
+                          opacity: isWorkflowLocked ? 0.8 : 1,
+                          cursor: isWorkflowLocked ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        {choice.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div style={formGroup}>
                   <label style={label}>Vadybininkas</label>
-                  <select
-                    style={inputBase}
-                    value=""
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      if (e.target.value === "__add__") {
+                  <input style={{ ...inputBase, background: "#f8fafc" }} value={projectDraft.managerName || currentManagerName} readOnly />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", marginBottom: "14px", flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>2. KLIENTAS</div>
+                  <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>Klientas pasirenkamas tik iš bendros bazės.</div>
+                </div>
+                <button type="button" style={{ ...btnSecondary, fontSize: "13px" }} onClick={() => setShowNewClientModal(true)}>+ Naujas klientas</button>
+              </div>
+              <div style={formGrid}>
+                <div style={{ ...formGroup, gridColumn: "span 2" }}>
+                  <label style={label}>Klientas *</label>
+                  <input style={{ ...inputBase, marginBottom: "10px" }} value={clientPickerSearch} onChange={(e) => setClientPickerSearch(e.target.value)} placeholder="Ieškoti kliento pagal pavadinimą, kodą, PVM ar email..." />
+                  <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "auto", paddingRight: "4px" }}>
+                    {filteredClientOptions.map((client) => {
+                      const isActive = String(projectDraft.clientId || "") === String(client.id);
+                      return (
+                        <button key={client.id} type="button" style={isActive ? pickerButtonActive : pickerButton} onClick={() => applySelectedClient(String(client.id))}>
+                          <div>{client.name}</div>
+                          <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>{client.companyCode || client.vatCode || client.email || "Kliento įrašas"}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Kontaktas</label>
+                  {selectedClientContacts.length > 0 ? (
+                    <div style={pickerGrid}>
+                      {selectedClientContacts.map((contact) => {
+                        const isActive = (selectedClientContactId || matchedClientContactId) === String(contact.id);
+                        return (
+                          <button key={contact.id} type="button" style={isActive ? pickerButtonActive : pickerButton} onClick={() => applySelectedClientContact(String(contact.id))}>
+                            <div>{contact.name || "Kontaktas"}</div>
+                            <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>{contact.email || contact.phone || "Kontaktinė informacija"}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : <div style={{ padding: "12px", border: "1px dashed #cbd5e1", borderRadius: "10px", color: "#64748b", fontSize: "12px" }}>Kliento kontaktų nėra, naudokite bendrus duomenis.</div>}
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Kliento užsakymo nr.</label>
+                  <input style={inputBase} value={projectDraft.clientOrderNumber || ""} onChange={(e) => updateFormData({ clientOrderNumber: e.target.value })} placeholder="pvz. PO-2026-0042" />
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Kliento kaina</label>
+                  <input style={inputBase} type="number" step="0.01" value={projectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholder="1200.00" />
+                </div>
+              </div>
+              {(selectedClient || projectDraft.clientId) && renderEntityHealthBlock({
+                title: "Kliento duomenų būsena",
+                result: selectedClientHealth || analyzeClientData({
+                  name: projectDraft.clientName,
+                  companyCode: projectDraft.clientCompanyCode,
+                  vatCode: projectDraft.clientVatCode,
+                  email: projectDraft.clientEmail,
+                  phone: projectDraft.clientPhone,
+                  address: projectDraft.clientAddress,
+                  contacts: projectDraft.clientContactName || projectDraft.clientContactEmail || projectDraft.clientContactPhone
+                    ? [{
+                        id: projectDraft.clientContactId || "draft-contact",
+                        name: projectDraft.clientContactName,
+                        email: projectDraft.clientContactEmail,
+                        phone: projectDraft.clientContactPhone,
+                      }]
+                    : [],
+                }),
+                onEdit: selectedClient ? () => openEntityEditModal("client") : null,
+              })}
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>3. KROVINYS</div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>Krovinio tipas</label><input style={inputBase} value={projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || ""} onChange={(e) => updateFormData({ cargoType: e.target.value, cargoName: e.target.value, cargo: e.target.value })} placeholder="pvz. Automobiliai" /></div>
+                <div style={formGroup}><label style={label}>Kiekis</label><input style={inputBase} value={projectDraft.quantity || projectDraft.vehicleCount || ""} onChange={(e) => updateFormData({ quantity: e.target.value, vehicleCount: e.target.value })} placeholder="pvz. 6 vnt." /></div>
+                <div style={formGroup}><label style={label}>LDM</label><input style={inputBase} value={projectDraft.ldm || ""} onChange={(e) => updateFormData({ ldm: e.target.value })} placeholder="pvz. 10.5" /></div>
+                <div style={formGroup}><label style={label}>Svoris</label><input style={inputBase} value={projectDraft.weight || ""} onChange={(e) => updateFormData({ weight: e.target.value })} placeholder="pvz. 12500 kg" /></div>
+                <div style={formGroup}><label style={label}>Temperatūra</label><input style={inputBase} value={projectDraft.temperature || ""} onChange={(e) => updateFormData({ temperature: e.target.value })} placeholder="pvz. +2 / +8" /></div>
+                <div style={formGroup}><label style={label}>Palečių sk.</label><input style={inputBase} value={projectDraft.palletCount || ""} onChange={(e) => updateFormData({ palletCount: e.target.value })} placeholder="pvz. 33" /></div>
+                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Pastabos</label><textarea rows="3" style={inputBase} value={projectDraft.cargoNotes || ""} onChange={(e) => updateFormData({ cargoNotes: e.target.value })} placeholder="Papildoma informacija apie krovinį." /></div>
+              </div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>4. PAKROVIMAS</div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>Data *</label><input style={inputBase} type="date" value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Laikas</label><input style={inputBase} type="time" value={projectDraft.loadingTime || ""} onChange={(e) => updateFormData({ loadingTime: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Įmonė</label><input style={inputBase} value={projectDraft.loadingCompanyName || ""} onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={projectDraft.loadingStreet || ""} onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} value={projectDraft.loadingCity || ""} onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.unloadingCity}` : "" }); }} /></div>
+                <div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={projectDraft.loadingPostalCode || ""} onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Šalis</label><input style={inputBase} value={projectDraft.loadingCountry || ""} onChange={(e) => updateFormData({ loadingCountry: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Kontaktas</label><input style={inputBase} value={projectDraft.loadingContact || ""} onChange={(e) => updateFormData({ loadingContact: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>REF numeris</label><input style={inputBase} value={projectDraft.loadRefLoading || ""} onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} placeholder="pvz. LOAD-001" /></div>
+                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.loadingNotes || ""} onChange={(e) => updateFormData({ loadingNotes: e.target.value })} /></div>
+              </div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>5. IŠKROVIMAS</div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>Data *</label><input style={inputBase} type="date" value={projectDraft.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Laikas</label><input style={inputBase} type="time" value={projectDraft.unloadingTime || ""} onChange={(e) => updateFormData({ unloadingTime: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Įmonė</label><input style={inputBase} value={projectDraft.unloadingCompanyName || ""} onChange={(e) => updateFormData({ unloadingCompanyName: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={projectDraft.unloadingStreet || ""} onChange={(e) => updateFormData({ unloadingStreet: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} value={projectDraft.unloadingCity || ""} onChange={(e) => { const unloadingCity = e.target.value; updateFormData({ unloadingCity, route: projectDraft.loadingCity && unloadingCity ? `${projectDraft.loadingCity} → ${unloadingCity}` : "" }); }} /></div>
+                <div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={projectDraft.unloadingPostalCode || ""} onChange={(e) => updateFormData({ unloadingPostalCode: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Šalis</label><input style={inputBase} value={projectDraft.unloadingCountry || ""} onChange={(e) => updateFormData({ unloadingCountry: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Kontaktas</label><input style={inputBase} value={projectDraft.unloadingContact || ""} onChange={(e) => updateFormData({ unloadingContact: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>REF numeris</label><input style={inputBase} value={projectDraft.loadRefUnloading || ""} onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} placeholder="pvz. UNLOAD-001" /></div>
+                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.unloadingNotes || ""} onChange={(e) => updateFormData({ unloadingNotes: e.target.value })} /></div>
+              </div>
+              <div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Maršrutas</label><input style={{ ...inputBase, background: "#f8fafc" }} value={projectDraft.route || ""} readOnly /></div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: `1px solid ${executionDraft.orderType === "own_transport" ? "#bfdbfe" : "#fdba74"}`, borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>6. VYKDYMAS</div>
+              {executionDraft.orderType === "resale_to_carrier" ? (
+                <div style={formGrid}>
+                  <div style={{ ...formGroup, gridColumn: "span 2" }}>
+                    <label style={label}>Vežėjas *</label>
+                    <input style={{ ...inputBase, marginBottom: "10px" }} value={carrierPickerSearch} onChange={(e) => setCarrierPickerSearch(e.target.value)} placeholder="Ieškoti vežėjo..." />
+                    <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "auto", paddingRight: "4px" }}>
+                      {filteredCarrierOptions.map((carrier) => {
+                        const isActive = String(executionDraft.carrierId || "") === String(carrier.id);
+                        return (
+                          <button
+                            key={carrier.id}
+                            type="button"
+                            style={isActive ? pickerButtonActive : pickerButton}
+                            onClick={() => {
+                              const firstManager = carrier?.managerContacts?.find((contact) => contact.name || contact.email || contact.phone);
+                              setSelectedManagerId(firstManager ? String(firstManager.id) : "");
+                              updateFormData({
+                                carrierId: String(carrier.id),
+                                carrierName: carrier.name || "",
+                                carrierType: carrier.carrierType || "",
+                                carrierCompanyCode: carrier.companyCode || "",
+                                carrierVAT: carrier.vatCode || "",
+                                carrierPhone: carrier.phone || "",
+                                carrierEmail: carrier.email || "",
+                                carrierAddress: carrier.address || "",
+                                contactName: firstManager?.name || "",
+                                contactPhone: firstManager?.phone || "",
+                                contactEmail: firstManager?.email || "",
+                              });
+                            }}
+                          >
+                            <div>{carrier.name}</div>
+                            <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>{carrier.companyCode || carrier.email || carrier.phone || "Vežėjo įrašas"}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div style={formGroup}><label style={label}>Vežėjo vadybininkas / kontaktas</label><input style={inputBase} value={executionDraft.contactName || ""} onChange={(e) => updateFormData({ contactName: e.target.value })} placeholder="Kontaktinis asmuo" /></div>
+                  <div style={formGroup}><label style={label}>Vežėjo vairuotojas</label><input style={inputBase} value={executionDraft.driverName || ""} onChange={(e) => updateFormData({ driverName: e.target.value })} placeholder="Vardas Pavardė" /></div>
+                  <div style={formGroup}><label style={label}>Vilkikas</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.truckPlate || ""} onChange={(e) => updateFormData({ truckPlate: e.target.value.toUpperCase() })} placeholder="ABC123" /></div>
+                  <div style={formGroup}><label style={label}>Priekaba</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.trailerPlate || ""} onChange={(e) => updateFormData({ trailerPlate: e.target.value.toUpperCase() })} placeholder="TRL501" /></div>
+                  <div style={formGroup}><label style={label}>Vežėjo kaina</label><input style={inputBase} type="number" step="0.01" value={executionDraft.carrierPrice || ""} onChange={(e) => updateFormData({ carrierPrice: parseFloat(e.target.value) || 0 })} placeholder="1000.00" /></div>
+                </div>
+              ) : (
+                <div style={formGrid}>
+                  <div style={formGroup}><label style={label}>Vairuotojas *</label><input style={inputBase} value={executionDraft.driverName || ""} onChange={(e) => updateFormData({ driverName: e.target.value })} placeholder="Vairuotojas" /></div>
+                  <div style={formGroup}><label style={label}>Vilkikas</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.truckPlate || ""} onChange={(e) => updateFormData({ truckPlate: e.target.value.toUpperCase() })} placeholder="ABC123" /></div>
+                  <div style={formGroup}><label style={label}>Priekaba</label><input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.trailerPlate || ""} onChange={(e) => updateFormData({ trailerPlate: e.target.value.toUpperCase() })} placeholder="TRL501" /></div>
+                  <div style={formGroup}><label style={label}>Savikaina</label><input style={inputBase} type="number" step="0.01" value={executionDraft.executionCost || executionDraft.carrierPrice || ""} onChange={(e) => { const value = parseFloat(e.target.value) || 0; updateFormData({ executionCost: value, carrierPrice: value }); }} placeholder="850.00" /></div>
+                </div>
+              )}
+              {executionDraft.orderType === "resale_to_carrier" && (selectedCarrier || executionDraft.carrierId) && (
+                <>
+                  {renderEntityHealthBlock({
+                    title: "Vežėjo duomenų būsena",
+                    result: selectedCarrierHealth || analyzeCarrierData({
+                      name: executionDraft.carrierName,
+                      companyCode: executionDraft.carrierCompanyCode,
+                      vatCode: executionDraft.carrierVAT,
+                      email: executionDraft.carrierEmail,
+                      phone: executionDraft.carrierPhone,
+                      address: executionDraft.carrierAddress,
+                      managerContacts: executionDraft.contactName || executionDraft.contactEmail || executionDraft.contactPhone
+                        ? [{
+                            id: "draft-manager",
+                            name: executionDraft.contactName,
+                            email: executionDraft.contactEmail,
+                            phone: executionDraft.contactPhone,
+                          }]
+                        : [],
+                      documents: selectedCarrier?.documents || [],
+                    }),
+                    criticalPrefix: "Kritinė problema",
+                    onEdit: selectedCarrier ? () => openEntityEditModal("carrier") : null,
+                    extraActions: selectedCarrier ? (
+                      <button type="button" style={{ ...btn, background: "#b91c1c", fontSize: "12px", padding: "7px 14px" }} onClick={() => openEntityEditModal("carrier")}>
+                        Atidaryti vežėjo profilį
+                      </button>
+                    ) : null,
+                  })}
+                  {isCarrierDocumentBlocked && (
+                    <div style={{ ...dataStatusCardBase, background: "#991b1b", borderColor: "#fca5a5", color: "#fff" }}>
+                      <div style={{ fontSize: "14px", fontWeight: 800, marginBottom: "8px" }}>Pirmiausia atnaujinkite vežėjo dokumentus prieš generuojant užsakymą.</div>
+                      <div style={{ fontSize: "13px", lineHeight: 1.6 }}>{carrierBlockingReasons.join(", ")}</div>
+                    </div>
+                  )}
+                </>
+              )}
+              {executionDraft.orderType === "own_transport" && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(220px, 1fr))", gap: "12px", marginTop: "14px" }}>
+                  {renderEntityHealthBlock({
+                    title: "Vairuotojo duomenys",
+                    result: selectedDriverHealth || analyzeDriverData({ name: executionDraft.driverName }),
+                    onEdit: (selectedDriverRecord || executionDraft.driverName) ? () => openEntityEditModal("driver") : null,
+                  })}
+                  {renderEntityHealthBlock({
+                    title: "Vilkiko duomenys",
+                    result: selectedTruckHealth || analyzeTruckData({ licensePlate: executionDraft.truckPlate }),
+                    onEdit: (selectedTruckRecord || executionDraft.truckPlate) ? () => openEntityEditModal("truck") : null,
+                  })}
+                  {renderEntityHealthBlock({
+                    title: "Priekabos duomenys",
+                    result: selectedTrailerHealth || analyzeTrailerData({ licensePlate: executionDraft.trailerPlate }),
+                    onEdit: (selectedTrailerRecord || executionDraft.trailerPlate) ? () => openEntityEditModal("trailer") : null,
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>7. FINANSAI</div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>Kliento kaina</label><input style={inputBase} type="number" step="0.01" value={projectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} /></div>
+                <div style={formGroup}><label style={label}>{executionCostLabel}</label><input style={inputBase} type="number" step="0.01" value={executionDraft.orderType === "own_transport" ? (executionDraft.executionCost || executionDraft.carrierPrice || "") : (executionDraft.carrierPrice || "")} onChange={(e) => { const value = parseFloat(e.target.value) || 0; updateFormData(executionDraft.orderType === "own_transport" ? { executionCost: value, carrierPrice: value } : { carrierPrice: value }); }} /></div>
+                <div style={formGroup}><label style={label}>PVM režimas</label><select style={inputBase} value={vatModeValue} onChange={(e) => { const newValue = e.target.options[e.target.selectedIndex].value; console.log('🔴 PVM select onChange:', newValue); updateFormData({ vatMode: newValue, carrierPriceWithVAT: newValue === "with_vat" }); }}><option value="without_vat">Be PVM</option><option value="with_vat">Su PVM</option></select></div>
+                <div style={formGroup}><label style={label}>Automatinis pelnas</label><div style={{ ...inputBase, background: currentProfit >= 0 ? "#ecfdf5" : "#fef2f2", color: currentProfit >= 0 ? "#166534" : "#991b1b", fontWeight: 700 }}>{currentProfit.toFixed(2)} EUR</div></div>
+              </div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>8. DOKUMENTAI</div>
+              <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "12px", lineHeight: 1.55 }}>
+                CMR ir kiti vykdymo dokumentai čia yra neprivalomi kuriant naują krovinį. Jie paprastai keliami po vykdymo arba vėlesniame etape.
+              </div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>CMR (po vykdymo, optional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ documents: { ...(projectDraft.documents || {}), cmr: dataUrl } }); }} /></div>
+                <div style={formGroup}><label style={label}>Kiti vykdymo dokumentai (optional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ documents: { ...(projectDraft.documents || {}), pod: dataUrl } }); }} /></div>
+                <div style={formGroup}><label style={label}>Preview</label><button type="button" style={{ ...btn, background: "#7c3aed" }} onClick={openPreviewFromDrafts}>Atidaryti preview</button></div>
+                <div style={formGroup}><label style={label}>Originalai reikalingi</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div>
+              </div>
+            </div>
+
+            <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
+              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>9. PASTABOS</div>
+              <div style={formGrid}>
+                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Vidinės pastabos</label><textarea rows="3" style={inputBase} value={projectDraft.internalNotes || projectDraft.notes || ""} onChange={(e) => updateFormData({ internalNotes: e.target.value, notes: e.target.value })} placeholder="Vidinės komandos pastabos." /></div>
+                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukcijos vežėjui"}</label><textarea rows="3" style={inputBase} value={executionDraft.instructions || ""} onChange={(e) => updateFormData({ instructions: e.target.value })} placeholder="Instrukcijos vykdytojui." /></div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "none" }}>
+
+          {executionDraft.orderType === "resale_to_carrier" && (
+            <div style={{ marginBottom: "20px", padding: "16px", background: "#fff7ed", border: "1px solid #fdba74", borderRadius: "12px" }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "#9a3412", marginBottom: "8px" }}>Dokumento siuntėjas visada yra mūsų įmonė</div>
+              <div style={{ fontSize: "13px", color: "#7c2d12", lineHeight: 1.55, marginBottom: "10px" }}>
+                Vežėjui generuojamas užsakymas formuojamas tarp <strong>{companyProfile.name || "įmonės iš nustatymų"}</strong> ir pasirinkto vežėjo.
+                Projekto klientas yra atskiras projekto dalies objektas.
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(160px, 1fr))", gap: "10px" }}>
+                <div style={observerMiniStat}>Įmonė: {companyProfile.name || "—"}</div>
+                <div style={observerMiniStat}>Kodas: {companyProfile.code || "—"}</div>
+                <div style={observerMiniStat}>PVM: {companyProfile.vat || "—"}</div>
+              </div>
+            </div>
+          )}
+
+          <div style={{ marginTop: "4px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
+            A. Projekto / kliento dalis
+          </div>
+          <div style={{ padding: "18px", background: "#ffffff", border: "1px solid #dbeafe", borderRadius: "14px", marginBottom: "18px" }}>
+            <div style={formGrid}>
+              <div style={{ ...formGroup, gridColumn: "span 2" }}>
+                <label style={label}>Klientas (užsakovas) *</label>
+                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
+                  Pirmiausia ieškokite kliento bendroje bazėje. Jei įrašo nėra, vėliau pridėsime quick-add tame pačiame workflow.
+                </div>
+                <input
+                  style={{ ...inputBase, marginTop: "8px" }}
+                  value={clientPickerSearch}
+                  onChange={(e) => setClientPickerSearch(e.target.value)}
+                  placeholder="Ieškoti kliento pagal pavadinimą, kodą, PVM ar email..."
+                />
+                <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "auto", paddingRight: "4px", marginTop: "10px" }}>
+                  {filteredClientOptions.map((client) => {
+                    const isActive = String(projectDraft.clientId || "") === String(client.id);
+                    return (
+                      <button
+                        key={client.id}
+                        type="button"
+                        style={isActive ? pickerButtonActive : pickerButton}
+                        onClick={() => applySelectedClient(String(client.id))}
+                      >
+                        <div>{client.name}</div>
+                        <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                          {client.companyCode || client.vatCode || client.email || "Kliento įrašas"}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {filteredClientOptions.length === 0 && (
+                  <div style={{ marginTop: "8px", fontSize: "12px", color: "#64748b" }}>
+                    Pagal paiešką klientų nerasta.
+                  </div>
+                )}
+              </div>
+              <div style={formGroup}>
+                <label style={label}>Kliento užsakymo numeris</label>
+                <input style={inputBase} value={projectDraft.clientOrderNumber || ""} onChange={(e) => updateFormData({ clientOrderNumber: e.target.value })} placeholder="pvz. PO-2026-0042" />
+              </div>
+              <div style={formGroup}>
+                <label style={label}>Kliento kaina (EUR) *</label>
+                <input style={inputBase} type="number" step="0.01" required value={projectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholder="1200.00" />
+              </div>
+            </div>
+
+            {(projectDraft.clientId || projectDraft.clientName) && (
+              <div style={{ marginTop: "14px", padding: "12px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", fontSize: "12px", color: "#475569", lineHeight: 1.5 }}>
+                <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: "6px" }}>
+                  Pasirinktas projekto klientas: {projectDraft.clientName || selectedClient?.name || "—"}
+                </div>
+                {(projectDraft.clientCompanyCode || selectedClient?.companyCode) ? <div>Įmonės kodas: {projectDraft.clientCompanyCode || selectedClient?.companyCode}</div> : null}
+                {(projectDraft.clientVatCode || selectedClient?.vatCode) ? <div>PVM kodas: {projectDraft.clientVatCode || selectedClient?.vatCode}</div> : null}
+                {(projectDraft.clientEmail || selectedClient?.email) ? <div>El. paštas: {projectDraft.clientEmail || selectedClient?.email}</div> : null}
+                {(projectDraft.clientPhone || selectedClient?.phone) ? <div>Telefonas: {projectDraft.clientPhone || selectedClient?.phone}</div> : null}
+                {(projectDraft.clientAddress || selectedClient?.address) ? <div>Adresas: {projectDraft.clientAddress || selectedClient?.address}</div> : null}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginTop: "8px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
+            B. Vykdymo dalis
+          </div>
+
+          {executionDraft.orderType === "resale_to_carrier" && (
+            <>
+              <div style={{ marginBottom: "12px", padding: "14px 16px", background: "#fff7ed", border: "1px solid #fdba74", borderRadius: "10px", color: "#9a3412", fontSize: "13px", lineHeight: 1.5 }}>
+                Šiame režime projektą vykdo išorinis vežėjas arba subrangovas. Žemiau pildoma tik vežėjo vykdymo informacija ir komercinės sąlygos.
+              </div>
+              <div style={{ ...formGrid, marginTop: "16px", padding: "18px", background: "#ffffff", border: "1px solid #fed7aa", borderRadius: "14px" }}>
+                <div style={formGroup}>
+                  <label style={label}>Vežėjas (vykdytojas) *</label>
+                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                    Rodomi tik išoriniai vežėjai. Spauskite vežėją iš sąrašo.
+                  </div>
+                  <input
+                    style={{ ...inputBase, marginTop: "8px" }}
+                    value={carrierPickerSearch}
+                    onChange={(e) => setCarrierPickerSearch(e.target.value)}
+                    placeholder="Ieškoti vežėjo pagal pavadinimą, kodą, PVM, email ar telefoną..."
+                  />
+                  <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "auto", paddingRight: "4px" }}>
+                    {filteredCarrierOptions.map((c) => {
+                        const isActive = String(executionDraft.carrierId || "") === String(c.id);
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            style={isActive ? pickerButtonActive : pickerButton}
+                            onClick={() => {
+                              const mgr = c?.managerContacts?.[0];
+                              setQuickAdd(null);
+                              setSelectedManagerId("");
+                              setSelectedTruckId("");
+                              setSelectedTrailerId("");
+                              setSelectedDriverId("");
+                              updateFormData({
+                                carrierId: String(c.id),
+                                carrierName: c?.name || "",
+                                carrierType: c?.carrierType || "",
+                                carrierCompanyCode: c?.companyCode || "",
+                                carrierVAT: c?.vatCode || "",
+                                carrierPhone: c?.phone || "",
+                                carrierEmail: c?.email || "",
+                                carrierAddress: c?.address || "",
+                                contactName: mgr?.name || "",
+                                contactPhone: mgr?.phone || "",
+                                contactEmail: mgr?.email || "",
+                                driverName: "",
+                                truckPlate: "",
+                                trailerPlate: ""
+                              });
+                              setFormActionMessage(c?.name ? `Pasirinktas vežėjas: ${c.name}` : "");
+                            }}
+                          >
+                            <div>{c.name} 🚛</div>
+                            <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                              {c.companyCode || c.email || c.phone || "Vežėjo įrašas"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                  {filteredCarrierOptions.length === 0 && (
+                    <div style={{ marginTop: "8px", fontSize: "12px", color: "#64748b" }}>
+                      Pagal paiešką vežėjų nerasta.
+                    </div>
+                  )}
+                  {(executionDraft.carrierId || executionDraft.carrierName) && (
+                    <div style={{ marginTop: "8px", padding: "10px 12px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px", color: "#475569", lineHeight: 1.45 }}>
+                      <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: "4px" }}>
+                        Pasirinktas vežėjas: {executionDraft.carrierName || selectedCarrier?.name || "—"}
+                      </div>
+                      {(executionDraft.carrierCompanyCode || selectedCarrier?.companyCode) ? <div>Įmonės kodas: {executionDraft.carrierCompanyCode || selectedCarrier?.companyCode}</div> : null}
+                      {(executionDraft.carrierEmail || selectedCarrier?.email) ? <div>El. paštas: {executionDraft.carrierEmail || selectedCarrier?.email}</div> : null}
+                      {(executionDraft.carrierPhone || selectedCarrier?.phone) ? <div>Telefonas: {executionDraft.carrierPhone || selectedCarrier?.phone}</div> : null}
+                      {(executionDraft.carrierAddress || selectedCarrier?.address) ? <div>Adresas: {executionDraft.carrierAddress || selectedCarrier?.address}</div> : null}
+                    </div>
+                  )}
+                </div>
+                <div style={formGroup}>
+                  <label style={label}>Vadybininkas</label>
+                  {selectedCarrierManagers.length > 0 ? (
+                    <div style={pickerGrid}>
+                      {selectedCarrierManagers.map((m) => {
+                        const isActive = (selectedManagerId || matchedManagerId) === String(m.id);
+                        return (
+                          <button
+                            key={m.id}
+                            type="button"
+                            style={isActive ? pickerButtonActive : pickerButton}
+                            onClick={() => {
+                              setSelectedManagerId(String(m.id));
+                              updateFormData({ contactName: m.name || "", contactPhone: m.phone || "", contactEmail: m.email || "" });
+                            }}
+                          >
+                            <div>{m.name || "Be vardo"}</div>
+                            <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                              {m.position || m.email || m.phone || "Vadybininkas"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  {executionDraft.carrierId && selectedCarrierManagers.length === 0 && !quickAdd?.type && (
+                    <div style={{ marginTop: "8px", padding: "10px 12px", background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "8px", fontSize: "12px", color: "#92400e", lineHeight: 1.45 }}>
+                      Šiam vežėjui vadybininkų sąrašo nėra. Kontaktus galite įvesti ranka žemiau arba pridėti naują vadybininką.
+                    </div>
+                  )}
+                  {executionDraft.carrierId && (
+                    <button
+                      type="button"
+                      style={{ ...btnSecondary, marginTop: "8px", fontSize: "12px", padding: "6px 12px" }}
+                      onClick={() => {
+                        setSelectedManagerId("");
                         setQuickAdd({ type: "manager", fields: { name: "", phone: "", email: "", position: "" } });
-                        return;
-                      }
-                      const mgr = (carriers.find((c) => String(c.id) === String(formData.carrierId))?.managerContacts || []).find((m) => String(m.id) === e.target.value);
-                      if (mgr) updateFormData({ contactName: mgr.name || "", contactPhone: mgr.phone || "", contactEmail: mgr.email || "" });
-                    }}
-                  >
-                    <option value="">— Pasirinkite vadybininką —</option>
-                    {(carriers.find((c) => String(c.id) === String(formData.carrierId))?.managerContacts || []).map((m) => (
-                      <option key={m.id} value={String(m.id)}>{m.name}{m.position ? ` · ${m.position}` : ""}</option>
-                    ))}
-                    {formData.carrierId && <option value="__add__">+ Pridėti naują vadybininką</option>}
-                  </select>
+                      }}
+                    >
+                      + Pridėti naują vadybininką
+                    </button>
+                  )}
                   {quickAdd?.type === "manager" && (
                     <div style={{ marginTop: "8px", padding: "12px", background: "#eff6ff", border: "1px solid #93c5fd", borderRadius: "8px" }}>
                       <div style={{ fontWeight: 600, marginBottom: "8px", fontSize: "13px", color: "#1e3a8a" }}>Naujas vadybininkas</div>
@@ -2208,15 +4884,15 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", ...formGroup }}>
                   <div>
                     <label style={label}>Vadybininko vardas</label>
-                    <input style={inputBase} value={formData.contactName || ""} onChange={(e) => updateFormData({ contactName: e.target.value })} placeholder="Jonas Jonaitis" />
+                    <input style={inputBase} value={executionDraft.contactName || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactName: e.target.value }); }} placeholder="Jonas Jonaitis" />
                   </div>
                   <div>
                     <label style={label}>Vadybininko tel.</label>
-                    <input style={inputBase} value={formData.contactPhone || ""} onChange={(e) => updateFormData({ contactPhone: e.target.value })} placeholder="+370 600 00000" />
+                    <input style={inputBase} value={executionDraft.contactPhone || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactPhone: e.target.value }); }} placeholder="+370 600 00000" />
                   </div>
                   <div>
                     <label style={label}>Vadybininko el. paštas</label>
-                    <input style={inputBase} value={formData.contactEmail || ""} onChange={(e) => updateFormData({ contactEmail: e.target.value })} placeholder="jonas@carrier.lt" />
+                    <input style={inputBase} value={executionDraft.contactEmail || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactEmail: e.target.value }); }} placeholder="jonas@carrier.lt" />
                   </div>
                 </div>
                 <div style={formGroup}>
@@ -2227,7 +4903,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                       type="number"
                       step="0.01"
                       required
-                      value={formData.carrierPrice || ""}
+                      value={executionDraft.carrierPrice || ""}
                       onChange={(e) => updateFormData({ carrierPrice: parseFloat(e.target.value) || 0 })}
                       placeholder="1000.00"
                     />
@@ -2241,11 +4917,13 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                         cursor: "pointer"
                       }}
                     >
+                      {/* DUPLICATE CONTROL COMMENTED OUT — select at line ~4631 is the single source
                       <input
                         type="checkbox"
-                        checked={formData.carrierPriceWithVAT || false}
-                        onChange={(e) => updateFormData({ carrierPriceWithVAT: e.target.checked })}
+                        checked={vatModeValue === "with_vat"}
+                        onChange={(e) => updateFormData({ vatMode: e.target.checked ? "with_vat" : "without_vat", carrierPriceWithVAT: e.target.checked })}
                       />
+                      */}
                       +PVM
                     </label>
                   </div>
@@ -2256,7 +4934,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                   <label style={label}>Mokėjimo terminas vežėjui</label>
                   <select
                     style={inputBase}
-                    value={formData.paymentTerm || "14 dienų"}
+                    value={executionDraft.paymentTerm || "14 dienų"}
                     onChange={(e) => updateFormData({ paymentTerm: e.target.value })}
                   >
                     {[
@@ -2293,11 +4971,13 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                       paddingTop: "8px"
                     }}
                   >
+                    {/* DUPLICATE CONTROL COMMENTED OUT — select at line ~4645 is the single source
                     <input
                       type="checkbox"
-                      checked={formData.originalsRequired === true}
-                      onChange={(e) => updateFormData({ originalsRequired: e.target.checked })}
+                      checked={originalsRequiredValue === "required"}
+                      onChange={(e) => updateFormData({ originalsRequired: e.target.checked ? "required" : "not_required" })}
                     />
+                    */}
                     <span style={{ fontSize: "13px", fontWeight: 500 }}>
                       Originalūs dokumentai reikalingi
                     </span>
@@ -2307,25 +4987,25 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                   </div>
                 </div>
               </div>
-              {formData.clientPrice > 0 && formData.carrierPrice > 0 && (
+              {projectDraft.clientPrice > 0 && executionDraft.carrierPrice > 0 && (
                 <div
                   style={{
                     marginTop: "12px",
                     padding: "16px",
-                    background: (formData.clientPrice - formData.carrierPrice) < 0 ? "#fee2e2" : "#d1fae5",
+                    background: currentProfit < 0 ? "#fee2e2" : "#d1fae5",
                     border: `2px solid ${
-                      (formData.clientPrice - formData.carrierPrice) < 0 ? "#ef4444" : "#10b981"
+                      currentProfit < 0 ? "#ef4444" : "#10b981"
                     }`,
                     borderRadius: "8px"
                   }}
                 >
                   <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>
-                    💰 PELNAS: {(formData.clientPrice - formData.carrierPrice).toFixed(2)} EUR
+                    💰 PELNAS: {currentProfit.toFixed(2)} EUR
                   </div>
                   <div style={{ fontSize: "12px", color: "#64748b" }}>
-                    Marža: {(((formData.clientPrice - formData.carrierPrice) / formData.carrierPrice) * 100).toFixed(2)}%
+                    Marža: {currentMargin.toFixed(2)}%
                   </div>
-                  {(formData.clientPrice - formData.carrierPrice) < 0 && (
+                  {currentProfit < 0 && (
                     <div style={{ fontSize: "12px", color: "#dc2626", marginTop: "4px" }}>
                       ⚠️ DĖMESIO: Neigiamas pelnas!
                     </div>
@@ -2334,35 +5014,58 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               )}
             </>
           )}
-          <div style={{ marginTop: "16px" }}>
-            <h4 style={sectionTitle}>🚚 Krovinio informacija</h4>
-            <div style={formGrid}><div style={formGroup}><label style={label}>Krovinio tipas *</label><select style={inputBase} required value={formData.cargoType || ""} onChange={(e) => { const value = e.target.value; value !== "custom" ? updateFormData({ cargoType: value, cargo: value }) : updateFormData({ cargoType: value }); }}><option value="">Pasirinkite...</option><option value="Automobiliai">🚗 Automobiliai</option><option value="Neutralus krovinys">📦 Neutralus krovinys</option><option value="custom">✨ Kitas (įvesti rankiniu būdu)</option></select></div>{formData.cargoType === "custom" && <div style={formGroup}><label style={label}>Krovinio pavadinimas *</label><input style={inputBase} required value={formData.cargo || ""} placeholder="pvz. Baldai, Padangos..." onChange={(e) => updateFormData({ cargo: e.target.value })} /></div>}<div style={formGroup}><label style={label}>Automobilių skaičius</label><select style={inputBase} value={formData.vehicleCount || "1"} onChange={(e) => updateFormData({ vehicleCount: e.target.value })}>{[1,2,3,4,5,6,7,8,9,10].map((num) => <option key={num} value={String(num)}>{num} vnt.</option>)}</select></div><div style={formGroup}><label style={label}>VIN numeriai (nebūtina)</label><textarea rows="3" style={{ ...inputBase, fontFamily: "monospace", fontSize: "11px" }} value={formData.vinNumbers || ""} placeholder="Įveskite VIN numerius, kiekvienas naujoje eilutėje" onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div></div>
-            <div style={{ marginTop: "16px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Pakrovimo vieta (Siuntėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.loadingCompanyName || ""} placeholder="pvz. BMW AG" onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.loadingCity || ""} placeholder="pvz. Hamburg" onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && formData.unloadingCity ? `${loadingCity} → ${formData.unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.loadingStreet || ""} placeholder="pvz. Hauptstraße 123" onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.loadingPostalCode || ""} placeholder="pvz. 20095" onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.loadingCoordinates || ""} placeholder="pvz. 53.551086, 9.993682" onChange={(e) => updateFormData({ loadingCoordinates: e.target.value })} /></div></div></div>
-            <div style={{ marginTop: "12px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Iškrovimo vieta (Gavėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={formData.unloadingCompanyName || ""} placeholder="pvz. UAB Automobiliai" onChange={(e) => updateFormData({ unloadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={formData.unloadingCity || ""} placeholder="pvz. Vilnius" onChange={(e) => { const unloadingCity = e.target.value; updateFormData({ unloadingCity, route: formData.loadingCity && unloadingCity ? `${formData.loadingCity} → ${unloadingCity}` : formData.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={formData.unloadingStreet || ""} placeholder="pvz. Gedimino pr. 1" onChange={(e) => updateFormData({ unloadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={formData.unloadingPostalCode || ""} placeholder="pvz. 01103" onChange={(e) => updateFormData({ unloadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={formData.unloadingCoordinates || ""} placeholder="pvz. 54.687157, 25.279652" onChange={(e) => updateFormData({ unloadingCoordinates: e.target.value })} /></div></div></div>
-            <div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Maršrutas (auto-generuojamas)</label><input style={{ ...inputBase, background: "#f8fafc", cursor: "not-allowed" }} value={formData.route || ""} placeholder="Užpildykite adresus - maršrutas sugeneruosis automatiškai" readOnly /></div>
+          {executionDraft.orderType === "own_transport" && (
+            <div style={{ marginTop: "12px", marginBottom: "12px", padding: "14px 16px", background: "#ecfdf5", border: "1px solid #86efac", borderRadius: "10px", color: "#166534", fontSize: "13px", lineHeight: 1.5 }}>
+              Šiame režime projektą vykdo nuosavas transportas. Vežėjo blokas nenaudojamas, o žemiau pildoma mūsų fleet, vairuotojo ir vidaus vykdymo informacija.
+            </div>
+          )}
+          {executionDraft.orderType === "own_transport" && !ownFleetCarrier && (
+            <div style={{ marginTop: "12px", marginBottom: "12px", padding: "14px 16px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: "10px", color: "#991b1b", fontSize: "13px", lineHeight: 1.5 }}>
+              Nuosavo transporto įrašas bendroje vežėjų bazėje dar nerastas. Kad fleet pasirinkimai veiktų pilnai, bendroje bazėje turi būti mūsų įmonės transporto kortelė su `isOwnCompany`.
+            </div>
+          )}
+          <div style={{ marginTop: "20px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
+            C. Krovinys ir maršrutas
           </div>
           <div style={{ marginTop: "16px" }}>
-            <h4 style={sectionTitle}>🚛 Transportas ir vairuotojas</h4>
+            <h4 style={sectionTitle}>🚚 Krovinio informacija</h4>
+            <div style={formGrid}><div style={formGroup}><label style={label}>Krovinio tipas *</label><select style={inputBase} required value={projectDraft.cargoType || ""} onChange={(e) => { const value = e.target.value; value !== "custom" ? updateFormData({ cargoType: value, cargo: value }) : updateFormData({ cargoType: value }); }}><option value="">Pasirinkite...</option><option value="Automobiliai">🚗 Automobiliai</option><option value="Neutralus krovinys">📦 Neutralus krovinys</option><option value="custom">✨ Kitas (įvesti rankiniu būdu)</option></select></div>{projectDraft.cargoType === "custom" && <div style={formGroup}><label style={label}>Krovinio pavadinimas *</label><input style={inputBase} required value={projectDraft.cargo || ""} placeholder="pvz. Baldai, Padangos..." onChange={(e) => updateFormData({ cargo: e.target.value })} /></div>}<div style={formGroup}><label style={label}>Automobilių skaičius</label><select style={inputBase} value={projectDraft.vehicleCount || "1"} onChange={(e) => updateFormData({ vehicleCount: e.target.value })}>{[1,2,3,4,5,6,7,8,9,10].map((num) => <option key={num} value={String(num)}>{num} vnt.</option>)}</select></div><div style={formGroup}><label style={label}>VIN numeriai (nebūtina)</label><textarea rows="3" style={{ ...inputBase, fontFamily: "monospace", fontSize: "11px" }} value={projectDraft.vinNumbers || ""} placeholder="Įveskite VIN numerius, kiekvienas naujoje eilutėje" onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div></div>
+            <div style={{ marginTop: "16px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Pakrovimo vieta (Siuntėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={projectDraft.loadingCompanyName || ""} placeholder="pvz. BMW AG" onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={projectDraft.loadingCity || ""} placeholder="pvz. Hamburg" onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.unloadingCity}` : projectDraft.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={projectDraft.loadingStreet || ""} placeholder="pvz. Hauptstraße 123" onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={projectDraft.loadingPostalCode || ""} placeholder="pvz. 20095" onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={projectDraft.loadingCoordinates || ""} placeholder="pvz. 53.551086, 9.993682" onChange={(e) => updateFormData({ loadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ marginTop: "12px", padding: "16px", background: "#f8fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Iškrovimo vieta (Gavėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inputBase} value={projectDraft.unloadingCompanyName || ""} placeholder="pvz. UAB Automobiliai" onChange={(e) => updateFormData({ unloadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} required value={projectDraft.unloadingCity || ""} placeholder="pvz. Vilnius" onChange={(e) => { const unloadingCity = e.target.value; updateFormData({ unloadingCity, route: projectDraft.loadingCity && unloadingCity ? `${projectDraft.loadingCity} → ${unloadingCity}` : projectDraft.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input style={inputBase} value={projectDraft.unloadingStreet || ""} placeholder="pvz. Gedimino pr. 1" onChange={(e) => updateFormData({ unloadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={projectDraft.unloadingPostalCode || ""} placeholder="pvz. 01103" onChange={(e) => updateFormData({ unloadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input style={inputBase} value={projectDraft.unloadingCoordinates || ""} placeholder="pvz. 54.687157, 25.279652" onChange={(e) => updateFormData({ unloadingCoordinates: e.target.value })} /></div></div></div>
+            <div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Maršrutas (auto-generuojamas)</label><input style={{ ...inputBase, background: "#f8fafc", cursor: "not-allowed" }} value={projectDraft.route || ""} placeholder="Užpildykite adresus - maršrutas sugeneruosis automatiškai" readOnly /></div>
+          </div>
+          {executionDraft.orderType === "own_transport" && (
+          <div style={{ marginTop: "20px" }}>
+            <h4 style={sectionTitle}>🚛 Nuosavo transporto vykdymas</h4>
             <div style={formGrid}>
               {/* Truck */}
               <div style={formGroup}>
                 <label style={label}>Vilkikas (valst. nr.)</label>
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.trucks || []).length > 0 && (
-                  <select style={{ ...inputBase, marginBottom: "6px" }} value=""
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      if (e.target.value === "__add__") { setQuickAdd({ type: "truck", fields: { licensePlate: "", model: "", year: "" } }); return; }
-                      updateFormData({ truckPlate: e.target.value });
-                    }}>
-                    <option value="">— Pasirinkite vilkiką —</option>
-                    {(carriers.find((c) => String(c.id) === String(formData.carrierId))?.trucks || []).map((t) => (
-                      <option key={t.id} value={t.licensePlate}>{t.licensePlate}{t.model ? ` · ${t.model}` : ""}</option>
-                    ))}
-                    <option value="__add__">+ Pridėti naują vilkiką</option>
-                  </select>
+                {selectedExecutionTrucks.length > 0 && (
+                  <div style={pickerGrid}>
+                    {selectedExecutionTrucks.map((t) => {
+                      const isActive = (selectedTruckId || matchedTruckId) === String(t.id);
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          style={isActive ? pickerButtonActive : pickerButton}
+                          onClick={() => {
+                            setSelectedTruckId(String(t.id));
+                            updateFormData({ truckPlate: String(t.licensePlate || "").toUpperCase() });
+                          }}
+                        >
+                          <div>{t.licensePlate || "Be numerio"}</div>
+                          <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                            {t.model || "Vilkikas"}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-                <input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.truckPlate || ""} placeholder="pvz. ABC123" onChange={(e) => updateFormData({ truckPlate: e.target.value.toUpperCase() })} />
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.trucks || []).length === 0 && (
+                <input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.truckPlate || ""} placeholder="pvz. ABC123" onChange={(e) => { setSelectedTruckId(""); updateFormData({ truckPlate: e.target.value.toUpperCase() }); }} />
+                {ownFleetCarrier && selectedExecutionTrucks.length === 0 && (
                   <button type="button" style={{ marginTop: "6px", background: "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor: "pointer" }}
                     onClick={() => setQuickAdd({ type: "truck", fields: { licensePlate: "", model: "", year: "" } })}>+ Pridėti vilkiką</button>
                 )}
@@ -2384,22 +5087,31 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               {/* Trailer */}
               <div style={formGroup}>
                 <label style={label}>Priekaba (valst. nr.)</label>
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.trailers || []).length > 0 && (
-                  <select style={{ ...inputBase, marginBottom: "6px" }} value=""
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      if (e.target.value === "__add__") { setQuickAdd({ type: "trailer", fields: { licensePlate: "", model: "", year: "" } }); return; }
-                      updateFormData({ trailerPlate: e.target.value });
-                    }}>
-                    <option value="">— Pasirinkite priekabą —</option>
-                    {(carriers.find((c) => String(c.id) === String(formData.carrierId))?.trailers || []).map((t) => (
-                      <option key={t.id} value={t.licensePlate}>{t.licensePlate}{t.model ? ` · ${t.model}` : ""}</option>
-                    ))}
-                    <option value="__add__">+ Pridėti naują priekabą</option>
-                  </select>
+                {selectedExecutionTrailers.length > 0 && (
+                  <div style={pickerGrid}>
+                    {selectedExecutionTrailers.map((t) => {
+                      const isActive = (selectedTrailerId || matchedTrailerId) === String(t.id);
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          style={isActive ? pickerButtonActive : pickerButton}
+                          onClick={() => {
+                            setSelectedTrailerId(String(t.id));
+                            updateFormData({ trailerPlate: String(t.licensePlate || "").toUpperCase() });
+                          }}
+                        >
+                          <div>{t.licensePlate || "Be numerio"}</div>
+                          <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                            {t.model || "Priekaba"}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-                <input style={{ ...inputBase, textTransform: "uppercase" }} value={formData.trailerPlate || ""} placeholder="pvz. XYZ789" onChange={(e) => updateFormData({ trailerPlate: e.target.value.toUpperCase() })} />
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.trailers || []).length === 0 && (
+                <input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.trailerPlate || ""} placeholder="pvz. XYZ789" onChange={(e) => { setSelectedTrailerId(""); updateFormData({ trailerPlate: e.target.value.toUpperCase() }); }} />
+                {ownFleetCarrier && selectedExecutionTrailers.length === 0 && (
                   <button type="button" style={{ marginTop: "6px", background: "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor: "pointer" }}
                     onClick={() => setQuickAdd({ type: "trailer", fields: { licensePlate: "", model: "", year: "" } })}>+ Pridėti priekabą</button>
                 )}
@@ -2421,23 +5133,31 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               {/* Driver */}
               <div style={formGroup}>
                 <label style={label}>Vairuotojas</label>
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.drivers || []).length > 0 && (
-                  <select style={{ ...inputBase, marginBottom: "6px" }} value=""
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      if (e.target.value === "__add__") { setQuickAdd({ type: "driver", fields: { name: "", phone: "", licenseNumber: "" } }); return; }
-                      const drv = (carriers.find((c) => String(c.id) === String(formData.carrierId))?.drivers || []).find((d) => String(d.id) === e.target.value);
-                      if (drv) updateFormData({ driverName: drv.name || "" });
-                    }}>
-                    <option value="">— Pasirinkite vairuotoją —</option>
-                    {(carriers.find((c) => String(c.id) === String(formData.carrierId))?.drivers || []).map((d) => (
-                      <option key={d.id} value={String(d.id)}>{d.name}{d.phone ? ` · ${d.phone}` : ""}</option>
-                    ))}
-                    <option value="__add__">+ Pridėti naują vairuotoją</option>
-                  </select>
+                {selectedExecutionDrivers.length > 0 && (
+                  <div style={pickerGrid}>
+                    {selectedExecutionDrivers.map((d) => {
+                      const isActive = (selectedDriverId || matchedDriverId) === String(d.id);
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          style={isActive ? pickerButtonActive : pickerButton}
+                          onClick={() => {
+                            setSelectedDriverId(String(d.id));
+                            updateFormData({ driverName: d.name || "" });
+                          }}
+                        >
+                          <div>{d.name || "Be vardo"}</div>
+                          <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>
+                            {d.phone || d.licenseNumber || "Vairuotojas"}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-                <input style={inputBase} value={formData.driverName || ""} placeholder="pvz. Jonas Jonaitis" onChange={(e) => updateFormData({ driverName: e.target.value })} />
-                {formData.carrierId && (carriers.find((c) => String(c.id) === String(formData.carrierId))?.drivers || []).length === 0 && (
+                <input style={inputBase} value={executionDraft.driverName || ""} placeholder="pvz. Jonas Jonaitis" onChange={(e) => { setSelectedDriverId(""); updateFormData({ driverName: e.target.value }); }} />
+                {ownFleetCarrier && selectedExecutionDrivers.length === 0 && (
                   <button type="button" style={{ marginTop: "6px", background: "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor: "pointer" }}
                     onClick={() => setQuickAdd({ type: "driver", fields: { name: "", phone: "", licenseNumber: "" } })}>+ Pridėti vairuotoją</button>
                 )}
@@ -2458,9 +5178,18 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               </div>
             </div>
           </div>
-          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} type="date" required value={formData.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required value={formData.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{formData.loadingDate && formData.unloadingDate && (() => { const start = new Date(formData.loadingDate); const end = new Date(formData.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div style={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "diena" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrovimo!</span>}</div>; })()}</div>
-          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={formData.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={formData.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={formData.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Instrukcijos vežėjui</label><textarea rows="3" style={inputBase} value={formData.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={formData.originalsRequired === true ? "required" : formData.originalsRequired || "not_required"} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={formData.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
-          {formData.orderType === "resale_to_carrier" && formData.carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}><input type="checkbox" checked={formData.sendToCarrier !== false} onChange={(e) => updateFormData({ sendToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
+          )}
+          <div style={{ marginTop: "20px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
+            D. Datos ir vykdymo instrukcijos
+          </div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} type="date" required value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required value={projectDraft.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{projectDraft.loadingDate && projectDraft.unloadingDate && (() => { const start = new Date(projectDraft.loadingDate); const end = new Date(projectDraft.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div style={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "diena" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrovimo!</span>}</div>; })()}</div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={projectDraft.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={projectDraft.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={projectDraft.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukcijos vežėjui"}</label><textarea rows="3" style={inputBase} value={executionDraft.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div><div style={formGroup}><label style={label}>Statusas</label><select style={inputBase} value={executionDraft.status || "new"} onChange={(e) => updateFormData({ status: e.target.value })}>{Object.entries(STATUS_MAP).filter(([k]) => !["active","draft","generated"].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
+          {executionDraft.orderType === "resale_to_carrier" && executionDraft.carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}><input type="checkbox" checked={executionDraft.sendToCarrier !== false} onChange={(e) => updateFormData({ sendToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
+
+          <div style={{ marginTop: "20px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
+            E. Dokumentai ir veiksmai
+          </div>
+          </div>
 
           {Array.isArray(settings?.templates) && settings.templates.length > 0 && (
             <div style={{ marginTop: "20px", padding: "16px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
@@ -2468,7 +5197,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
                 <select
                   style={{ ...inputBase, flex: 1, minWidth: "200px" }}
-                  value={formData._selectedTemplateId || ""}
+                  value={executionDraft._selectedTemplateId || ""}
                   onChange={(e) => updateFormData({ _selectedTemplateId: e.target.value })}
                 >
                   <option value="">Pasirinkite šabloną...</option>
@@ -2478,8 +5207,9 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                 </select>
                 <button
                   type="button"
-                  style={{ ...btn, background: "#7c3aed", whiteSpace: "nowrap" }}
-                  onClick={() => { const html = buildDocumentHtml(); if (html) setPreviewHtml(html); }}
+                  style={{ ...btn, background: isCarrierDocumentBlocked ? "#94a3b8" : "#7c3aed", whiteSpace: "nowrap", cursor: isCarrierDocumentBlocked ? "not-allowed" : "pointer" }}
+                  onClick={openPreviewFromDrafts}
+                  disabled={isCarrierDocumentBlocked}
                 >
                   📄 Generuoti dokumentą
                 </button>
@@ -2487,22 +5217,124 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
             </div>
           )}
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "24px", flexWrap: "wrap" }}>
-            <button type="button" style={btnSecondary} onClick={onClose}>Atšaukti</button>
+          <div style={{ display: "flex", gap: "10px", marginTop: "24px", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontSize: "12px", color: "#64748b" }}>
+              Užsakymą galima išsaugoti tiesiai iš formos apačios arba prieš tai sugeneruoti dokumento peržiūrą.
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+              <button type="button" style={btnSecondary} onClick={onClose}>Atšaukti</button>
+              <button type="button" style={{ ...btnSecondary, borderColor: "#cbd5e1", color: "#1e3a8a" }} onClick={() => saveOrderAsDraft("draft")}>📝 Išsaugoti juodraštį</button>
+              <button type="button" style={{ ...btn, background: isCarrierDocumentBlocked ? "#94a3b8" : "#7c3aed", cursor: isCarrierDocumentBlocked ? "not-allowed" : "pointer" }} onClick={openPreviewFromDrafts} disabled={isCarrierDocumentBlocked}>📄 Generuoti dokumentą</button>
+              <button type="button" style={{ ...btnSuccess, minWidth: "170px", opacity: isCarrierDocumentBlocked ? 0.7 : 1, cursor: isCarrierDocumentBlocked ? "not-allowed" : "pointer" }} onClick={saveToDb} disabled={isCarrierDocumentBlocked}>💾 {saveButtonLabel}</button>
+            </div>
           </div>
+          {formActionMessage ? (
+            <div style={{ marginTop: "12px", padding: "10px 12px", background: "#ecfdf5", border: "1px solid #86efac", borderRadius: "8px", color: "#166534", fontSize: "13px", fontWeight: 600 }}>
+              {formActionMessage}
+            </div>
+          ) : null}
         </form>
       </div>
     </div>
 
+    {showNewClientModal && (
+      <div style={modalOverlay} onClick={() => setShowNewClientModal(false)}>
+        <div style={{ ...modal, maxWidth: "680px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={modalHeader}>
+            <h3 style={{ margin: 0, color: "#1e3a8a" }}>Naujas klientas</h3>
+            <button type="button" style={closeBtn} onClick={() => setShowNewClientModal(false)}>×</button>
+          </div>
+          <div style={formGrid}>
+            <div style={formGroup}><label style={label}>Pavadinimas *</label><input style={inputBase} value={newClientDraft.name} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, name: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Įmonės kodas</label><input style={inputBase} value={newClientDraft.companyCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, companyCode: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>PVM kodas</label><input style={inputBase} value={newClientDraft.vatCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, vatCode: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>El. paštas</label><input style={inputBase} value={newClientDraft.email} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, email: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={newClientDraft.phone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, phone: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={newClientDraft.address} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, address: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Kontaktinis asmuo</label><input style={inputBase} value={newClientDraft.contactName} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactName: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Kontaktinis el. paštas</label><input style={inputBase} value={newClientDraft.contactEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactEmail: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Kontaktinis telefonas</label><input style={inputBase} value={newClientDraft.contactPhone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactPhone: e.target.value }))} /></div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+            <button type="button" style={btnSecondary} onClick={() => setShowNewClientModal(false)}>Atšaukti</button>
+            <button type="button" style={btnSuccess} onClick={saveNewClientIntoBase}>Išsaugoti klientą</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {entityEditModal && (
+      <div style={modalOverlay} onClick={() => setEntityEditModal(null)}>
+        <div style={{ ...modal, maxWidth: "760px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={modalHeader}>
+            <h3 style={{ margin: 0, color: "#1e3a8a" }}>Papildyti duomenis</h3>
+            <button type="button" style={closeBtn} onClick={() => setEntityEditModal(null)}>×</button>
+          </div>
+
+          {entityEditModal.entityType === "client" && (
+            <div style={formGrid}>
+              <div style={formGroup}><label style={label}>Pavadinimas</label><input style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Įmonės kodas</label><input style={inputBase} value={entityEditModal.draft.companyCode || ""} onChange={(e) => updateEntityEditDraft("companyCode", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>PVM kodas</label><input style={inputBase} value={entityEditModal.draft.vatCode || ""} onChange={(e) => updateEntityEditDraft("vatCode", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Email</label><input style={inputBase} value={entityEditModal.draft.email || ""} onChange={(e) => updateEntityEditDraft("email", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={entityEditModal.draft.address || ""} onChange={(e) => updateEntityEditDraft("address", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Numatytasis kontaktas</label><input style={inputBase} value={entityEditModal.draft.contactName || ""} onChange={(e) => updateEntityEditDraft("contactName", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Kontakto email</label><input style={inputBase} value={entityEditModal.draft.contactEmail || ""} onChange={(e) => updateEntityEditDraft("contactEmail", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Kontakto telefonas</label><input style={inputBase} value={entityEditModal.draft.contactPhone || ""} onChange={(e) => updateEntityEditDraft("contactPhone", e.target.value)} /></div>
+            </div>
+          )}
+
+          {entityEditModal.entityType === "carrier" && (
+            <div style={formGrid}>
+              <div style={formGroup}><label style={label}>Pavadinimas</label><input style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Įmonės kodas</label><input style={inputBase} value={entityEditModal.draft.companyCode || ""} onChange={(e) => updateEntityEditDraft("companyCode", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>PVM kodas</label><input style={inputBase} value={entityEditModal.draft.vatCode || ""} onChange={(e) => updateEntityEditDraft("vatCode", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Email</label><input style={inputBase} value={entityEditModal.draft.email || ""} onChange={(e) => updateEntityEditDraft("email", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={entityEditModal.draft.address || ""} onChange={(e) => updateEntityEditDraft("address", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Numatytasis kontaktas</label><input style={inputBase} value={entityEditModal.draft.contactName || ""} onChange={(e) => updateEntityEditDraft("contactName", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Kontakto email</label><input style={inputBase} value={entityEditModal.draft.contactEmail || ""} onChange={(e) => updateEntityEditDraft("contactEmail", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Kontakto telefonas</label><input style={inputBase} value={entityEditModal.draft.contactPhone || ""} onChange={(e) => updateEntityEditDraft("contactPhone", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>CMR galioja iki</label><input style={inputBase} type="date" value={entityEditModal.draft.cmrExpiry || ""} onChange={(e) => updateEntityEditDraft("cmrExpiry", e.target.value)} /></div>
+              <div style={formGroup}><label style={label}>Licenzija galioja iki</label><input style={inputBase} type="date" value={entityEditModal.draft.licenseExpiry || ""} onChange={(e) => updateEntityEditDraft("licenseExpiry", e.target.value)} /></div>
+            </div>
+          )}
+
+          {["driver", "truck", "trailer"].includes(entityEditModal.entityType) && (
+            <div style={formGrid}>
+              {(entityEditModal.entityType === "driver") ? (
+                <>
+                  <div style={formGroup}><label style={label}>Vardas</label><input style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.value)} /></div>
+                  <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.target.value)} /></div>
+                </>
+              ) : (
+                <>
+                  <div style={formGroup}><label style={label}>Valst. numeris</label><input style={inputBase} value={entityEditModal.draft.licensePlate || ""} onChange={(e) => updateEntityEditDraft("licensePlate", e.target.value.toUpperCase())} /></div>
+                  <div style={formGroup}><label style={label}>Statusas</label><input style={inputBase} value={entityEditModal.draft.status || ""} onChange={(e) => updateEntityEditDraft("status", e.target.value)} placeholder="pvz. active" /></div>
+                  <div style={formGroup}><label style={label}>Modelis</label><input style={inputBase} value={entityEditModal.draft.model || ""} onChange={(e) => updateEntityEditDraft("model", e.target.value)} /></div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
+            <button type="button" style={btnSecondary} onClick={() => setEntityEditModal(null)}>Atšaukti</button>
+            <button type="button" style={btnSuccess} onClick={saveEntityEditModal}>Išsaugoti</button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {previewHtml && (
-      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 3000, display: "flex", flexDirection: "column", animation: "fadeIn 0.18s ease" }} onClick={() => setPreviewHtml(null)}>
+      <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 3000, display: "flex", flexDirection: "column", animation: "fadeIn 0.18s ease" }} onClick={closePreview}>
         <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
 
         {/* HEADER */}
         <div style={{ background: "#0f172a", padding: "14px 20px", display: "flex", alignItems: "center", flexShrink: 0, borderBottom: "1px solid #1e293b" }} onClick={(e) => e.stopPropagation()}>
           <div style={{ flex: 1 }}>
             <div style={{ color: "#f1f5f9", fontSize: "15px", fontWeight: 700 }}>Užsakymo peržiūra</div>
-            <div style={{ color: "#64748b", fontSize: "11px", marginTop: "2px" }}>{formData.orderNumber || "Naujas užsakymas"} · {formData.carrierName || "vežėjas nepasirinktas"}</div>
+            <div style={{ color: "#64748b", fontSize: "11px", marginTop: "2px" }}>{documentPreviewContext.orderNumber} · {documentPreviewContext.carrierLabel}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "4px", marginRight: "10px" }}>
             {[50, 75, 100, 125, 150].map((z) => (
@@ -2513,26 +5345,31 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
           </div>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setPreviewHtml(null); }}
+            onClick={(e) => { e.stopPropagation(); closePreview(); }}
             style={{ background: "none", border: "1px solid #334155", color: "#94a3b8", fontSize: "20px", lineHeight: 1, cursor: "pointer", padding: "4px 10px", borderRadius: "6px" }}
             title="Uždaryti"
           >×</button>
         </div>
 
         {/* BODY — document iframe, scrollable outer div */}
-        <div style={{ flex: 1, overflowY: "auto", background: "#525659" }} onClick={(e) => e.stopPropagation()}>
-          <iframe
-            srcDoc={`<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;font-family:Arial,Helvetica,sans-serif;}${printCss}</style></head><body>${previewHtml}<script>${previewScript}<\/script></body></html>`}
-            style={{ width: "100%", border: "none", display: "block", zoom: previewZoom / 100 }}
-            onLoad={(e) => {
-              try {
-                const doc = e.target.contentDocument || e.target.contentWindow?.document;
-                const h = doc?.documentElement?.scrollHeight || doc?.body?.scrollHeight || 0;
-                if (h > 0) e.target.style.height = h + "px";
-              } catch (_) {}
-            }}
-            title="Dokumento peržiūra"
-          />
+        <div style={{ flex: 1, overflowY: "auto", background: "#525659", padding: "24px 20px 36px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
+            {previewPageDocs.map((pageDoc, index) => (
+              <div key={index} style={{ width: `${previewPageSize.widthPx * previewPageScale}px` }}>
+                <div style={{ color: "#cbd5e1", fontSize: "12px", fontWeight: 600, marginBottom: "8px", letterSpacing: "0.02em" }}>
+                  Puslapis {index + 1} / {previewPageDocs.length}
+                </div>
+                <div style={{ width: `${previewPageSize.widthPx * previewPageScale}px`, height: `${previewPageSize.heightPx * previewPageScale}px`, overflow: "hidden", background: "#fff", border: "1px solid #64748b", boxShadow: "0 18px 36px rgba(15,23,42,0.28)" }}>
+                  <iframe
+                    srcDoc={pageDoc}
+                    scrolling="no"
+                    style={{ width: `${previewPageSize.widthPx}px`, height: `${previewPageSize.heightPx}px`, border: "none", display: "block", transform: `scale(${previewPageScale})`, transformOrigin: "top left" }}
+                    title={`Dokumento peržiūra ${index + 1}`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* FOOTER — 5 action buttons */}
@@ -2540,12 +5377,12 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
           <button
             type="button"
             style={{ ...btn, background: "#3b82f6", fontSize: "13px", padding: "10px 18px", minWidth: "140px" }}
-            onClick={(e) => { e.stopPropagation(); const carrier = carriers.find((c) => String(c.id) === String(formData.carrierId)); const email = carrier?.email || formData.carrierEmail || ""; if (!email) return window.alert("Vežėjo el. paštas nenurodytas."); window.location.href = `mailto:${email}?subject=Transporto užsakymas ${formData.orderNumber || ""}&body=Prašome rasti pridėtą transporto užsakymą.`; }}
+            onClick={(e) => { e.stopPropagation(); sendPreviewToCarrier(); }}
           >📧 Siųsti vežėjui</button>
           <button
             type="button"
             style={{ ...btn, background: "#0f766e", fontSize: "13px", padding: "10px 18px", minWidth: "140px" }}
-            onClick={(e) => { e.stopPropagation(); const win = window.open("", "_blank"); if (win) { win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dokumentas</title><style>body{margin:0;font-family:Arial,sans-serif;}${printCss}</style></head><body>${previewHtml}<script>window.onload=()=>window.print();<\/script></body></html>`); win.document.close(); } }}
+            onClick={(e) => { e.stopPropagation(); printPreviewDocument(); }}
           >🖨️ Spausdinti</button>
           <button
             type="button"
@@ -2555,27 +5392,17 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
           <button
             type="button"
             style={{ ...btn, background: "#7c3aed", fontSize: "13px", padding: "10px 18px", minWidth: "140px" }}
-            onClick={(e) => { e.stopPropagation(); window.alert("PDF eksportavimas bus pridėtas netrukus."); }}
+            onClick={(e) => { e.stopPropagation(); savePreviewAsPdf(); }}
           >📄 Išsaugoti PDF</button>
           <button
             type="button"
             style={{ ...btn, background: "#1d4ed8", fontSize: "13px", padding: "10px 18px", minWidth: "140px" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              const docHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Uzsakymas</title></head><body>${previewHtml}</body></html>`;
-              const blob = new Blob([docHtml], { type: "application/msword" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `uzsakymas_${formData.orderNumber || "doc"}.doc`;
-              a.click();
-              setTimeout(() => URL.revokeObjectURL(url), 5000);
-            }}
+            onClick={(e) => { e.stopPropagation(); exportPreviewAsWord(); }}
           >📝 Word</button>
           <button
             type="button"
             style={{ ...btnSecondary, fontSize: "13px", padding: "10px 18px", minWidth: "140px" }}
-            onClick={(e) => { e.stopPropagation(); setPreviewHtml(null); }}
+            onClick={(e) => { e.stopPropagation(); closePreview(); }}
           >✏️ Redaguoti</button>
         </div>
       </div>

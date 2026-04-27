@@ -19,6 +19,9 @@ app.use(express.json({ limit: "50mb" }));
 const dashboardRouter = require("./routes/dashboard");
 app.use("/api/dashboard", dashboardRouter);
 
+const transportRouter = require("./routes/transport");
+app.use("/api/transport", transportRouter);
+
 const dataRoot = path.join(__dirname, "data");
 const dataFiles = {
   clients: path.join(dataRoot, "clients.json"),

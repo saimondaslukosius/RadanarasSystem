@@ -10,7 +10,15 @@
     "address": "",
     "country": "",
     "website": "",
-    "contacts": [],
+    "contacts": [
+      {
+        "id": 1,
+        "name": "",
+        "position": "",
+        "email": "",
+        "phone": ""
+      }
+    ],
     "departmentContacts": [
       {
         "id": 1,
@@ -42,7 +50,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": "",
+    "notes": ""
   },
   {
     "id": "CL20260404001700",
@@ -50,7 +62,7 @@
     "clientType": "Tiesioginis klientas",
     "companyCode": "111748996",
     "vatCode": "LT117489917",
-    "email": "",
+    "email": "juste.zironaite@veho.lt",
     "phone": "+37065003373",
     "address": "Pirklių g. 9, LT-02300 Vilnius ",
     "website": " http://www.veho.lt",
@@ -95,7 +107,11 @@
         "email": ""
       }
     ],
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": "",
+    "notes": ""
   },
   {
     "id": "CL20260401183406",
@@ -147,15 +163,20 @@
       }
     ],
     "clientType": "Ekspeditorius",
-    "website": " http://www.delamode-baltics.com"
+    "website": " http://www.delamode-baltics.com",
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": "",
+    "notes": ""
   },
   {
     "id": "IMP1775684103597",
     "name": "Vin Motors, UAB",
     "companyCode": "306292105",
     "vatCode": "LT100016043317",
-    "email": "\"\"ernestas@vinmotors.lt\"\"",
-    "phone": "",
+    "email": "ernestas@vinmotors.lt",
+    "phone": "+370 648 32280",
     "address": "Vilnius, Lietuva",
     "website": "",
     "managerContacts": [
@@ -172,7 +193,15 @@
     "_country": "Lietuva",
     "_city": "Vilnius",
     "clientType": "Tiesioginis klientas",
-    "contacts": [],
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Ernestas Žitkauskas",
+        "position": "",
+        "email": "ernestas@vinmotors.lt",
+        "phone": "+370 648 32280"
+      }
+    ],
     "departmentContacts": [
       {
         "id": 1,
@@ -204,7 +233,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103430",
@@ -269,7 +302,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103463",
@@ -334,7 +371,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103466",
@@ -399,7 +440,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103469",
@@ -464,7 +509,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103482",
@@ -529,7 +578,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103487",
@@ -594,7 +647,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103488",
@@ -659,7 +716,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103497",
@@ -724,7 +785,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103498",
@@ -789,7 +854,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103500",
@@ -854,7 +923,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103511",
@@ -919,7 +992,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103513",
@@ -984,7 +1061,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103522",
@@ -1049,7 +1130,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103523",
@@ -1114,7 +1199,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103525",
@@ -1179,7 +1268,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103537",
@@ -1244,7 +1337,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103549",
@@ -1309,7 +1406,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103554",
@@ -1374,7 +1475,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103555",
@@ -1439,7 +1544,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103563",
@@ -1504,7 +1613,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103571",
@@ -1569,7 +1682,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103572",
@@ -1634,7 +1751,11 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "country": "",
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103445",
@@ -1700,7 +1821,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103449",
@@ -1766,7 +1890,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103457",
@@ -1832,7 +1959,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103473",
@@ -1898,7 +2028,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103503",
@@ -1964,7 +2097,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103519",
@@ -2030,7 +2166,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103545",
@@ -2096,7 +2235,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103547",
@@ -2162,7 +2304,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103573",
@@ -2228,7 +2373,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103574",
@@ -2294,7 +2442,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103579",
@@ -2360,7 +2511,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103580",
@@ -2426,7 +2580,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103584",
@@ -2492,7 +2649,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103587",
@@ -2558,7 +2718,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103588",
@@ -2624,7 +2787,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103581",
@@ -2690,7 +2856,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103595",
@@ -2756,7 +2925,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103599",
@@ -2822,7 +2994,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103600",
@@ -2888,7 +3063,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103601",
@@ -2954,7 +3132,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103602",
@@ -3020,7 +3201,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103414",
@@ -3086,7 +3270,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103416",
@@ -3152,7 +3339,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103417",
@@ -3218,7 +3408,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103419",
@@ -3284,7 +3477,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103423",
@@ -3350,7 +3546,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103431",
@@ -3416,7 +3615,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103433",
@@ -3482,7 +3684,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103441",
@@ -3548,7 +3753,10 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   },
   {
     "id": "IMP1775684103552",
@@ -3614,6 +3822,9 @@
         "phone": "",
         "email": ""
       }
-    ]
+    ],
+    "invoiceEmail": "",
+    "cmrEmail": "",
+    "podEmail": ""
   }
 ]

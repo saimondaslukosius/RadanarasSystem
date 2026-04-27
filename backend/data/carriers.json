@@ -3745,5 +3745,164 @@
     "_country": "Lietuva",
     "_city": "Kaunas",
     "country": "Lietuva"
+  },
+  {
+    "id": "CR20260416000101",
+    "name": "Baltic Route Logistics, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306001245",
+    "vatCode": "LT100016001245",
+    "email": "operations@balticroute.lt",
+    "phone": "+370 612 44551",
+    "address": "Savanorių pr. 178F, Kaunas, Lietuva",
+    "website": "https://www.balticroute.lt",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "Paulius Žukauskas",
+        "position": "Transporto vadybininkas",
+        "email": "paulius@balticroute.lt",
+        "phone": "+370 612 44551"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "+370 612 44551",
+        "email": "office@balticroute.lt"
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "+370 612 44552",
+        "email": "finance@balticroute.lt"
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "CMR-BRL-2026-01",
+        "validUntil": "2026-11-30",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000101/cmr.pdf",
+        "fileName": "baltic-route-cmr.pdf"
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "LIC-BRL-2026-01",
+        "validUntil": "2027-06-30",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000101/license.pdf",
+        "fileName": "baltic-route-license.pdf"
+      }
+    ],
+    "notes": "Demo tvarkingo vežėjo pavyzdys.",
+    "country": "Lietuva",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
+  },
+  {
+    "id": "CR20260416000102",
+    "name": "Nord Carrier Group, UAB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306001287",
+    "vatCode": "LT100016001287",
+    "email": "dispatch@nordcarrier.lt",
+    "phone": "+370 645 22880",
+    "address": "J. Basanavičiaus g. 26, Vilnius, Lietuva",
+    "website": "https://www.nordcarrier.lt",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "Marius Vasiliauskas",
+        "position": "Ekspedicijos vadybininkas",
+        "email": "marius@nordcarrier.lt",
+        "phone": "+370 645 22880"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "+370 645 22880",
+        "email": "info@nordcarrier.lt"
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "CMR-NCG-2026-01",
+        "validUntil": "2026-04-28",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000102/cmr.pdf",
+        "fileName": "nord-carrier-cmr.pdf"
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "LIC-NCG-2026-01",
+        "validUntil": "2027-03-15",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000102/license.pdf",
+        "fileName": "nord-carrier-license.pdf"
+      }
+    ],
+    "notes": "Demo pavyzdys su artėjančiu CMR galiojimo pabaigos terminu.",
+    "country": "Lietuva",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
+  },
+  {
+    "id": "CR20260416000103",
+    "name": "Trans Baltic Fleet, MB",
+    "carrierType": "Vežėjas",
+    "companyCode": "306001331",
+    "vatCode": "LT100016001331",
+    "email": "ops@transbalticfleet.lt",
+    "phone": "+370 699 11822",
+    "address": "Pramonės g. 8, Klaipėda, Lietuva",
+    "website": "https://www.transbalticfleet.lt",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "Tomas Balčiūnas",
+        "position": "Direktorius",
+        "email": "tomas@transbalticfleet.lt",
+        "phone": "+370 699 11822"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "+370 699 11822",
+        "email": "admin@transbalticfleet.lt"
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "CMR-TBF-2026-01",
+        "validUntil": "2026-10-20",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000103/cmr.pdf",
+        "fileName": "trans-baltic-cmr.pdf"
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "LIC-TBF-2026-01",
+        "validUntil": "2027-09-10",
+        "link": "http://localhost:3001/uploads/carrier/CR20260416000103/license.pdf",
+        "fileName": "trans-baltic-license.pdf"
+      }
+    ],
+    "notes": "Demo tvarkingo vežėjo pavyzdys.",
+    "country": "Lietuva",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   }
 ]
