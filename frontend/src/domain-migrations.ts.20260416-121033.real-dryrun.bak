@@ -1,0 +1,5 @@
+export function runLegacyOrdersMigrationDryRun(): never {
+  throw new Error(
+    "Migration dry-run adapter is not implemented in this repo yet. Add frontend/src/domain-migrations.ts adapter logic before running diagnostics."
+  );
+}

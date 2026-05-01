@@ -1,0 +1,25 @@
+export const ORDER_DRAFT_PERSIST_TARGETS = Object.freeze({
+  LEGACY: "legacy",
+  FUTURE_DOMAIN: "future_domain",
+});
+
+export const DEFAULT_ORDER_DRAFT_PERSIST_TARGET = ORDER_DRAFT_PERSIST_TARGETS.LEGACY;
+
+export const buildOrderDraftPersistPlan = ({
+  legacyPayload = null,
+  futureBundle = null,
+  target = DEFAULT_ORDER_DRAFT_PERSIST_TARGET,
+} = {}) => {
+  const normalizedTarget = Object.values(ORDER_DRAFT_PERSIST_TARGETS).includes(target)
+    ? target
+    : DEFAULT_ORDER_DRAFT_PERSIST_TARGET;
+
+  return {
+    target: normalizedTarget,
+    legacyPayload,
+    futureBundle,
+    shouldPersistLegacy: normalizedTarget === ORDER_DRAFT_PERSIST_TARGETS.LEGACY,
+    shouldPrepareFutureBundle: Boolean(futureBundle),
+    isFutureDomainTarget: normalizedTarget === ORDER_DRAFT_PERSIST_TARGETS.FUTURE_DOMAIN,
+  };
+};

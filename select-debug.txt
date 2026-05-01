@@ -1,0 +1,1732 @@
+﻿
+  frontend\src\orders_settings_only.jsx:164:const statusBadgeStyle = (status) => { const s = STATUS_MAP[status] || { bg: "#
+f1f5f9", color: "#475569" }; return { display: "inline-block", padding: "4px 10px", borderRadius: "12px", fontSize: "12px",
+ fontWeight: 600, background: s.bg, color: s.color, whiteSpace: "nowrap" }; };
+  frontend\src\orders_settings_only.jsx:165:const statusLabel = (status) => (STATUS_MAP[status]?.label || status || "?");
+> frontend\src\orders_settings_only.jsx:166:const emptyOrderForm = { orderType: "resale_to_carrier", sendToCarrier: true, p
+rojectId: "", managerName: "", clientOrderNumber: "", clientContactId: "", clientContactName: "", clientContactPhone: "", c
+lientContactEmail: "", clientPrice: 0, carrierPrice: 0, executionCost: 0, carrierPriceWithVAT: false, vatMode: "without_vat
+", paymentTerm: "14 dienų", cargoType: "", cargo: "", cargoName: "", quantity: "", ldm: "", weight: "", temperature: "", pa
+lletCount: "", cargoNotes: "", vehicleCount: "1", vinNumbers: "", truckPlate: "", trailerPlate: "", driverName: "", loading
+CompanyName: "", loadingCity: "", loadingStreet: "", loadingPostalCode: "", loadingCoordinates: "", loadingTime: "", loadin
+gCountry: "Lietuva", loadingContact: "", loadingNotes: "", unloadingCompanyName: "", unloadingCity: "", unloadingStreet: ""
+, unloadingPostalCode: "", unloadingCoordinates: "", unloadingTime: "", unloadingCountry: "Lietuva", unloadingContact: "", 
+unloadingNotes: "", route: "", loadingDate: "", unloadingDate: "", loadRefLoading: "", loadRefUnloading: "", instructions: 
+"", originalsRequired: "not_required", notes: "", internalNotes: "", documentUploadLink: "", clientId: "", clientName: "", 
+carrierId: "", carrierName: "", carrierType: "", contactName: "", contactPhone: "", contactEmail: "", status: "new", docume
+nts: { cmr: "", pod: "", invoice: "" } };
+  frontend\src\orders_settings_only.jsx:167:const emptyProjectDraft = {
+  frontend\src\orders_settings_only.jsx:168:  projectId: "",
+  frontend\src\orders_settings_only.jsx:169:  managerName: "",
+  frontend\src\orders_settings_only.jsx:170:  clientOrderNumber: "",
+> frontend\src\orders_settings_only.jsx:171:  clientId: "",
+  frontend\src\orders_settings_only.jsx:172:  clientName: "",
+  frontend\src\orders_settings_only.jsx:173:  clientContactId: "",
+  frontend\src\orders_settings_only.jsx:215:  loadRefLoading: "",
+  frontend\src\orders_settings_only.jsx:216:  loadRefUnloading: "",
+> frontend\src\orders_settings_only.jsx:217:  originalsRequired: "not_required",
+  frontend\src\orders_settings_only.jsx:218:  notes: "",
+  frontend\src\orders_settings_only.jsx:219:  internalNotes: "",
+  frontend\src\orders_settings_only.jsx:227:  status: "new",
+  frontend\src\orders_settings_only.jsx:228:  sendToCarrier: true,
+> frontend\src\orders_settings_only.jsx:229:  carrierId: "",
+  frontend\src\orders_settings_only.jsx:230:  carrierName: "",
+  frontend\src\orders_settings_only.jsx:231:  carrierType: "",
+  frontend\src\orders_settings_only.jsx:237:  carrierPrice: 0,
+  frontend\src\orders_settings_only.jsx:238:  executionCost: 0,
+> frontend\src\orders_settings_only.jsx:239:  carrierPriceWithVAT: false,
+  frontend\src\orders_settings_only.jsx:240:  vatMode: "without_vat",
+> frontend\src\orders_settings_only.jsx:241:  paymentTerm: "14 dienų",
+  frontend\src\orders_settings_only.jsx:242:  truckPlate: "",
+  frontend\src\orders_settings_only.jsx:243:  trailerPlate: "",
+  frontend\src\orders_settings_only.jsx:256:    documents: { ...emptyOrderForm.documents, ...(form.documents || {}) },
+  frontend\src\orders_settings_only.jsx:257:  };
+> frontend\src\orders_settings_only.jsx:258:  const normalizedVatMode = normalizeVatMode(normalized.vatMode ?? normalized.c
+arrierPriceWithVAT);
+> frontend\src\orders_settings_only.jsx:259:  const normalizedOriginalsRequired = normalizeOriginalsRequired(normalized.ori
+ginalsRequired);
+  frontend\src\orders_settings_only.jsx:260:
+  frontend\src\orders_settings_only.jsx:261:  return {
+  frontend\src\orders_settings_only.jsx:265:      managerName: normalized.managerName || "",
+  frontend\src\orders_settings_only.jsx:266:      clientOrderNumber: normalized.clientOrderNumber,
+> frontend\src\orders_settings_only.jsx:267:      clientId: normalized.clientId,
+  frontend\src\orders_settings_only.jsx:268:      clientName: normalized.clientName,
+  frontend\src\orders_settings_only.jsx:269:      clientContactId: normalized.clientContactId || "",
+  frontend\src\orders_settings_only.jsx:311:      loadRefLoading: normalized.loadRefLoading,
+  frontend\src\orders_settings_only.jsx:312:      loadRefUnloading: normalized.loadRefUnloading,
+> frontend\src\orders_settings_only.jsx:313:      originalsRequired: normalizedOriginalsRequired,
+  frontend\src\orders_settings_only.jsx:314:      notes: normalized.notes,
+  frontend\src\orders_settings_only.jsx:315:      internalNotes: normalized.internalNotes || "",
+  frontend\src\orders_settings_only.jsx:324:      status: normalized.status,
+  frontend\src\orders_settings_only.jsx:325:      sendToCarrier: normalized.sendToCarrier,
+> frontend\src\orders_settings_only.jsx:326:      carrierId: normalized.carrierId,
+  frontend\src\orders_settings_only.jsx:327:      carrierName: normalized.carrierName,
+  frontend\src\orders_settings_only.jsx:328:      carrierType: normalized.carrierType,
+  frontend\src\orders_settings_only.jsx:334:      carrierPrice: normalized.carrierPrice,
+  frontend\src\orders_settings_only.jsx:335:      executionCost: normalized.executionCost || normalized.carrierPrice || 0,
+> frontend\src\orders_settings_only.jsx:336:      carrierPriceWithVAT: normalizedVatMode === "with_vat",
+  frontend\src\orders_settings_only.jsx:337:      vatMode: normalizedVatMode,
+> frontend\src\orders_settings_only.jsx:338:      paymentTerm: normalized.paymentTerm,
+  frontend\src\orders_settings_only.jsx:339:      truckPlate: normalized.truckPlate,
+  frontend\src\orders_settings_only.jsx:340:      trailerPlate: normalized.trailerPlate,
+  frontend\src\orders_settings_only.jsx:402:    projectId: projectDraft.projectId || basePayload.projectId || "",
+  frontend\src\orders_settings_only.jsx:403:    managerName: projectDraft.managerName || basePayload.managerName || "",
+> frontend\src\orders_settings_only.jsx:404:    clientId: projectDraft.clientId || basePayload.clientId || "",
+  frontend\src\orders_settings_only.jsx:405:    clientName: projectDraft.clientName || basePayload.clientName || "",
+  frontend\src\orders_settings_only.jsx:406:    clientContactId: projectDraft.clientContactId || basePayload.clientContactI
+d || "",
+  frontend\src\orders_settings_only.jsx:413:    clientEmail: projectDraft.clientEmail || basePayload.clientEmail || "",
+  frontend\src\orders_settings_only.jsx:414:    clientAddress: projectDraft.clientAddress || basePayload.clientAddress || "
+",
+> frontend\src\orders_settings_only.jsx:415:    carrierId: executionDraft.carrierId || basePayload.carrierId || "",
+  frontend\src\orders_settings_only.jsx:416:    carrierName: executionDraft.carrierName || selectedCarrier.name || basePayl
+oad.carrierName || "",
+  frontend\src\orders_settings_only.jsx:417:    carrierType: executionDraft.carrierType || selectedCarrier.carrierType || b
+asePayload.carrierType || "",
+  frontend\src\orders_settings_only.jsx:426:    executionCost: executionDraft.executionCost || basePayload.executionCost ||
+ executionDraft.carrierPrice || basePayload.carrierPrice || 0,
+  frontend\src\orders_settings_only.jsx:427:    vatMode: executionDraft.vatMode,
+> frontend\src\orders_settings_only.jsx:428:    carrierPriceWithVAT: executionDraft.vatMode === "with_vat",
+> frontend\src\orders_settings_only.jsx:429:    originalsRequired: projectDraft.originalsRequired,
+  frontend\src\orders_settings_only.jsx:430:    carrierPrice:
+  frontend\src\orders_settings_only.jsx:431:      executionDraft.orderType === "own_transport"
+  frontend\src\orders_settings_only.jsx:466:const toHtmlText = (value) => escapeHtml(value).replace(/\r?\n/g, "<br />");
+  frontend\src\orders_settings_only.jsx:467:const hasNumericValue = (value) => value !== "" && value !== null && value !== 
+undefined && !Number.isNaN(Number(value));
+> frontend\src\orders_settings_only.jsx:468:const normalizeOriginalsRequired = (value) => (value === true || value === "req
+uired" ? "required" : "not_required");
+  frontend\src\orders_settings_only.jsx:469:const buildOptionalInfoRow = (label, value, { valueColor = "#1f2937", marginBot
+tom = 3 } = {}) => {
+  frontend\src\orders_settings_only.jsx:470:  const text = normalizeOptionalText(value);
+  frontend\src\orders_settings_only.jsx:560:  const companyContactPhone = companyProfile.phone || "";
+  frontend\src\orders_settings_only.jsx:561:  const companyContactEmail = settings?.email?.from_address || companyProfile.e
+mail || "";
+> frontend\src\orders_settings_only.jsx:562:  const originalsRequired = normalizeOriginalsRequired(projectDraft.originalsRe
+quired);
+> frontend\src\orders_settings_only.jsx:563:  const vatModeKey = normalizeVatMode(executionDraft.vatMode ?? executionDraft.
+carrierPriceWithVAT);
+  frontend\src\orders_settings_only.jsx:564:  const vatModeLabel = vatModeKey === "with_vat" ? "+ PVM" : "be PVM";
+  frontend\src\orders_settings_only.jsx:565:  const loadingContact = normalizeOptionalText(projectDraft.loadingContact);
+  frontend\src\orders_settings_only.jsx:611:    carrier_price: hasNumericValue(executionDraft.carrierPrice) ? `${Number(exe
+cutionDraft.carrierPrice).toFixed(2)} EUR ${vatModeLabel}` : "—",
+  frontend\src\orders_settings_only.jsx:612:    client_price: hasNumericValue(projectDraft.clientPrice) ? `${Number(project
+Draft.clientPrice).toFixed(2)} EUR` : "—",
+> frontend\src\orders_settings_only.jsx:613:    payment_term: executionDraft.paymentTerm || "—",
+  frontend\src\orders_settings_only.jsx:614:    today_date: new Date().toLocaleDateString("lt-LT"),
+  frontend\src\orders_settings_only.jsx:615:    creation_date: new Date().toLocaleDateString("lt-LT"),
+  frontend\src\orders_settings_only.jsx:696:    vat_mode_key: vatModeKey,
+  frontend\src\orders_settings_only.jsx:697:    vat_mode_badge: vatModeBadge,
+> frontend\src\orders_settings_only.jsx:698:    originals_required: originalsRequired,
+> frontend\src\orders_settings_only.jsx:699:    originals_required_label: originalsRequired === "required" ? "Reikalingi" :
+ "Nereikalingi",
+> frontend\src\orders_settings_only.jsx:700:    requires_original_documents_warning: originalsRequired === "required" ? `<d
+iv style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%); border-radius:12px; padding:16px 20px; margin:20px 0;
+ box-shadow:0 4px 12px rgba(239,68,68,0.3);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-siz
+e:24px;">⚠️</span><span style="color:white; font-size:14px; font-weight:600;">Šiam užsakymui reikalingi originalūs CMR / vy
+kdymo dokumentai.</span></div></div>` : "",
+  frontend\src\orders_settings_only.jsx:701:  };
+  frontend\src\orders_settings_only.jsx:702:};
+  frontend\src\orders_settings_only.jsx:731:  if (!executionDraft.orderType) return "Pasirinkite užsakymo tipą.";
+  frontend\src\orders_settings_only.jsx:732:  if (executionDraft.orderType !== "resale_to_carrier") return "Orderis vežėjui
+ generuojamas tik pasirinkus pardavimą vežėjui.";
+> frontend\src\orders_settings_only.jsx:733:  if (!executionDraft.carrierId) return "Pasirinkite vežėją.";
+  frontend\src\orders_settings_only.jsx:734:  return null;
+  frontend\src\orders_settings_only.jsx:735:};
+  frontend\src\orders_settings_only.jsx:743:  }
+  frontend\src\orders_settings_only.jsx:744:
+> frontend\src\orders_settings_only.jsx:745:  if (!projectDraft.clientId || !projectDraft.clientName) {
+  frontend\src\orders_settings_only.jsx:746:    return { error: "Pasirinkite projekto klientą.", needsNegativeProfitConfirm
+ation: false, financials: null };
+  frontend\src\orders_settings_only.jsx:747:  }
+  frontend\src\orders_settings_only.jsx:758:
+  frontend\src\orders_settings_only.jsx:759:  if (executionDraft.orderType === "resale_to_carrier") {
+> frontend\src\orders_settings_only.jsx:760:    if (!executionDraft.carrierId) {
+  frontend\src\orders_settings_only.jsx:761:      return { error: "Perpardavimui būtinas vežėjas.", needsNegativeProfitConf
+irmation: false, financials };
+  frontend\src\orders_settings_only.jsx:762:    }
+  frontend\src\orders_settings_only.jsx:1532:    return { error: "Pasirinkite šabloną." };
+  frontend\src\orders_settings_only.jsx:1533:  }
+> frontend\src\orders_settings_only.jsx:1534:  const selectedCarrier = carriers.find((carrier) => String(carrier.id) === St
+ring(executionDraft.carrierId || draftPayload.carrierId));
+  frontend\src\orders_settings_only.jsx:1535:  const values = buildDocumentTemplateValuesFromDrafts({
+  frontend\src\orders_settings_only.jsx:1536:    projectDraft,
+  frontend\src\orders_settings_only.jsx:2033:                    <input
+  frontend\src\orders_settings_only.jsx:2034:                      style={inputBase}
+> frontend\src\orders_settings_only.jsx:2035:                      value={manualState.name}
+> frontend\src\orders_settings_only.jsx:2036:                      onChange={(e) => updateManualState({ name: e.target.valu
+e })}
+  frontend\src\orders_settings_only.jsx:2037:                      placeholder="pvz. Profesionalus vežėjo orderis"
+  frontend\src\orders_settings_only.jsx:2038:                    />
+  frontend\src\orders_settings_only.jsx:2060:                </div>
+  frontend\src\orders_settings_only.jsx:2061:                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", m
+arginBottom: "12px" }}>
+> frontend\src\orders_settings_only.jsx:2062:                  <select
+  frontend\src\orders_settings_only.jsx:2063:                    title="Pasirinkti teksto stilių"
+  frontend\src\orders_settings_only.jsx:2064:                    style={{ ...inputBase, width: "auto" }}
+> frontend\src\orders_settings_only.jsx:2065:                    value="p"
+  frontend\src\orders_settings_only.jsx:2066:                    onMouseDown={saveSelection}
+> frontend\src\orders_settings_only.jsx:2067:                    onChange={(e) => {
+  frontend\src\orders_settings_only.jsx:2068:                      const val = e.target.value;
+  frontend\src\orders_settings_only.jsx:2069:                      focusEditor(activeEditor, previewMode === "canvas" ? "pr
+eview" : "source");
+  frontend\src\orders_settings_only.jsx:2073:                    }}
+  frontend\src\orders_settings_only.jsx:2074:                  >
+> frontend\src\orders_settings_only.jsx:2075:                    <option value="p">Pastraipa</option>
+> frontend\src\orders_settings_only.jsx:2076:                    <option value="h1">Heading 1</option>
+> frontend\src\orders_settings_only.jsx:2077:                    <option value="h2">Heading 2</option>
+> frontend\src\orders_settings_only.jsx:2078:                    <option value="h3">Heading 3</option>
+> frontend\src\orders_settings_only.jsx:2079:                    <option value="blockquote">Quote</option>
+  frontend\src\orders_settings_only.jsx:2080:                  </select>
+> frontend\src\orders_settings_only.jsx:2081:                  <select
+  frontend\src\orders_settings_only.jsx:2082:                    title="Font Size"
+  frontend\src\orders_settings_only.jsx:2083:                    style={{ ...inputBase, width: "auto" }}
+> frontend\src\orders_settings_only.jsx:2084:                    value={fontScale}
+  frontend\src\orders_settings_only.jsx:2085:                    onMouseDown={saveSelection}
+> frontend\src\orders_settings_only.jsx:2086:                    onChange={(e) => {
+  frontend\src\orders_settings_only.jsx:2087:                      const val = e.target.value;
+  frontend\src\orders_settings_only.jsx:2088:                      setFontScale(val);
+  frontend\src\orders_settings_only.jsx:2093:                    }}
+  frontend\src\orders_settings_only.jsx:2094:                  >
+> frontend\src\orders_settings_only.jsx:2095:                    <option value="2">Tekstas S</option>
+> frontend\src\orders_settings_only.jsx:2096:                    <option value="3">Tekstas M</option>
+> frontend\src\orders_settings_only.jsx:2097:                    <option value="4">Tekstas L</option>
+> frontend\src\orders_settings_only.jsx:2098:                    <option value="5">Tekstas XL</option>
+> frontend\src\orders_settings_only.jsx:2099:                    <option value="6">Tekstas XXL</option>
+  frontend\src\orders_settings_only.jsx:2100:                  </select>
+  frontend\src\orders_settings_only.jsx:2101:                  <input
+  frontend\src\orders_settings_only.jsx:2102:                    title="Text Color"
+  frontend\src\orders_settings_only.jsx:2103:                    type="color"
+> frontend\src\orders_settings_only.jsx:2104:                    value={textColor}
+  frontend\src\orders_settings_only.jsx:2105:                    onMouseDown={saveSelection}
+> frontend\src\orders_settings_only.jsx:2106:                    onChange={(e) => {
+  frontend\src\orders_settings_only.jsx:2107:                      const val = e.target.value;
+  frontend\src\orders_settings_only.jsx:2108:                      setTextColor(val);
+  frontend\src\orders_settings_only.jsx:2203:                  <button title="Parsisiųsti kaip Word (.doc)" type="button" s
+tyle={{ ...btnSecondary, background: "#1d4ed8", color: "#fff", border: "none", padding: "8px 12px", fontSize: "12px" }} onM
+ouseDown={(e) => e.preventDefault()} onClick={handleWordExport}>📄 Word</button>
+  frontend\src\orders_settings_only.jsx:2204:                </div>
+> frontend\src\orders_settings_only.jsx:2205:                <input ref={imageInputRef} type="file" accept="image/*" style=
+{{ display: "none" }} onChange={(e) => { void handleInlineImage(e, activeEditor); }} />
+  frontend\src\orders_settings_only.jsx:2206:                <div style={{ position: "relative", display: "inline-block" }}
+>
+  frontend\src\orders_settings_only.jsx:2207:                  <button
+  frontend\src\orders_settings_only.jsx:2278:                      <button type="button" style={{ ...btnSecondary, backgrou
+nd: "#b91c1c" }} onClick={() => updateLogoSetting("logoSrc", "")}>Pašalinti</button>
+  frontend\src\orders_settings_only.jsx:2279:                    </div>
+> frontend\src\orders_settings_only.jsx:2280:                    <input ref={logoInputRef} type="file" accept="image/*" sty
+le={{ display: "none" }} onChange={(e) => { void handleLogoUpload(e); }} />
+  frontend\src\orders_settings_only.jsx:2281:                  </div>
+  frontend\src\orders_settings_only.jsx:2282:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2283:                    <label style={label}>Logo plotis (px)</label>
+> frontend\src\orders_settings_only.jsx:2284:                    <input style={inputBase} type="number" min="40" value={man
+ualState.assets.logoWidth} onChange={(e) => updateLogoSetting("logoWidth", Math.max(40, Number(e.target.value) || 220))} />
+  frontend\src\orders_settings_only.jsx:2285:                  </div>
+  frontend\src\orders_settings_only.jsx:2286:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2287:                    <label style={label}>Logo aukštis (px)</label>
+> frontend\src\orders_settings_only.jsx:2288:                    <input style={inputBase} type="number" min="20" value={man
+ualState.assets.logoHeight ?? 80} onChange={(e) => updateLogoSetting("logoHeight", Math.max(20, Number(e.target.value) || 8
+0))} />
+  frontend\src\orders_settings_only.jsx:2289:                  </div>
+  frontend\src\orders_settings_only.jsx:2290:                </div>
+  frontend\src\orders_settings_only.jsx:2292:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2293:                    <label style={label}>Logo lygiavimas</label>
+> frontend\src\orders_settings_only.jsx:2294:                    <select style={inputBase} value={manualState.assets.logoAl
+ign} onChange={(e) => updateLogoSetting("logoAlign", e.target.value)}>
+> frontend\src\orders_settings_only.jsx:2295:                      <option value="left">Kairėje</option>
+> frontend\src\orders_settings_only.jsx:2296:                      <option value="center">Centre</option>
+> frontend\src\orders_settings_only.jsx:2297:                      <option value="right">Dešinėje</option>
+  frontend\src\orders_settings_only.jsx:2298:                    </select>
+  frontend\src\orders_settings_only.jsx:2299:                  </div>
+  frontend\src\orders_settings_only.jsx:2312:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2313:                    <label style={label}>Orientacija</label>
+> frontend\src\orders_settings_only.jsx:2314:                    <select style={inputBase} value={manualState.layout.orient
+ation} onChange={(e) => updateLayout("orientation", e.target.value)}>
+> frontend\src\orders_settings_only.jsx:2315:                      <option value="portrait">Portrait</option>
+> frontend\src\orders_settings_only.jsx:2316:                      <option value="landscape">Landscape</option>
+  frontend\src\orders_settings_only.jsx:2317:                    </select>
+  frontend\src\orders_settings_only.jsx:2318:                  </div>
+  frontend\src\orders_settings_only.jsx:2319:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2320:                    <label style={label}>Viršus (mm)</label>
+> frontend\src\orders_settings_only.jsx:2321:                    <input style={inputBase} type="number" value={manualState.
+layout.marginTop} onChange={(e) => updateLayout("marginTop", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2322:                  </div>
+  frontend\src\orders_settings_only.jsx:2323:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2324:                    <label style={label}>Dešinė (mm)</label>
+> frontend\src\orders_settings_only.jsx:2325:                    <input style={inputBase} type="number" value={manualState.
+layout.marginRight} onChange={(e) => updateLayout("marginRight", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2326:                  </div>
+  frontend\src\orders_settings_only.jsx:2327:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2328:                    <label style={label}>Apačia (mm)</label>
+> frontend\src\orders_settings_only.jsx:2329:                    <input style={inputBase} type="number" value={manualState.
+layout.marginBottom} onChange={(e) => updateLayout("marginBottom", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2330:                  </div>
+  frontend\src\orders_settings_only.jsx:2331:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2332:                    <label style={label}>Kairė (mm)</label>
+> frontend\src\orders_settings_only.jsx:2333:                    <input style={inputBase} type="number" value={manualState.
+layout.marginLeft} onChange={(e) => updateLayout("marginLeft", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2334:                  </div>
+  frontend\src\orders_settings_only.jsx:2335:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2336:                    <label style={label}>Tarpas po antrašte (mm)</label>
+> frontend\src\orders_settings_only.jsx:2337:                    <input style={inputBase} type="number" value={manualState.
+layout.headerSpacing} onChange={(e) => updateLayout("headerSpacing", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2338:                  </div>
+  frontend\src\orders_settings_only.jsx:2339:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2340:                    <label style={label}>Tarpas iki poraštės (mm)</label>
+> frontend\src\orders_settings_only.jsx:2341:                    <input style={inputBase} type="number" value={manualState.
+layout.footerSpacing} onChange={(e) => updateLayout("footerSpacing", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2342:                  </div>
+  frontend\src\orders_settings_only.jsx:2343:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2344:                    <label style={label}>Puslapių tarpas (px)</label>
+> frontend\src\orders_settings_only.jsx:2345:                    <input style={inputBase} type="number" value={manualState.
+layout.pageGap} onChange={(e) => updateLayout("pageGap", Number(e.target.value) || 0)} />
+  frontend\src\orders_settings_only.jsx:2346:                  </div>
+  frontend\src\orders_settings_only.jsx:2347:                  <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2348:                    <label style={label}>Peržiūros mastelis (%)</label>
+> frontend\src\orders_settings_only.jsx:2349:                    <input style={inputBase} type="number" value={manualState.
+layout.zoom} onChange={(e) => updateLayout("zoom", Number(e.target.value) || 10)} />
+  frontend\src\orders_settings_only.jsx:2350:                  </div>
+  frontend\src\orders_settings_only.jsx:2351:                </div>
+  frontend\src\orders_settings_only.jsx:2591:            <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2592:              <label style={label}>Aplinka</label>
+> frontend\src\orders_settings_only.jsx:2593:              <select
+  frontend\src\orders_settings_only.jsx:2594:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2595:                value={formData.environment}
+> frontend\src\orders_settings_only.jsx:2596:                onChange={(e) => setFormData({ ...formData, environment: e.tar
+get.value })}
+  frontend\src\orders_settings_only.jsx:2597:              >
+> frontend\src\orders_settings_only.jsx:2598:                <option value="test">🧪 Test / Demo</option>
+> frontend\src\orders_settings_only.jsx:2599:                <option value="production">🚀 Production / Reali</option>
+  frontend\src\orders_settings_only.jsx:2600:              </select>
+  frontend\src\orders_settings_only.jsx:2601:            </div>
+  frontend\src\orders_settings_only.jsx:2607:              <input
+  frontend\src\orders_settings_only.jsx:2608:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2609:                value={formData.company.name}
+> frontend\src\orders_settings_only.jsx:2610:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, name: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2611:              />
+  frontend\src\orders_settings_only.jsx:2612:            </div>
+  frontend\src\orders_settings_only.jsx:2615:              <input
+  frontend\src\orders_settings_only.jsx:2616:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2617:                value={formData.company.code}
+> frontend\src\orders_settings_only.jsx:2618:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, code: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2619:              />
+  frontend\src\orders_settings_only.jsx:2620:            </div>
+  frontend\src\orders_settings_only.jsx:2623:              <input
+  frontend\src\orders_settings_only.jsx:2624:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2625:                value={formData.company.vat}
+> frontend\src\orders_settings_only.jsx:2626:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, vat: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2627:              />
+  frontend\src\orders_settings_only.jsx:2628:            </div>
+  frontend\src\orders_settings_only.jsx:2631:              <input
+  frontend\src\orders_settings_only.jsx:2632:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2633:                value={formData.company.phone}
+> frontend\src\orders_settings_only.jsx:2634:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, phone: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2635:              />
+  frontend\src\orders_settings_only.jsx:2636:            </div>
+  frontend\src\orders_settings_only.jsx:2640:                style={inputBase}
+  frontend\src\orders_settings_only.jsx:2641:                type="email"
+> frontend\src\orders_settings_only.jsx:2642:                value={formData.company.email}
+> frontend\src\orders_settings_only.jsx:2643:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, email: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2644:              />
+  frontend\src\orders_settings_only.jsx:2645:            </div>
+  frontend\src\orders_settings_only.jsx:2648:              <input
+  frontend\src\orders_settings_only.jsx:2649:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2650:                value={formData.company.address}
+> frontend\src\orders_settings_only.jsx:2651:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, address: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2652:              />
+  frontend\src\orders_settings_only.jsx:2653:            </div>
+  frontend\src\orders_settings_only.jsx:2660:              <input
+  frontend\src\orders_settings_only.jsx:2661:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2662:                value={formData.company.bank_name}
+> frontend\src\orders_settings_only.jsx:2663:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, bank_name: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2664:              />
+  frontend\src\orders_settings_only.jsx:2665:            </div>
+  frontend\src\orders_settings_only.jsx:2668:              <input
+  frontend\src\orders_settings_only.jsx:2669:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2670:                value={formData.company.bank_account}
+> frontend\src\orders_settings_only.jsx:2671:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, bank_account: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2672:              />
+  frontend\src\orders_settings_only.jsx:2673:            </div>
+  frontend\src\orders_settings_only.jsx:2676:              <input
+  frontend\src\orders_settings_only.jsx:2677:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2678:                value={formData.company.swift}
+> frontend\src\orders_settings_only.jsx:2679:                onChange={(e) => setFormData({ ...formData, company: { ...form
+Data.company, swift: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2680:              />
+  frontend\src\orders_settings_only.jsx:2681:            </div>
+  frontend\src\orders_settings_only.jsx:2727:                  type="file"
+  frontend\src\orders_settings_only.jsx:2728:                  accept="image/png,image/jpeg,image/jpg"
+> frontend\src\orders_settings_only.jsx:2729:                  onChange={uploadStamp}
+  frontend\src\orders_settings_only.jsx:2730:                  style={{
+  frontend\src\orders_settings_only.jsx:2731:                    padding: "10px",
+  frontend\src\orders_settings_only.jsx:2759:              <input
+  frontend\src\orders_settings_only.jsx:2760:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2761:                value={formData.documents.auto_numbering_format}
+> frontend\src\orders_settings_only.jsx:2762:                onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2763:                  setFormData({
+  frontend\src\orders_settings_only.jsx:2764:                    ...formData,
+  frontend\src\orders_settings_only.jsx:2772:            <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:2773:              <label style={label}>Kalba pagal nutylėjimą</label>
+> frontend\src\orders_settings_only.jsx:2774:              <select
+  frontend\src\orders_settings_only.jsx:2775:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2776:                value={formData.documents.default_language}
+> frontend\src\orders_settings_only.jsx:2777:                onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2778:                  setFormData({
+  frontend\src\orders_settings_only.jsx:2779:                    ...formData,
+  frontend\src\orders_settings_only.jsx:2782:                }
+  frontend\src\orders_settings_only.jsx:2783:              >
+> frontend\src\orders_settings_only.jsx:2784:                <option value="lt">🇱🇹 Lietuvių</option>
+> frontend\src\orders_settings_only.jsx:2785:                <option value="en">🇬🇧 English</option>
+> frontend\src\orders_settings_only.jsx:2786:                <option value="pl">🇵🇱 Polski</option>
+  frontend\src\orders_settings_only.jsx:2787:              </select>
+  frontend\src\orders_settings_only.jsx:2788:            </div>
+  frontend\src\orders_settings_only.jsx:2794:                type="checkbox"
+  frontend\src\orders_settings_only.jsx:2795:                checked={formData.documents.show_vat}
+> frontend\src\orders_settings_only.jsx:2796:                onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2797:                  setFormData({
+  frontend\src\orders_settings_only.jsx:2798:                    ...formData,
+  frontend\src\orders_settings_only.jsx:2810:              rows="6"
+  frontend\src\orders_settings_only.jsx:2811:              style={{ ...inputBase, width: "100%", resize: "vertical" }}
+> frontend\src\orders_settings_only.jsx:2812:              value={formData.documents.terms_lt}
+> frontend\src\orders_settings_only.jsx:2813:              onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2814:                setFormData({
+  frontend\src\orders_settings_only.jsx:2815:                  ...formData,
+  frontend\src\orders_settings_only.jsx:2835:                style={inputBase}
+  frontend\src\orders_settings_only.jsx:2836:                type="email"
+> frontend\src\orders_settings_only.jsx:2837:                value={formData.email.from_address}
+> frontend\src\orders_settings_only.jsx:2838:                onChange={(e) => setFormData({ ...formData, email: { ...formDa
+ta.email, from_address: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2839:              />
+  frontend\src\orders_settings_only.jsx:2840:            </div>
+  frontend\src\orders_settings_only.jsx:2843:              <input
+  frontend\src\orders_settings_only.jsx:2844:                style={inputBase}
+> frontend\src\orders_settings_only.jsx:2845:                value={formData.email.from_name}
+> frontend\src\orders_settings_only.jsx:2846:                onChange={(e) => setFormData({ ...formData, email: { ...formDa
+ta.email, from_name: e.target.value } })}
+  frontend\src\orders_settings_only.jsx:2847:              />
+  frontend\src\orders_settings_only.jsx:2848:            </div>
+  frontend\src\orders_settings_only.jsx:2854:                type="checkbox"
+  frontend\src\orders_settings_only.jsx:2855:                checked={formData.email.auto_attach_pdf}
+> frontend\src\orders_settings_only.jsx:2856:                onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2857:                  setFormData({
+  frontend\src\orders_settings_only.jsx:2858:                    ...formData,
+  frontend\src\orders_settings_only.jsx:2869:            <input
+  frontend\src\orders_settings_only.jsx:2870:              style={inputBase}
+> frontend\src\orders_settings_only.jsx:2871:              value={formData.email.always_cc.join(", ")}
+> frontend\src\orders_settings_only.jsx:2872:              onChange={(e) =>
+  frontend\src\orders_settings_only.jsx:2873:                setFormData({
+  frontend\src\orders_settings_only.jsx:2874:                  ...formData,
+  frontend\src\orders_settings_only.jsx:3258:
+  frontend\src\orders_settings_only.jsx:3259:  const buildLegacyPayloadFromDrafts = (overrides = {}) => {
+> frontend\src\orders_settings_only.jsx:3260:    const selectedCarrier = carriers.find((c) => String(c.id) === String(execu
+tionDraft.carrierId)) || {};
+  frontend\src\orders_settings_only.jsx:3261:    return buildLegacyOrderPayloadFromDrafts({
+  frontend\src\orders_settings_only.jsx:3262:      projectDraft,
+  frontend\src\orders_settings_only.jsx:3358:
+  frontend\src\orders_settings_only.jsx:3359:  const selectedCarrier = useMemo(
+> frontend\src\orders_settings_only.jsx:3360:    () => carriers.find((c) => String(c.id) === String(executionDraft.carrierI
+d)) || null,
+> frontend\src\orders_settings_only.jsx:3361:    [carriers, executionDraft.carrierId]
+  frontend\src\orders_settings_only.jsx:3362:  );
+  frontend\src\orders_settings_only.jsx:3363:  const selectedClient = useMemo(
+> frontend\src\orders_settings_only.jsx:3364:    () => clients.find((c) => String(c.id) === String(projectDraft.clientId)) 
+|| null,
+> frontend\src\orders_settings_only.jsx:3365:    [clients, projectDraft.clientId]
+  frontend\src\orders_settings_only.jsx:3366:  );
+  frontend\src\orders_settings_only.jsx:3367:  const ownFleetCarrier = useMemo(
+  frontend\src\orders_settings_only.jsx:3478:  const vatModeValue = executionDraft.vatMode || "without_vat";
+  frontend\src\orders_settings_only.jsx:3479:  console.log('🟡 vatModeValue calculated:', vatModeValue, 'from executionDraf
+t.vatMode:', executionDraft.vatMode);
+> frontend\src\orders_settings_only.jsx:3480:  const originalsRequiredValue = projectDraft.originalsRequired || "not_requir
+ed";
+> frontend\src\orders_settings_only.jsx:3481:  console.log('🟠 originalsRequiredValue calculated:', originalsRequiredValue,
+ 'from projectDraft.originalsRequired:', projectDraft.originalsRequired);
+  frontend\src\orders_settings_only.jsx:3482:  const documentPreviewContext = useMemo(() => ({
+  frontend\src\orders_settings_only.jsx:3483:    orderNumber: executionDraft.orderNumber || "Naujas užsakymas",
+  frontend\src\orders_settings_only.jsx:3535:  /* REDUNDANT: normalization already happens in updateFormData at the write s
+ite
+  frontend\src\orders_settings_only.jsx:3536:  useEffect(() => {
+> frontend\src\orders_settings_only.jsx:3537:    const normalizedVatMode = normalizeVatMode(executionDraft.vatMode ?? execu
+tionDraft.carrierPriceWithVAT);
+> frontend\src\orders_settings_only.jsx:3538:    const normalizedCarrierPriceWithVat = normalizedVatMode === "with_vat";
+  frontend\src\orders_settings_only.jsx:3539:    if (
+  frontend\src\orders_settings_only.jsx:3540:      executionDraft.vatMode !== normalizedVatMode ||
+> frontend\src\orders_settings_only.jsx:3541:      Boolean(executionDraft.carrierPriceWithVAT) !== normalizedCarrierPriceWi
+thVat
+  frontend\src\orders_settings_only.jsx:3542:    ) {
+  frontend\src\orders_settings_only.jsx:3543:      setExecutionDraft((prev) => ({
+  frontend\src\orders_settings_only.jsx:3544:        ...prev,
+  frontend\src\orders_settings_only.jsx:3545:        vatMode: normalizedVatMode,
+> frontend\src\orders_settings_only.jsx:3546:        carrierPriceWithVAT: normalizedCarrierPriceWithVat,
+  frontend\src\orders_settings_only.jsx:3547:      }));
+  frontend\src\orders_settings_only.jsx:3548:    }
+> frontend\src\orders_settings_only.jsx:3549:  }, [executionDraft.vatMode, executionDraft.carrierPriceWithVAT]);
+  frontend\src\orders_settings_only.jsx:3550:  */
+  frontend\src\orders_settings_only.jsx:3551:
+  frontend\src\orders_settings_only.jsx:3552:  /* REDUNDANT: normalization already happens in updateFormData at the write s
+ite
+  frontend\src\orders_settings_only.jsx:3553:  useEffect(() => {
+> frontend\src\orders_settings_only.jsx:3554:    const normalizedOriginalsRequired = normalizeOriginalsRequired(projectDraf
+t.originalsRequired);
+> frontend\src\orders_settings_only.jsx:3555:    if (projectDraft.originalsRequired !== normalizedOriginalsRequired) {
+  frontend\src\orders_settings_only.jsx:3556:      setProjectDraft((prev) => ({
+  frontend\src\orders_settings_only.jsx:3557:        ...prev,
+> frontend\src\orders_settings_only.jsx:3558:        originalsRequired: normalizedOriginalsRequired,
+  frontend\src\orders_settings_only.jsx:3559:      }));
+  frontend\src\orders_settings_only.jsx:3560:    }
+> frontend\src\orders_settings_only.jsx:3561:  }, [projectDraft.originalsRequired]);
+  frontend\src\orders_settings_only.jsx:3562:  */
+  frontend\src\orders_settings_only.jsx:3563:
+  frontend\src\orders_settings_only.jsx:3627:    setSelectedTrailerId("");
+  frontend\src\orders_settings_only.jsx:3628:    setSelectedDriverId("");
+> frontend\src\orders_settings_only.jsx:3629:  }, [executionDraft.carrierId, executionDraft.orderType]);
+  frontend\src\orders_settings_only.jsx:3630:
+  frontend\src\orders_settings_only.jsx:3631:  const updateFormData = (updates) => {
+  frontend\src\orders_settings_only.jsx:3647:        const normalizedVatMode = normalizeVatMode(value);
+  frontend\src\orders_settings_only.jsx:3648:        executionUpdates.vatMode = normalizedVatMode;
+> frontend\src\orders_settings_only.jsx:3649:        executionUpdates.carrierPriceWithVAT = normalizedVatMode === "with_vat
+";
+  frontend\src\orders_settings_only.jsx:3650:        return;
+  frontend\src\orders_settings_only.jsx:3651:      }
+  frontend\src\orders_settings_only.jsx:3652:
+> frontend\src\orders_settings_only.jsx:3653:      if (key === "carrierPriceWithVAT") {
+  frontend\src\orders_settings_only.jsx:3654:        const normalizedVatMode = normalizeVatMode(value);
+> frontend\src\orders_settings_only.jsx:3655:        executionUpdates.carrierPriceWithVAT = normalizedVatMode === "with_vat
+";
+  frontend\src\orders_settings_only.jsx:3656:        executionUpdates.vatMode = normalizedVatMode;
+  frontend\src\orders_settings_only.jsx:3657:        return;
+  frontend\src\orders_settings_only.jsx:3658:      }
+  frontend\src\orders_settings_only.jsx:3659:
+> frontend\src\orders_settings_only.jsx:3660:      if (key === "originalsRequired") {
+> frontend\src\orders_settings_only.jsx:3661:        projectUpdates.originalsRequired = normalizeOriginalsRequired(value);
+  frontend\src\orders_settings_only.jsx:3662:        return;
+  frontend\src\orders_settings_only.jsx:3663:      }
+  frontend\src\orders_settings_only.jsx:3698:
+  frontend\src\orders_settings_only.jsx:3699:  const saveQuickAddEntity = () => {
+> frontend\src\orders_settings_only.jsx:3700:    const targetCarrierId = executionDraft.orderType === "own_transport"
+  frontend\src\orders_settings_only.jsx:3701:      ? ownFleetCarrier?.id
+> frontend\src\orders_settings_only.jsx:3702:      : executionDraft.carrierId;
+> frontend\src\orders_settings_only.jsx:3703:    if (!quickAdd || !targetCarrierId) return;
+> frontend\src\orders_settings_only.jsx:3704:    const carrier = carriers.find((c) => String(c.id) === String(targetCarrier
+Id));
+  frontend\src\orders_settings_only.jsx:3705:    if (!carrier) return;
+  frontend\src\orders_settings_only.jsx:3706:
+  frontend\src\orders_settings_only.jsx:3711:
+  frontend\src\orders_settings_only.jsx:3712:    if (saveCarriers) {
+> frontend\src\orders_settings_only.jsx:3713:      saveCarriers(carriers.map((c) => String(c.id) === String(targetCarrierId
+) ? updatedCarrier : c));
+  frontend\src\orders_settings_only.jsx:3714:    }
+  frontend\src\orders_settings_only.jsx:3715:
+  frontend\src\orders_settings_only.jsx:3755:      return;
+  frontend\src\orders_settings_only.jsx:3756:    }
+> frontend\src\orders_settings_only.jsx:3757:    const clientId = `CL-${Date.now()}`;
+  frontend\src\orders_settings_only.jsx:3758:    const createdClient = {
+> frontend\src\orders_settings_only.jsx:3759:      id: clientId,
+  frontend\src\orders_settings_only.jsx:3760:      name: newClientDraft.name.trim(),
+  frontend\src\orders_settings_only.jsx:3761:      clientType: "Tiesioginis klientas",
+  frontend\src\orders_settings_only.jsx:3783:    setShowNewClientModal(false);
+  frontend\src\orders_settings_only.jsx:3784:    setNewClientDraft({ name: "", companyCode: "", vatCode: "", email: "", pho
+ne: "", address: "", contactName: "", contactEmail: "", contactPhone: "" });
+> frontend\src\orders_settings_only.jsx:3785:    applySelectedClient(clientId);
+  frontend\src\orders_settings_only.jsx:3786:  };
+  frontend\src\orders_settings_only.jsx:3787:
+> frontend\src\orders_settings_only.jsx:3788:  const applySelectedClient = (clientId) => {
+> frontend\src\orders_settings_only.jsx:3789:    const client = clients.find((c) => String(c.id) === String(clientId));
+  frontend\src\orders_settings_only.jsx:3790:    if (!client) {
+  frontend\src\orders_settings_only.jsx:3791:      setFormActionMessage("");
+  frontend\src\orders_settings_only.jsx:3792:      updateFormData({
+> frontend\src\orders_settings_only.jsx:3793:        clientId: "",
+  frontend\src\orders_settings_only.jsx:3794:        clientName: "",
+  frontend\src\orders_settings_only.jsx:3795:        clientCompanyCode: "",
+  frontend\src\orders_settings_only.jsx:3809:
+  frontend\src\orders_settings_only.jsx:3810:    updateFormData({
+> frontend\src\orders_settings_only.jsx:3811:      clientId: String(client.id),
+  frontend\src\orders_settings_only.jsx:3812:      clientName: client.name || "",
+  frontend\src\orders_settings_only.jsx:3813:      clientCompanyCode: client.companyCode || "",
+  frontend\src\orders_settings_only.jsx:3930:      saveClients(clients.map((client) => String(client.id) === String(selecte
+dClient.id) ? updatedClient : client));
+  frontend\src\orders_settings_only.jsx:3931:      updateFormData({
+> frontend\src\orders_settings_only.jsx:3932:        clientId: String(updatedClient.id),
+  frontend\src\orders_settings_only.jsx:3933:        clientName: updatedClient.name || "",
+  frontend\src\orders_settings_only.jsx:3934:        clientCompanyCode: updatedClient.companyCode || "",
+  frontend\src\orders_settings_only.jsx:3983:      saveCarriers(carriers.map((carrier) => String(carrier.id) === String(sel
+ectedCarrier.id) ? updatedCarrier : carrier));
+  frontend\src\orders_settings_only.jsx:3984:      updateFormData({
+> frontend\src\orders_settings_only.jsx:3985:        carrierId: String(updatedCarrier.id),
+  frontend\src\orders_settings_only.jsx:3986:        carrierName: updatedCarrier.name || "",
+  frontend\src\orders_settings_only.jsx:3987:        carrierCompanyCode: updatedCarrier.companyCode || "",
+  frontend\src\orders_settings_only.jsx:4088:
+  frontend\src\orders_settings_only.jsx:4089:  useEffect(() => {
+> frontend\src\orders_settings_only.jsx:4090:    if (!projectDraft.clientId) {
+  frontend\src\orders_settings_only.jsx:4091:      if (selectedClientContactId) {
+  frontend\src\orders_settings_only.jsx:4092:        setSelectedClientContactId("");
+  frontend\src\orders_settings_only.jsx:4134:    });
+  frontend\src\orders_settings_only.jsx:4135:  }, [
+> frontend\src\orders_settings_only.jsx:4136:    projectDraft.clientId,
+  frontend\src\orders_settings_only.jsx:4137:    projectDraft.clientContactId,
+  frontend\src\orders_settings_only.jsx:4138:    projectDraft.clientContactName,
+  frontend\src\orders_settings_only.jsx:4365:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4366:                  <label style={label}>Projekto ID</label>
+> frontend\src\orders_settings_only.jsx:4367:                  <input style={{ ...inputBase, background: "#f8fafc" }} value
+={projectDraft.projectId || ""} readOnly />
+  frontend\src\orders_settings_only.jsx:4368:                </div>
+  frontend\src\orders_settings_only.jsx:4369:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4370:                  <label style={label}>Mūsų Nr.</label>
+> frontend\src\orders_settings_only.jsx:4371:                  <input style={{ ...inputBase, background: "#f8fafc" }} value
+={executionDraft.orderNumber || ""} readOnly />
+  frontend\src\orders_settings_only.jsx:4372:                </div>
+  frontend\src\orders_settings_only.jsx:4373:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4397:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4398:                  <label style={label}>Vadybininkas</label>
+> frontend\src\orders_settings_only.jsx:4399:                  <input style={{ ...inputBase, background: "#f8fafc" }} value
+={projectDraft.managerName || currentManagerName} readOnly />
+  frontend\src\orders_settings_only.jsx:4400:                </div>
+  frontend\src\orders_settings_only.jsx:4401:              </div>
+  frontend\src\orders_settings_only.jsx:4413:                <div style={{ ...formGroup, gridColumn: "span 2" }}>
+  frontend\src\orders_settings_only.jsx:4414:                  <label style={label}>Klientas *</label>
+> frontend\src\orders_settings_only.jsx:4415:                  <input style={{ ...inputBase, marginBottom: "10px" }} value=
+{clientPickerSearch} onChange={(e) => setClientPickerSearch(e.target.value)} placeholder="Ieškoti kliento pagal pavadinimą,
+ kodą, PVM ar email..." />
+  frontend\src\orders_settings_only.jsx:4416:                  <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: 
+"auto", paddingRight: "4px" }}>
+  frontend\src\orders_settings_only.jsx:4417:                    {filteredClientOptions.map((client) => {
+> frontend\src\orders_settings_only.jsx:4418:                      const isActive = String(projectDraft.clientId || "") ===
+ String(client.id);
+  frontend\src\orders_settings_only.jsx:4419:                      return (
+  frontend\src\orders_settings_only.jsx:4420:                        <button key={client.id} type="button" style={isActive 
+? pickerButtonActive : pickerButton} onClick={() => applySelectedClient(String(client.id))}>
+  frontend\src\orders_settings_only.jsx:4444:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4445:                  <label style={label}>Kliento užsakymo nr.</label>
+> frontend\src\orders_settings_only.jsx:4446:                  <input style={inputBase} value={projectDraft.clientOrderNumb
+er || ""} onChange={(e) => updateFormData({ clientOrderNumber: e.target.value })} placeholder="pvz. PO-2026-0042" />
+  frontend\src\orders_settings_only.jsx:4447:                </div>
+  frontend\src\orders_settings_only.jsx:4448:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4449:                  <label style={label}>Kliento kaina</label>
+> frontend\src\orders_settings_only.jsx:4450:                  <input style={inputBase} type="number" step="0.01" value={pr
+ojectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} placeholde
+r="1200.00" />
+  frontend\src\orders_settings_only.jsx:4451:                </div>
+  frontend\src\orders_settings_only.jsx:4452:              </div>
+> frontend\src\orders_settings_only.jsx:4453:              {(selectedClient || projectDraft.clientId) && renderEntityHealth
+Block({
+  frontend\src\orders_settings_only.jsx:4454:                title: "Kliento duomenų būsena",
+  frontend\src\orders_settings_only.jsx:4455:                result: selectedClientHealth || analyzeClientData({
+  frontend\src\orders_settings_only.jsx:4476:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight
+: 700, color: "#1e3a8a" }}>3. KROVINYS</div>
+  frontend\src\orders_settings_only.jsx:4477:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4478:                <div style={formGroup}><label style={label}>Krovinio tipas</la
+bel><input style={inputBase} value={projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || ""} onChange=
+{(e) => updateFormData({ cargoType: e.target.value, cargoName: e.target.value, cargo: e.target.value })} placeholder="pvz. 
+Automobiliai" /></div>
+> frontend\src\orders_settings_only.jsx:4479:                <div style={formGroup}><label style={label}>Kiekis</label><inp
+ut style={inputBase} value={projectDraft.quantity || projectDraft.vehicleCount || ""} onChange={(e) => updateFormData({ qua
+ntity: e.target.value, vehicleCount: e.target.value })} placeholder="pvz. 6 vnt." /></div>
+> frontend\src\orders_settings_only.jsx:4480:                <div style={formGroup}><label style={label}>LDM</label><input 
+style={inputBase} value={projectDraft.ldm || ""} onChange={(e) => updateFormData({ ldm: e.target.value })} placeholder="pvz
+. 10.5" /></div>
+> frontend\src\orders_settings_only.jsx:4481:                <div style={formGroup}><label style={label}>Svoris</label><inp
+ut style={inputBase} value={projectDraft.weight || ""} onChange={(e) => updateFormData({ weight: e.target.value })} placeho
+lder="pvz. 12500 kg" /></div>
+> frontend\src\orders_settings_only.jsx:4482:                <div style={formGroup}><label style={label}>Temperatūra</label
+><input style={inputBase} value={projectDraft.temperature || ""} onChange={(e) => updateFormData({ temperature: e.target.va
+lue })} placeholder="pvz. +2 / +8" /></div>
+> frontend\src\orders_settings_only.jsx:4483:                <div style={formGroup}><label style={label}>Palečių sk.</label
+><input style={inputBase} value={projectDraft.palletCount || ""} onChange={(e) => updateFormData({ palletCount: e.target.va
+lue })} placeholder="pvz. 33" /></div>
+> frontend\src\orders_settings_only.jsx:4484:                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label sty
+le={label}>Pastabos</label><textarea rows="3" style={inputBase} value={projectDraft.cargoNotes || ""} onChange={(e) => upda
+teFormData({ cargoNotes: e.target.value })} placeholder="Papildoma informacija apie krovinį." /></div>
+  frontend\src\orders_settings_only.jsx:4485:              </div>
+  frontend\src\orders_settings_only.jsx:4486:            </div>
+  frontend\src\orders_settings_only.jsx:4489:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight
+: 700, color: "#1e3a8a" }}>4. PAKROVIMAS</div>
+  frontend\src\orders_settings_only.jsx:4490:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4491:                <div style={formGroup}><label style={label}>Data *</label><inp
+ut style={inputBase} type="date" value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.ta
+rget.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4492:                <div style={formGroup}><label style={label}>Laikas</label><inp
+ut style={inputBase} type="time" value={projectDraft.loadingTime || ""} onChange={(e) => updateFormData({ loadingTime: e.ta
+rget.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4493:                <div style={formGroup}><label style={label}>Įmonė</label><inpu
+t style={inputBase} value={projectDraft.loadingCompanyName || ""} onChange={(e) => updateFormData({ loadingCompanyName: e.t
+arget.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4494:                <div style={formGroup}><label style={label}>Adresas</label><in
+put style={inputBase} value={projectDraft.loadingStreet || ""} onChange={(e) => updateFormData({ loadingStreet: e.target.va
+lue })} /></div>
+> frontend\src\orders_settings_only.jsx:4495:                <div style={formGroup}><label style={label}>Miestas *</label><
+input style={inputBase} value={projectDraft.loadingCity || ""} onChange={(e) => { const loadingCity = e.target.value; updat
+eFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.unloadingCity}
+` : "" }); }} /></div>
+> frontend\src\orders_settings_only.jsx:4496:                <div style={formGroup}><label style={label}>Pašto kodas</label
+><input style={inputBase} value={projectDraft.loadingPostalCode || ""} onChange={(e) => updateFormData({ loadingPostalCode:
+ e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4497:                <div style={formGroup}><label style={label}>Šalis</label><inpu
+t style={inputBase} value={projectDraft.loadingCountry || ""} onChange={(e) => updateFormData({ loadingCountry: e.target.va
+lue })} /></div>
+> frontend\src\orders_settings_only.jsx:4498:                <div style={formGroup}><label style={label}>Kontaktas</label><
+input style={inputBase} value={projectDraft.loadingContact || ""} onChange={(e) => updateFormData({ loadingContact: e.targe
+t.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4499:                <div style={formGroup}><label style={label}>REF numeris</label
+><input style={inputBase} value={projectDraft.loadRefLoading || ""} onChange={(e) => updateFormData({ loadRefLoading: e.tar
+get.value })} placeholder="pvz. LOAD-001" /></div>
+> frontend\src\orders_settings_only.jsx:4500:                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label sty
+le={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.loadingNotes || ""} onChange={(e) => up
+dateFormData({ loadingNotes: e.target.value })} /></div>
+  frontend\src\orders_settings_only.jsx:4501:              </div>
+  frontend\src\orders_settings_only.jsx:4502:            </div>
+  frontend\src\orders_settings_only.jsx:4505:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight
+: 700, color: "#1e3a8a" }}>5. IŠKROVIMAS</div>
+  frontend\src\orders_settings_only.jsx:4506:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4507:                <div style={formGroup}><label style={label}>Data *</label><inp
+ut style={inputBase} type="date" value={projectDraft.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: 
+e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4508:                <div style={formGroup}><label style={label}>Laikas</label><inp
+ut style={inputBase} type="time" value={projectDraft.unloadingTime || ""} onChange={(e) => updateFormData({ unloadingTime: 
+e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4509:                <div style={formGroup}><label style={label}>Įmonė</label><inpu
+t style={inputBase} value={projectDraft.unloadingCompanyName || ""} onChange={(e) => updateFormData({ unloadingCompanyName:
+ e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4510:                <div style={formGroup}><label style={label}>Adresas</label><in
+put style={inputBase} value={projectDraft.unloadingStreet || ""} onChange={(e) => updateFormData({ unloadingStreet: e.targe
+t.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4511:                <div style={formGroup}><label style={label}>Miestas *</label><
+input style={inputBase} value={projectDraft.unloadingCity || ""} onChange={(e) => { const unloadingCity = e.target.value; u
+pdateFormData({ unloadingCity, route: projectDraft.loadingCity && unloadingCity ? `${projectDraft.loadingCity} → ${unloadin
+gCity}` : "" }); }} /></div>
+> frontend\src\orders_settings_only.jsx:4512:                <div style={formGroup}><label style={label}>Pašto kodas</label
+><input style={inputBase} value={projectDraft.unloadingPostalCode || ""} onChange={(e) => updateFormData({ unloadingPostalC
+ode: e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4513:                <div style={formGroup}><label style={label}>Šalis</label><inpu
+t style={inputBase} value={projectDraft.unloadingCountry || ""} onChange={(e) => updateFormData({ unloadingCountry: e.targe
+t.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4514:                <div style={formGroup}><label style={label}>Kontaktas</label><
+input style={inputBase} value={projectDraft.unloadingContact || ""} onChange={(e) => updateFormData({ unloadingContact: e.t
+arget.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4515:                <div style={formGroup}><label style={label}>REF numeris</label
+><input style={inputBase} value={projectDraft.loadRefUnloading || ""} onChange={(e) => updateFormData({ loadRefUnloading: e
+.target.value })} placeholder="pvz. UNLOAD-001" /></div>
+> frontend\src\orders_settings_only.jsx:4516:                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label sty
+le={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.unloadingNotes || ""} onChange={(e) => 
+updateFormData({ unloadingNotes: e.target.value })} /></div>
+  frontend\src\orders_settings_only.jsx:4517:              </div>
+> frontend\src\orders_settings_only.jsx:4518:              <div style={{ ...formGroup, marginTop: "12px" }}><label style={l
+abel}>Maršrutas</label><input style={{ ...inputBase, background: "#f8fafc" }} value={projectDraft.route || ""} readOnly /><
+/div>
+  frontend\src\orders_settings_only.jsx:4519:            </div>
+  frontend\src\orders_settings_only.jsx:4520:
+  frontend\src\orders_settings_only.jsx:4525:                  <div style={{ ...formGroup, gridColumn: "span 2" }}>
+  frontend\src\orders_settings_only.jsx:4526:                    <label style={label}>Vežėjas *</label>
+> frontend\src\orders_settings_only.jsx:4527:                    <input style={{ ...inputBase, marginBottom: "10px" }} valu
+e={carrierPickerSearch} onChange={(e) => setCarrierPickerSearch(e.target.value)} placeholder="Ieškoti vežėjo..." />
+  frontend\src\orders_settings_only.jsx:4528:                    <div style={{ ...pickerGrid, maxHeight: "180px", overflowY
+: "auto", paddingRight: "4px" }}>
+  frontend\src\orders_settings_only.jsx:4529:                      {filteredCarrierOptions.map((carrier) => {
+> frontend\src\orders_settings_only.jsx:4530:                        const isActive = String(executionDraft.carrierId || ""
+) === String(carrier.id);
+  frontend\src\orders_settings_only.jsx:4531:                        return (
+  frontend\src\orders_settings_only.jsx:4532:                          <button
+  frontend\src\orders_settings_only.jsx:4538:                              setSelectedManagerId(firstManager ? String(first
+Manager.id) : "");
+  frontend\src\orders_settings_only.jsx:4539:                              updateFormData({
+> frontend\src\orders_settings_only.jsx:4540:                                carrierId: String(carrier.id),
+  frontend\src\orders_settings_only.jsx:4541:                                carrierName: carrier.name || "",
+  frontend\src\orders_settings_only.jsx:4542:                                carrierType: carrier.carrierType || "",
+  frontend\src\orders_settings_only.jsx:4559:                    </div>
+  frontend\src\orders_settings_only.jsx:4560:                  </div>
+> frontend\src\orders_settings_only.jsx:4561:                  <div style={formGroup}><label style={label}>Vežėjo vadybinin
+kas / kontaktas</label><input style={inputBase} value={executionDraft.contactName || ""} onChange={(e) => updateFormData({ 
+contactName: e.target.value })} placeholder="Kontaktinis asmuo" /></div>
+> frontend\src\orders_settings_only.jsx:4562:                  <div style={formGroup}><label style={label}>Vežėjo vairuotoj
+as</label><input style={inputBase} value={executionDraft.driverName || ""} onChange={(e) => updateFormData({ driverName: e.
+target.value })} placeholder="Vardas Pavardė" /></div>
+> frontend\src\orders_settings_only.jsx:4563:                  <div style={formGroup}><label style={label}>Vilkikas</label>
+<input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.truckPlate || ""} onChange={(e) => update
+FormData({ truckPlate: e.target.value.toUpperCase() })} placeholder="ABC123" /></div>
+> frontend\src\orders_settings_only.jsx:4564:                  <div style={formGroup}><label style={label}>Priekaba</label>
+<input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.trailerPlate || ""} onChange={(e) => upda
+teFormData({ trailerPlate: e.target.value.toUpperCase() })} placeholder="TRL501" /></div>
+> frontend\src\orders_settings_only.jsx:4565:                  <div style={formGroup}><label style={label}>Vežėjo kaina</la
+bel><input style={inputBase} type="number" step="0.01" value={executionDraft.carrierPrice || ""} onChange={(e) => updateFor
+mData({ carrierPrice: parseFloat(e.target.value) || 0 })} placeholder="1000.00" /></div>
+  frontend\src\orders_settings_only.jsx:4566:                </div>
+  frontend\src\orders_settings_only.jsx:4567:              ) : (
+  frontend\src\orders_settings_only.jsx:4568:                <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4569:                  <div style={formGroup}><label style={label}>Vairuotojas *</l
+abel><input style={inputBase} value={executionDraft.driverName || ""} onChange={(e) => updateFormData({ driverName: e.targe
+t.value })} placeholder="Vairuotojas" /></div>
+> frontend\src\orders_settings_only.jsx:4570:                  <div style={formGroup}><label style={label}>Vilkikas</label>
+<input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.truckPlate || ""} onChange={(e) => update
+FormData({ truckPlate: e.target.value.toUpperCase() })} placeholder="ABC123" /></div>
+> frontend\src\orders_settings_only.jsx:4571:                  <div style={formGroup}><label style={label}>Priekaba</label>
+<input style={{ ...inputBase, textTransform: "uppercase" }} value={executionDraft.trailerPlate || ""} onChange={(e) => upda
+teFormData({ trailerPlate: e.target.value.toUpperCase() })} placeholder="TRL501" /></div>
+> frontend\src\orders_settings_only.jsx:4572:                  <div style={formGroup}><label style={label}>Savikaina</label
+><input style={inputBase} type="number" step="0.01" value={executionDraft.executionCost || executionDraft.carrierPrice || "
+"} onChange={(e) => { const value = parseFloat(e.target.value) || 0; updateFormData({ executionCost: value, carrierPrice: v
+alue }); }} placeholder="850.00" /></div>
+  frontend\src\orders_settings_only.jsx:4573:                </div>
+  frontend\src\orders_settings_only.jsx:4574:              )}
+> frontend\src\orders_settings_only.jsx:4575:              {executionDraft.orderType === "resale_to_carrier" && (selectedCa
+rrier || executionDraft.carrierId) && (
+  frontend\src\orders_settings_only.jsx:4576:                <>
+  frontend\src\orders_settings_only.jsx:4577:                  {renderEntityHealthBlock({
+  frontend\src\orders_settings_only.jsx:4634:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight
+: 700, color: "#1e3a8a" }}>7. FINANSAI</div>
+  frontend\src\orders_settings_only.jsx:4635:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4636:                <div style={formGroup}><label style={label}>Kliento kaina</lab
+el><input style={inputBase} type="number" step="0.01" value={projectDraft.clientPrice || ""} onChange={(e) => updateFormDat
+a({ clientPrice: parseFloat(e.target.value) || 0 })} /></div>
+> frontend\src\orders_settings_only.jsx:4637:                <div style={formGroup}><label style={label}>{executionCostLabe
+l}</label><input style={inputBase} type="number" step="0.01" value={executionDraft.orderType === "own_transport" ? (executi
+onDraft.executionCost || executionDraft.carrierPrice || "") : (executionDraft.carrierPrice || "")} onChange={(e) => { const
+ value = parseFloat(e.target.value) || 0; updateFormData(executionDraft.orderType === "own_transport" ? { executionCost: va
+lue, carrierPrice: value } : { carrierPrice: value }); }} /></div>
+> frontend\src\orders_settings_only.jsx:4638:                <div style={formGroup}><label style={label}>PVM režimas</label
+><select style={inputBase} value={vatModeValue} onChange={(e) => { const newValue = e.target.options[e.target.selectedIndex
+].value; console.log('🔴 PVM select onChange:', newValue); updateFormData({ vatMode: newValue, carrierPriceWithVAT: newValu
+e === "with_vat" }); }}><option value="without_vat">Be PVM</option><option value="with_vat">Su PVM</option></select></div>
+  frontend\src\orders_settings_only.jsx:4639:                <div style={formGroup}><label style={label}>Automatinis pelnas
+</label><div style={{ ...inputBase, background: currentProfit >= 0 ? "#ecfdf5" : "#fef2f2", color: currentProfit >= 0 ? "#1
+66534" : "#991b1b", fontWeight: 700 }}>{currentProfit.toFixed(2)} EUR</div></div>
+  frontend\src\orders_settings_only.jsx:4640:              </div>
+  frontend\src\orders_settings_only.jsx:4647:              </div>
+  frontend\src\orders_settings_only.jsx:4648:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4649:                <div style={formGroup}><label style={label}>CMR (po vykdymo, o
+ptional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async (e) => { const file = e.
+target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ documents: { ...(proj
+ectDraft.documents || {}), cmr: dataUrl } }); }} /></div>
+> frontend\src\orders_settings_only.jsx:4650:                <div style={formGroup}><label style={label}>Kiti vykdymo dokum
+entai (optional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={async (e) =
+> { const file = e.target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ do
+cuments: { ...(projectDraft.documents || {}), pod: dataUrl } }); }} /></div>
+  frontend\src\orders_settings_only.jsx:4651:                <div style={formGroup}><label style={label}>Preview</label><bu
+tton type="button" style={{ ...btn, background: "#7c3aed" }} onClick={openPreviewFromDrafts}>Atidaryti preview</button></di
+v>
+> frontend\src\orders_settings_only.jsx:4652:                <div style={formGroup}><label style={label}>Originalai reikali
+ngi</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: e.
+target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></d
+iv>
+  frontend\src\orders_settings_only.jsx:4653:              </div>
+  frontend\src\orders_settings_only.jsx:4654:            </div>
+  frontend\src\orders_settings_only.jsx:4657:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight
+: 700, color: "#1e3a8a" }}>9. PASTABOS</div>
+  frontend\src\orders_settings_only.jsx:4658:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4659:                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label sty
+le={label}>Vidinės pastabos</label><textarea rows="3" style={inputBase} value={projectDraft.internalNotes || projectDraft.n
+otes || ""} onChange={(e) => updateFormData({ internalNotes: e.target.value, notes: e.target.value })} placeholder="Vidinės
+ komandos pastabos." /></div>
+> frontend\src\orders_settings_only.jsx:4660:                <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label sty
+le={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukcijos vežėjui"}</label><tex
+tarea rows="3" style={inputBase} value={executionDraft.instructions || ""} onChange={(e) => updateFormData({ instructions: 
+e.target.value })} placeholder="Instrukcijos vykdytojui." /></div>
+  frontend\src\orders_settings_only.jsx:4661:              </div>
+  frontend\src\orders_settings_only.jsx:4662:            </div>
+  frontend\src\orders_settings_only.jsx:4692:                <input
+  frontend\src\orders_settings_only.jsx:4693:                  style={{ ...inputBase, marginTop: "8px" }}
+> frontend\src\orders_settings_only.jsx:4694:                  value={clientPickerSearch}
+> frontend\src\orders_settings_only.jsx:4695:                  onChange={(e) => setClientPickerSearch(e.target.value)}
+  frontend\src\orders_settings_only.jsx:4696:                  placeholder="Ieškoti kliento pagal pavadinimą, kodą, PVM ar 
+email..."
+  frontend\src\orders_settings_only.jsx:4697:                />
+  frontend\src\orders_settings_only.jsx:4698:                <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "a
+uto", paddingRight: "4px", marginTop: "10px" }}>
+  frontend\src\orders_settings_only.jsx:4699:                  {filteredClientOptions.map((client) => {
+> frontend\src\orders_settings_only.jsx:4700:                    const isActive = String(projectDraft.clientId || "") === S
+tring(client.id);
+  frontend\src\orders_settings_only.jsx:4701:                    return (
+  frontend\src\orders_settings_only.jsx:4702:                      <button
+  frontend\src\orders_settings_only.jsx:4722:              <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4723:                <label style={label}>Kliento užsakymo numeris</label>
+> frontend\src\orders_settings_only.jsx:4724:                <input style={inputBase} value={projectDraft.clientOrderNumber
+ || ""} onChange={(e) => updateFormData({ clientOrderNumber: e.target.value })} placeholder="pvz. PO-2026-0042" />
+  frontend\src\orders_settings_only.jsx:4725:              </div>
+  frontend\src\orders_settings_only.jsx:4726:              <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4727:                <label style={label}>Kliento kaina (EUR) *</label>
+> frontend\src\orders_settings_only.jsx:4728:                <input style={inputBase} type="number" step="0.01" required va
+lue={projectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} pla
+ceholder="1200.00" />
+  frontend\src\orders_settings_only.jsx:4729:              </div>
+  frontend\src\orders_settings_only.jsx:4730:            </div>
+  frontend\src\orders_settings_only.jsx:4731:
+> frontend\src\orders_settings_only.jsx:4732:            {(projectDraft.clientId || projectDraft.clientName) && (
+  frontend\src\orders_settings_only.jsx:4733:              <div style={{ marginTop: "14px", padding: "12px 14px", backgroun
+d: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", fontSize: "12px", color: "#475569", lineHeight: 1.5 }}>
+  frontend\src\orders_settings_only.jsx:4734:                <div style={{ fontWeight: 700, color: "#0f172a", marginBottom:
+ "6px" }}>
+  frontend\src\orders_settings_only.jsx:4761:                  <input
+  frontend\src\orders_settings_only.jsx:4762:                    style={{ ...inputBase, marginTop: "8px" }}
+> frontend\src\orders_settings_only.jsx:4763:                    value={carrierPickerSearch}
+> frontend\src\orders_settings_only.jsx:4764:                    onChange={(e) => setCarrierPickerSearch(e.target.value)}
+  frontend\src\orders_settings_only.jsx:4765:                    placeholder="Ieškoti vežėjo pagal pavadinimą, kodą, PVM, e
+mail ar telefoną..."
+  frontend\src\orders_settings_only.jsx:4766:                  />
+  frontend\src\orders_settings_only.jsx:4767:                  <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: 
+"auto", paddingRight: "4px" }}>
+  frontend\src\orders_settings_only.jsx:4768:                    {filteredCarrierOptions.map((c) => {
+> frontend\src\orders_settings_only.jsx:4769:                        const isActive = String(executionDraft.carrierId || ""
+) === String(c.id);
+  frontend\src\orders_settings_only.jsx:4770:                        return (
+  frontend\src\orders_settings_only.jsx:4771:                          <button
+  frontend\src\orders_settings_only.jsx:4781:                              setSelectedDriverId("");
+  frontend\src\orders_settings_only.jsx:4782:                              updateFormData({
+> frontend\src\orders_settings_only.jsx:4783:                                carrierId: String(c.id),
+  frontend\src\orders_settings_only.jsx:4784:                                carrierName: c?.name || "",
+  frontend\src\orders_settings_only.jsx:4785:                                carrierType: c?.carrierType || "",
+  frontend\src\orders_settings_only.jsx:4812:                    </div>
+  frontend\src\orders_settings_only.jsx:4813:                  )}
+> frontend\src\orders_settings_only.jsx:4814:                  {(executionDraft.carrierId || executionDraft.carrierName) &&
+ (
+  frontend\src\orders_settings_only.jsx:4815:                    <div style={{ marginTop: "8px", padding: "10px 12px", back
+ground: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "12px", color: "#475569", lineHeight: 1.45 }
+}>
+  frontend\src\orders_settings_only.jsx:4816:                      <div style={{ fontWeight: 700, color: "#0f172a", marginB
+ottom: "4px" }}>
+  frontend\src\orders_settings_only.jsx:4849:                    </div>
+  frontend\src\orders_settings_only.jsx:4850:                  ) : null}
+> frontend\src\orders_settings_only.jsx:4851:                  {executionDraft.carrierId && selectedCarrierManagers.length 
+=== 0 && !quickAdd?.type && (
+  frontend\src\orders_settings_only.jsx:4852:                    <div style={{ marginTop: "8px", padding: "10px 12px", back
+ground: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "8px", fontSize: "12px", color: "#92400e", lineHeight: 1.45 }
+}>
+  frontend\src\orders_settings_only.jsx:4853:                      Šiam vežėjui vadybininkų sąrašo nėra. Kontaktus galite į
+vesti ranka žemiau arba pridėti naują vadybininką.
+  frontend\src\orders_settings_only.jsx:4854:                    </div>
+  frontend\src\orders_settings_only.jsx:4855:                  )}
+> frontend\src\orders_settings_only.jsx:4856:                  {executionDraft.carrierId && (
+  frontend\src\orders_settings_only.jsx:4857:                    <button
+  frontend\src\orders_settings_only.jsx:4858:                      type="button"
+  frontend\src\orders_settings_only.jsx:4870:                      <div style={{ fontWeight: 600, marginBottom: "8px", font
+Size: "13px", color: "#1e3a8a" }}>Naujas vadybininkas</div>
+  frontend\src\orders_settings_only.jsx:4871:                      <div style={{ display: "grid", gridTemplateColumns: "1fr
+ 1fr", gap: "8px" }}>
+> frontend\src\orders_settings_only.jsx:4872:                        <input style={inputBase} placeholder="Vardas Pavardė *
+" value={quickAdd.fields.name} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, name: e.target.value } }
+))} />
+> frontend\src\orders_settings_only.jsx:4873:                        <input style={inputBase} placeholder="Pareigos" value=
+{quickAdd.fields.position} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, position: e.target.value } }
+))} />
+> frontend\src\orders_settings_only.jsx:4874:                        <input style={inputBase} placeholder="Telefonas" value
+={quickAdd.fields.phone} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, phone: e.target.value } }))} /
+>
+> frontend\src\orders_settings_only.jsx:4875:                        <input style={inputBase} placeholder="El. paštas" valu
+e={quickAdd.fields.email} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, email: e.target.value } }))} 
+/>
+  frontend\src\orders_settings_only.jsx:4876:                      </div>
+  frontend\src\orders_settings_only.jsx:4877:                      <div style={{ display: "flex", gap: "8px", marginTop: "8
+px" }}>
+  frontend\src\orders_settings_only.jsx:4885:                  <div>
+  frontend\src\orders_settings_only.jsx:4886:                    <label style={label}>Vadybininko vardas</label>
+> frontend\src\orders_settings_only.jsx:4887:                    <input style={inputBase} value={executionDraft.contactName
+ || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactName: e.target.value }); }} placeholder="Jonas
+ Jonaitis" />
+  frontend\src\orders_settings_only.jsx:4888:                  </div>
+  frontend\src\orders_settings_only.jsx:4889:                  <div>
+  frontend\src\orders_settings_only.jsx:4890:                    <label style={label}>Vadybininko tel.</label>
+> frontend\src\orders_settings_only.jsx:4891:                    <input style={inputBase} value={executionDraft.contactPhon
+e || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactPhone: e.target.value }); }} placeholder="+37
+0 600 00000" />
+  frontend\src\orders_settings_only.jsx:4892:                  </div>
+  frontend\src\orders_settings_only.jsx:4893:                  <div>
+  frontend\src\orders_settings_only.jsx:4894:                    <label style={label}>Vadybininko el. paštas</label>
+> frontend\src\orders_settings_only.jsx:4895:                    <input style={inputBase} value={executionDraft.contactEmai
+l || ""} onChange={(e) => { setSelectedManagerId(""); updateFormData({ contactEmail: e.target.value }); }} placeholder="jon
+as@carrier.lt" />
+  frontend\src\orders_settings_only.jsx:4896:                  </div>
+  frontend\src\orders_settings_only.jsx:4897:                </div>
+  frontend\src\orders_settings_only.jsx:4904:                      step="0.01"
+  frontend\src\orders_settings_only.jsx:4905:                      required
+> frontend\src\orders_settings_only.jsx:4906:                      value={executionDraft.carrierPrice || ""}
+> frontend\src\orders_settings_only.jsx:4907:                      onChange={(e) => updateFormData({ carrierPrice: parseFlo
+at(e.target.value) || 0 })}
+  frontend\src\orders_settings_only.jsx:4908:                      placeholder="1000.00"
+  frontend\src\orders_settings_only.jsx:4909:                    />
+  frontend\src\orders_settings_only.jsx:4922:                        type="checkbox"
+  frontend\src\orders_settings_only.jsx:4923:                        checked={vatModeValue === "with_vat"}
+> frontend\src\orders_settings_only.jsx:4924:                        onChange={(e) => updateFormData({ vatMode: e.target.ch
+ecked ? "with_vat" : "without_vat", carrierPriceWithVAT: e.target.checked })}
+  frontend\src\orders_settings_only.jsx:4925:                      />
+  frontend\src\orders_settings_only.jsx:4926:                      */}
+  frontend\src\orders_settings_only.jsx:4933:                <div style={formGroup}>
+  frontend\src\orders_settings_only.jsx:4934:                  <label style={label}>Mokėjimo terminas vežėjui</label>
+> frontend\src\orders_settings_only.jsx:4935:                  <select
+  frontend\src\orders_settings_only.jsx:4936:                    style={inputBase}
+> frontend\src\orders_settings_only.jsx:4937:                    value={executionDraft.paymentTerm || "14 dienų"}
+> frontend\src\orders_settings_only.jsx:4938:                    onChange={(e) => updateFormData({ paymentTerm: e.target.va
+lue })}
+  frontend\src\orders_settings_only.jsx:4939:                  >
+  frontend\src\orders_settings_only.jsx:4940:                    {[
+  frontend\src\orders_settings_only.jsx:4955:                      "60 dienų"
+  frontend\src\orders_settings_only.jsx:4956:                    ].map((term) => (
+> frontend\src\orders_settings_only.jsx:4957:                      <option key={term} value={term}>
+  frontend\src\orders_settings_only.jsx:4958:                        {term}
+  frontend\src\orders_settings_only.jsx:4959:                        {term === "14 dienų" ? " (numatyta)" : ""}
+  frontend\src\orders_settings_only.jsx:4975:                    <input
+  frontend\src\orders_settings_only.jsx:4976:                      type="checkbox"
+> frontend\src\orders_settings_only.jsx:4977:                      checked={originalsRequiredValue === "required"}
+> frontend\src\orders_settings_only.jsx:4978:                      onChange={(e) => updateFormData({ originalsRequired: e.t
+arget.checked ? "required" : "not_required" })}
+  frontend\src\orders_settings_only.jsx:4979:                    />
+  frontend\src\orders_settings_only.jsx:4980:                    */}
+  frontend\src\orders_settings_only.jsx:5030:          <div style={{ marginTop: "16px" }}>
+  frontend\src\orders_settings_only.jsx:5031:            <h4 style={sectionTitle}>🚚 Krovinio informacija</h4>
+> frontend\src\orders_settings_only.jsx:5032:            <div style={formGrid}><div style={formGroup}><label style={label}>
+Krovinio tipas *</label><select style={inputBase} required value={projectDraft.cargoType || ""} onChange={(e) => { const va
+lue = e.target.value; value !== "custom" ? updateFormData({ cargoType: value, cargo: value }) : updateFormData({ cargoType:
+ value }); }}><option value="">Pasirinkite...</option><option value="Automobiliai">🚗 Automobiliai</option><option value="N
+eutralus krovinys">📦 Neutralus krovinys</option><option value="custom">✨ Kitas (įvesti rankiniu būdu)</option></select></d
+iv>{projectDraft.cargoType === "custom" && <div style={formGroup}><label style={label}>Krovinio pavadinimas *</label><input
+ style={inputBase} required value={projectDraft.cargo || ""} placeholder="pvz. Baldai, Padangos..." onChange={(e) => update
+FormData({ cargo: e.target.value })} /></div>}<div style={formGroup}><label style={label}>Automobilių skaičius</label><sele
+ct style={inputBase} value={projectDraft.vehicleCount || "1"} onChange={(e) => updateFormData({ vehicleCount: e.target.valu
+e })}>{[1,2,3,4,5,6,7,8,9,10].map((num) => <option key={num} value={String(num)}>{num} vnt.</option>)}</select></div><div s
+tyle={formGroup}><label style={label}>VIN numeriai (nebūtina)</label><textarea rows="3" style={{ ...inputBase, fontFamily: 
+"monospace", fontSize: "11px" }} value={projectDraft.vinNumbers || ""} placeholder="Įveskite VIN numerius, kiekvienas naujo
+je eilutėje" onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div></div>
+> frontend\src\orders_settings_only.jsx:5033:            <div style={{ marginTop: "16px", padding: "16px", background: "#f8
+fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Pakrovimo vieta (
+Siuntėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={in
+putBase} value={projectDraft.loadingCompanyName || ""} placeholder="pvz. BMW AG" onChange={(e) => updateFormData({ loadingC
+ompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase
+} required value={projectDraft.loadingCity || ""} placeholder="pvz. Hamburg" onChange={(e) => { const loadingCity = e.targe
+t.value; updateFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.
+unloadingCity}` : projectDraft.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir nr.</label><input 
+style={inputBase} value={projectDraft.loadingStreet || ""} placeholder="pvz. Hauptstraße 123" onChange={(e) => updateFormDa
+ta({ loadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas</label><input style=
+{inputBase} value={projectDraft.loadingPostalCode || ""} placeholder="pvz. 20095" onChange={(e) => updateFormData({ loading
+PostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (nebūtina)</label><input sty
+le={inputBase} value={projectDraft.loadingCoordinates || ""} placeholder="pvz. 53.551086, 9.993682" onChange={(e) => update
+FormData({ loadingCoordinates: e.target.value })} /></div></div></div>
+> frontend\src\orders_settings_only.jsx:5034:            <div style={{ marginTop: "12px", padding: "16px", background: "#f8
+fafc", borderRadius: "8px" }}><h5 style={{ marginBottom: "12px", color: "#1e3a8a", fontSize: "14px" }}>📨 Iškrovimo vieta (
+Gavėjas)</h5><div style={formGrid}><div style={formGroup}><label style={label}>Įmonės pavadinimas</label><input style={inpu
+tBase} value={projectDraft.unloadingCompanyName || ""} placeholder="pvz. UAB Automobiliai" onChange={(e) => updateFormData(
+{ unloadingCompanyName: e.target.value })} /></div><div style={formGroup}><label style={label}>Miestas *</label><input styl
+e={inputBase} required value={projectDraft.unloadingCity || ""} placeholder="pvz. Vilnius" onChange={(e) => { const unloadi
+ngCity = e.target.value; updateFormData({ unloadingCity, route: projectDraft.loadingCity && unloadingCity ? `${projectDraft
+.loadingCity} → ${unloadingCity}` : projectDraft.route }); }} /></div><div style={formGroup}><label style={label}>Gatvė ir 
+nr.</label><input style={inputBase} value={projectDraft.unloadingStreet || ""} placeholder="pvz. Gedimino pr. 1" onChange={
+(e) => updateFormData({ unloadingStreet: e.target.value })} /></div><div style={formGroup}><label style={label}>Pašto kodas
+</label><input style={inputBase} value={projectDraft.unloadingPostalCode || ""} placeholder="pvz. 01103" onChange={(e) => u
+pdateFormData({ unloadingPostalCode: e.target.value })} /></div><div style={formGroup}><label style={label}>Koordinatės (ne
+būtina)</label><input style={inputBase} value={projectDraft.unloadingCoordinates || ""} placeholder="pvz. 54.687157, 25.279
+652" onChange={(e) => updateFormData({ unloadingCoordinates: e.target.value })} /></div></div></div>
+> frontend\src\orders_settings_only.jsx:5035:            <div style={{ ...formGroup, marginTop: "12px" }}><label style={lab
+el}>Maršrutas (auto-generuojamas)</label><input style={{ ...inputBase, background: "#f8fafc", cursor: "not-allowed" }} valu
+e={projectDraft.route || ""} placeholder="Užpildykite adresus - maršrutas sugeneruosis automatiškai" readOnly /></div>
+  frontend\src\orders_settings_only.jsx:5036:          </div>
+  frontend\src\orders_settings_only.jsx:5037:          {executionDraft.orderType === "own_transport" && (
+  frontend\src\orders_settings_only.jsx:5065:                  </div>
+  frontend\src\orders_settings_only.jsx:5066:                )}
+> frontend\src\orders_settings_only.jsx:5067:                <input style={{ ...inputBase, textTransform: "uppercase" }} va
+lue={executionDraft.truckPlate || ""} placeholder="pvz. ABC123" onChange={(e) => { setSelectedTruckId(""); updateFormData({
+ truckPlate: e.target.value.toUpperCase() }); }} />
+  frontend\src\orders_settings_only.jsx:5068:                {ownFleetCarrier && selectedExecutionTrucks.length === 0 && (
+  frontend\src\orders_settings_only.jsx:5069:                  <button type="button" style={{ marginTop: "6px", background:
+ "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor
+: "pointer" }}
+  frontend\src\orders_settings_only.jsx:5074:                    <div style={{ fontWeight: 600, marginBottom: "8px", fontSi
+ze: "13px", color: "#1e3a8a" }}>Naujas vilkikas</div>
+  frontend\src\orders_settings_only.jsx:5075:                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1
+fr 80px", gap: "8px" }}>
+> frontend\src\orders_settings_only.jsx:5076:                      <input style={inputBase} placeholder="Valst. numeris *" 
+value={quickAdd.fields.licensePlate} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, licensePlate: e.ta
+rget.value } }))} />
+> frontend\src\orders_settings_only.jsx:5077:                      <input style={inputBase} placeholder="Modelis" value={qu
+ickAdd.fields.model} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, model: e.target.value } }))} />
+> frontend\src\orders_settings_only.jsx:5078:                      <input style={inputBase} placeholder="Metai" type="numbe
+r" value={quickAdd.fields.year} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, year: e.target.value } 
+}))} />
+  frontend\src\orders_settings_only.jsx:5079:                    </div>
+  frontend\src\orders_settings_only.jsx:5080:                    <div style={{ display: "flex", gap: "8px", marginTop: "8px
+" }}>
+  frontend\src\orders_settings_only.jsx:5111:                  </div>
+  frontend\src\orders_settings_only.jsx:5112:                )}
+> frontend\src\orders_settings_only.jsx:5113:                <input style={{ ...inputBase, textTransform: "uppercase" }} va
+lue={executionDraft.trailerPlate || ""} placeholder="pvz. XYZ789" onChange={(e) => { setSelectedTrailerId(""); updateFormDa
+ta({ trailerPlate: e.target.value.toUpperCase() }); }} />
+  frontend\src\orders_settings_only.jsx:5114:                {ownFleetCarrier && selectedExecutionTrailers.length === 0 && 
+(
+  frontend\src\orders_settings_only.jsx:5115:                  <button type="button" style={{ marginTop: "6px", background:
+ "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor
+: "pointer" }}
+  frontend\src\orders_settings_only.jsx:5120:                    <div style={{ fontWeight: 600, marginBottom: "8px", fontSi
+ze: "13px", color: "#1e3a8a" }}>Nauja priekaba</div>
+  frontend\src\orders_settings_only.jsx:5121:                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1
+fr 80px", gap: "8px" }}>
+> frontend\src\orders_settings_only.jsx:5122:                      <input style={inputBase} placeholder="Valst. numeris *" 
+value={quickAdd.fields.licensePlate} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, licensePlate: e.ta
+rget.value } }))} />
+> frontend\src\orders_settings_only.jsx:5123:                      <input style={inputBase} placeholder="Modelis" value={qu
+ickAdd.fields.model} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, model: e.target.value } }))} />
+> frontend\src\orders_settings_only.jsx:5124:                      <input style={inputBase} placeholder="Metai" type="numbe
+r" value={quickAdd.fields.year} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, year: e.target.value } 
+}))} />
+  frontend\src\orders_settings_only.jsx:5125:                    </div>
+  frontend\src\orders_settings_only.jsx:5126:                    <div style={{ display: "flex", gap: "8px", marginTop: "8px
+" }}>
+  frontend\src\orders_settings_only.jsx:5157:                  </div>
+  frontend\src\orders_settings_only.jsx:5158:                )}
+> frontend\src\orders_settings_only.jsx:5159:                <input style={inputBase} value={executionDraft.driverName || "
+"} placeholder="pvz. Jonas Jonaitis" onChange={(e) => { setSelectedDriverId(""); updateFormData({ driverName: e.target.valu
+e }); }} />
+  frontend\src\orders_settings_only.jsx:5160:                {ownFleetCarrier && selectedExecutionDrivers.length === 0 && (
+  frontend\src\orders_settings_only.jsx:5161:                  <button type="button" style={{ marginTop: "6px", background:
+ "none", border: "1px dashed #93c5fd", color: "#2563eb", borderRadius: "6px", padding: "4px 10px", fontSize: "12px", cursor
+: "pointer" }}
+  frontend\src\orders_settings_only.jsx:5166:                    <div style={{ fontWeight: 600, marginBottom: "8px", fontSi
+ze: "13px", color: "#1e3a8a" }}>Naujas vairuotojas</div>
+  frontend\src\orders_settings_only.jsx:5167:                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1
+fr", gap: "8px" }}>
+> frontend\src\orders_settings_only.jsx:5168:                      <input style={inputBase} placeholder="Vardas Pavardė *" 
+value={quickAdd.fields.name} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, name: e.target.value } }))
+} />
+> frontend\src\orders_settings_only.jsx:5169:                      <input style={inputBase} placeholder="Telefonas" value={
+quickAdd.fields.phone} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...q.fields, phone: e.target.value } }))} />
+> frontend\src\orders_settings_only.jsx:5170:                      <input style={{ ...inputBase, gridColumn: "1 / -1" }} pl
+aceholder="Pažymėjimo Nr." value={quickAdd.fields.licenseNumber} onChange={(e) => setQuickAdd((q) => ({ ...q, fields: { ...
+q.fields, licenseNumber: e.target.value } }))} />
+  frontend\src\orders_settings_only.jsx:5171:                    </div>
+  frontend\src\orders_settings_only.jsx:5172:                    <div style={{ display: "flex", gap: "8px", marginTop: "8px
+" }}>
+  frontend\src\orders_settings_only.jsx:5183:            D. Datos ir vykdymo instrukcijos
+  frontend\src\orders_settings_only.jsx:5184:          </div>
+> frontend\src\orders_settings_only.jsx:5185:          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos
+</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} typ
+e="date" required value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} 
+/></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required v
+alue={projectDraft.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{
+projectDraft.loadingDate && projectDraft.unloadingDate && (() => { const start = new Date(projectDraft.loadingDate); const 
+end = new Date(projectDraft.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div styl
+e={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3
+b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "dien
+a" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrov
+imo!</span>}</div>; })()}</div>
+> frontend\src\orders_settings_only.jsx:5186:          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papil
+doma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label
+><input style={inputBase} value={projectDraft.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => update
+FormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovi
+mui)</label><input style={inputBase} value={projectDraft.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={
+(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}
+><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontF
+amily: "monospace", fontSize: "12px" }} value={projectDraft.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA98765
+43210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, margin
+Top: "12px" }}><label style={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukci
+jos vežėjui"}</label><textarea rows="3" style={inputBase} value={executionDraft.instructions || ""} placeholder="pvz. Skamb
+inti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.val
+ue })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokum
+entai</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: 
+e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select><
+/div><div style={formGroup}><label style={label}>Statusas</label><select style={inputBase} value={executionDraft.status || 
+"new"} onChange={(e) => updateFormData({ status: e.target.value })}>{Object.entries(STATUS_MAP).filter(([k]) => !["active",
+"draft","generated"].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div></div><div s
+tyle={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value=
+{projectDraft.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })}
+ /></div></div>
+> frontend\src\orders_settings_only.jsx:5187:          {executionDraft.orderType === "resale_to_carrier" && executionDraft.
+carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: 
+"pointer" }}><input type="checkbox" checked={executionDraft.sendToCarrier !== false} onChange={(e) => updateFormData({ send
+ToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
+  frontend\src\orders_settings_only.jsx:5188:
+  frontend\src\orders_settings_only.jsx:5189:          <div style={{ marginTop: "20px", marginBottom: "10px", fontSize: "15
+px", fontWeight: 700, color: "#1e3a8a" }}>
+  frontend\src\orders_settings_only.jsx:5196:              <label style={{ ...label, marginBottom: "10px", display: "block"
+ }}>📄 Generuoti dokumentą iš šablono</label>
+  frontend\src\orders_settings_only.jsx:5197:              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", al
+ignItems: "center" }}>
+> frontend\src\orders_settings_only.jsx:5198:                <select
+  frontend\src\orders_settings_only.jsx:5199:                  style={{ ...inputBase, flex: 1, minWidth: "200px" }}
+> frontend\src\orders_settings_only.jsx:5200:                  value={executionDraft._selectedTemplateId || ""}
+> frontend\src\orders_settings_only.jsx:5201:                  onChange={(e) => updateFormData({ _selectedTemplateId: e.tar
+get.value })}
+  frontend\src\orders_settings_only.jsx:5202:                >
+> frontend\src\orders_settings_only.jsx:5203:                  <option value="">Pasirinkite šabloną...</option>
+  frontend\src\orders_settings_only.jsx:5204:                  {settings.templates.map((t) => (
+> frontend\src\orders_settings_only.jsx:5205:                    <option key={t.id} value={t.id}>{t.name}{t.isDefault ? " ★
+" : ""}</option>
+  frontend\src\orders_settings_only.jsx:5206:                  ))}
+  frontend\src\orders_settings_only.jsx:5207:                </select>
+  frontend\src\orders_settings_only.jsx:5246:          </div>
+  frontend\src\orders_settings_only.jsx:5247:          <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:5248:            <div style={formGroup}><label style={label}>Pavadinimas *</label><
+input style={inputBase} value={newClientDraft.name} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, name: e.target
+.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5249:            <div style={formGroup}><label style={label}>Įmonės kodas</label><i
+nput style={inputBase} value={newClientDraft.companyCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, companyC
+ode: e.target.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5250:            <div style={formGroup}><label style={label}>PVM kodas</label><inpu
+t style={inputBase} value={newClientDraft.vatCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, vatCode: e.targ
+et.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5251:            <div style={formGroup}><label style={label}>El. paštas</label><inp
+ut style={inputBase} value={newClientDraft.email} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, email: e.target.
+value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5252:            <div style={formGroup}><label style={label}>Telefonas</label><inpu
+t style={inputBase} value={newClientDraft.phone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, phone: e.target.v
+alue }))} /></div>
+> frontend\src\orders_settings_only.jsx:5253:            <div style={formGroup}><label style={label}>Adresas</label><input 
+style={inputBase} value={newClientDraft.address} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, address: e.target
+.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5254:            <div style={formGroup}><label style={label}>Kontaktinis asmuo</lab
+el><input style={inputBase} value={newClientDraft.contactName} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, con
+tactName: e.target.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5255:            <div style={formGroup}><label style={label}>Kontaktinis el. paštas
+</label><input style={inputBase} value={newClientDraft.contactEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...pre
+v, contactEmail: e.target.value }))} /></div>
+> frontend\src\orders_settings_only.jsx:5256:            <div style={formGroup}><label style={label}>Kontaktinis telefonas<
+/label><input style={inputBase} value={newClientDraft.contactPhone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev
+, contactPhone: e.target.value }))} /></div>
+  frontend\src\orders_settings_only.jsx:5257:          </div>
+  frontend\src\orders_settings_only.jsx:5258:          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10p
+x", marginTop: "20px" }}>
+  frontend\src\orders_settings_only.jsx:5274:          {entityEditModal.entityType === "client" && (
+  frontend\src\orders_settings_only.jsx:5275:            <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:5276:              <div style={formGroup}><label style={label}>Pavadinimas</label><
+input style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.va
+lue)} /></div>
+> frontend\src\orders_settings_only.jsx:5277:              <div style={formGroup}><label style={label}>Įmonės kodas</label>
+<input style={inputBase} value={entityEditModal.draft.companyCode || ""} onChange={(e) => updateEntityEditDraft("companyCod
+e", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5278:              <div style={formGroup}><label style={label}>PVM kodas</label><in
+put style={inputBase} value={entityEditModal.draft.vatCode || ""} onChange={(e) => updateEntityEditDraft("vatCode", e.targe
+t.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5279:              <div style={formGroup}><label style={label}>Email</label><input 
+style={inputBase} value={entityEditModal.draft.email || ""} onChange={(e) => updateEntityEditDraft("email", e.target.value)
+} /></div>
+> frontend\src\orders_settings_only.jsx:5280:              <div style={formGroup}><label style={label}>Telefonas</label><in
+put style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.target.va
+lue)} /></div>
+> frontend\src\orders_settings_only.jsx:5281:              <div style={formGroup}><label style={label}>Adresas</label><inpu
+t style={inputBase} value={entityEditModal.draft.address || ""} onChange={(e) => updateEntityEditDraft("address", e.target.
+value)} /></div>
+> frontend\src\orders_settings_only.jsx:5282:              <div style={formGroup}><label style={label}>Numatytasis kontakta
+s</label><input style={inputBase} value={entityEditModal.draft.contactName || ""} onChange={(e) => updateEntityEditDraft("c
+ontactName", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5283:              <div style={formGroup}><label style={label}>Kontakto email</labe
+l><input style={inputBase} value={entityEditModal.draft.contactEmail || ""} onChange={(e) => updateEntityEditDraft("contact
+Email", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5284:              <div style={formGroup}><label style={label}>Kontakto telefonas</
+label><input style={inputBase} value={entityEditModal.draft.contactPhone || ""} onChange={(e) => updateEntityEditDraft("con
+tactPhone", e.target.value)} /></div>
+  frontend\src\orders_settings_only.jsx:5285:            </div>
+  frontend\src\orders_settings_only.jsx:5286:          )}
+  frontend\src\orders_settings_only.jsx:5288:          {entityEditModal.entityType === "carrier" && (
+  frontend\src\orders_settings_only.jsx:5289:            <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:5290:              <div style={formGroup}><label style={label}>Pavadinimas</label><
+input style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.va
+lue)} /></div>
+> frontend\src\orders_settings_only.jsx:5291:              <div style={formGroup}><label style={label}>Įmonės kodas</label>
+<input style={inputBase} value={entityEditModal.draft.companyCode || ""} onChange={(e) => updateEntityEditDraft("companyCod
+e", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5292:              <div style={formGroup}><label style={label}>PVM kodas</label><in
+put style={inputBase} value={entityEditModal.draft.vatCode || ""} onChange={(e) => updateEntityEditDraft("vatCode", e.targe
+t.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5293:              <div style={formGroup}><label style={label}>Email</label><input 
+style={inputBase} value={entityEditModal.draft.email || ""} onChange={(e) => updateEntityEditDraft("email", e.target.value)
+} /></div>
+> frontend\src\orders_settings_only.jsx:5294:              <div style={formGroup}><label style={label}>Telefonas</label><in
+put style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.target.va
+lue)} /></div>
+> frontend\src\orders_settings_only.jsx:5295:              <div style={formGroup}><label style={label}>Adresas</label><inpu
+t style={inputBase} value={entityEditModal.draft.address || ""} onChange={(e) => updateEntityEditDraft("address", e.target.
+value)} /></div>
+> frontend\src\orders_settings_only.jsx:5296:              <div style={formGroup}><label style={label}>Numatytasis kontakta
+s</label><input style={inputBase} value={entityEditModal.draft.contactName || ""} onChange={(e) => updateEntityEditDraft("c
+ontactName", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5297:              <div style={formGroup}><label style={label}>Kontakto email</labe
+l><input style={inputBase} value={entityEditModal.draft.contactEmail || ""} onChange={(e) => updateEntityEditDraft("contact
+Email", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5298:              <div style={formGroup}><label style={label}>Kontakto telefonas</
+label><input style={inputBase} value={entityEditModal.draft.contactPhone || ""} onChange={(e) => updateEntityEditDraft("con
+tactPhone", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5299:              <div style={formGroup}><label style={label}>CMR galioja iki</lab
+el><input style={inputBase} type="date" value={entityEditModal.draft.cmrExpiry || ""} onChange={(e) => updateEntityEditDraf
+t("cmrExpiry", e.target.value)} /></div>
+> frontend\src\orders_settings_only.jsx:5300:              <div style={formGroup}><label style={label}>Licenzija galioja ik
+i</label><input style={inputBase} type="date" value={entityEditModal.draft.licenseExpiry || ""} onChange={(e) => updateEnti
+tyEditDraft("licenseExpiry", e.target.value)} /></div>
+  frontend\src\orders_settings_only.jsx:5301:            </div>
+  frontend\src\orders_settings_only.jsx:5302:          )}
+  frontend\src\orders_settings_only.jsx:5306:              {(entityEditModal.entityType === "driver") ? (
+  frontend\src\orders_settings_only.jsx:5307:                <>
+> frontend\src\orders_settings_only.jsx:5308:                  <div style={formGroup}><label style={label}>Vardas</label><i
+nput style={inputBase} value={entityEditModal.draft.name || ""} onChange={(e) => updateEntityEditDraft("name", e.target.val
+ue)} /></div>
+> frontend\src\orders_settings_only.jsx:5309:                  <div style={formGroup}><label style={label}>Telefonas</label
+><input style={inputBase} value={entityEditModal.draft.phone || ""} onChange={(e) => updateEntityEditDraft("phone", e.targe
+t.value)} /></div>
+  frontend\src\orders_settings_only.jsx:5310:                </>
+  frontend\src\orders_settings_only.jsx:5311:              ) : (
+  frontend\src\orders_settings_only.jsx:5312:                <>
+> frontend\src\orders_settings_only.jsx:5313:                  <div style={formGroup}><label style={label}>Valst. numeris</
+label><input style={inputBase} value={entityEditModal.draft.licensePlate || ""} onChange={(e) => updateEntityEditDraft("lic
+ensePlate", e.target.value.toUpperCase())} /></div>
+> frontend\src\orders_settings_only.jsx:5314:                  <div style={formGroup}><label style={label}>Statusas</label>
+<input style={inputBase} value={entityEditModal.draft.status || ""} onChange={(e) => updateEntityEditDraft("status", e.targ
+et.value)} placeholder="pvz. active" /></div>
+> frontend\src\orders_settings_only.jsx:5315:                  <div style={formGroup}><label style={label}>Modelis</label><
+input style={inputBase} value={entityEditModal.draft.model || ""} onChange={(e) => updateEntityEditDraft("model", e.target.
+value)} /></div>
+  frontend\src\orders_settings_only.jsx:5316:                </>
+  frontend\src\orders_settings_only.jsx:5317:              )}
+  frontend\src\App.jsx:352:  const importFileRef = useRef(null);
+  frontend\src\App.jsx:353:
+> frontend\src\App.jsx:354:  const [selectedClientId, setSelectedClientId] = useState(null);
+> frontend\src\App.jsx:355:  const [selectedCarrierId, setSelectedCarrierId] = useState(null);
+  frontend\src\App.jsx:356:  const [selectedCarrierDocument, setSelectedCarrierDocument] = useState(null);
+  frontend\src\App.jsx:357:
+  frontend\src\App.jsx:358:  const [showClientModal, setShowClientModal] = useState(false);
+  frontend\src\App.jsx:359:  const [showClientProfile, setShowClientProfile] = useState(false);
+> frontend\src\App.jsx:360:  const [editingClientId, setEditingClientId] = useState(null);
+  frontend\src\App.jsx:361:
+  frontend\src\App.jsx:362:  const [showCarrierModal, setShowCarrierModal] = useState(false);
+  frontend\src\App.jsx:363:  const [showCarrierProfile, setShowCarrierProfile] = useState(false);
+  frontend\src\App.jsx:364:  const [showCarrierDocumentModal, setShowCarrierDocumentModal] = useState(false);
+> frontend\src\App.jsx:365:  const [editingCarrierId, setEditingCarrierId] = useState(null);
+  frontend\src\App.jsx:366:  const [showOrderModal, setShowOrderModal] = useState(false);
+  frontend\src\App.jsx:367:  const [orderModalType, setOrderModalType] = useState("order");
+  frontend\src\App.jsx:1038:    registryOrdersForView.forEach((order) => {
+  frontend\src\App.jsx:1039:      const keys = [
+> frontend\src\App.jsx:1040:        order.carrierId ? `id:${String(order.carrierId)}` : null,
+  frontend\src\App.jsx:1041:        order.carrierName ? `name:${String(order.carrierName).trim().toLowerCase()}` : null,
+  frontend\src\App.jsx:1042:      ].filter(Boolean);
+  frontend\src\App.jsx:1054:    registryOrdersForView.forEach((order) => {
+  frontend\src\App.jsx:1055:      const keys = [
+> frontend\src\App.jsx:1056:        order.clientId ? `id:${String(order.clientId)}` : null,
+  frontend\src\App.jsx:1057:        order.clientName ? `name:${String(order.clientName).trim().toLowerCase()}` : null,
+  frontend\src\App.jsx:1058:      ].filter(Boolean);
+  frontend\src\App.jsx:1145:
+  frontend\src\App.jsx:1146:  const selectedClient = useMemo(() => {
+> frontend\src\App.jsx:1147:    const found = clients.find(c => String(c.id) === String(selectedClientId));
+  frontend\src\App.jsx:1148:    if (!found) return null;
+  frontend\src\App.jsx:1149:    return normalizeClientRecord(found);
+> frontend\src\App.jsx:1150:  }, [clients, selectedClientId]);
+  frontend\src\App.jsx:1151:
+  frontend\src\App.jsx:1152:  const selectedCarrier = useMemo(() => {
+> frontend\src\App.jsx:1153:    const found = carriers.find(c => String(c.id) === String(selectedCarrierId));
+  frontend\src\App.jsx:1154:    if (!found) return null;
+  frontend\src\App.jsx:1155:    return normalizeCarrierRecord(found);
+> frontend\src\App.jsx:1156:  }, [carriers, selectedCarrierId]);
+  frontend\src\App.jsx:1157:
+  frontend\src\App.jsx:1158:  const saveClients = (next) => {
+  frontend\src\App.jsx:1191:
+  frontend\src\App.jsx:1192:  const openNewClientModal = () => {
+> frontend\src\App.jsx:1193:    setEditingClientId(null);
+  frontend\src\App.jsx:1194:    setClientForm(normalizeClientRecord(emptyClientForm));
+  frontend\src\App.jsx:1195:    setShowClientModal(true);
+  frontend\src\App.jsx:1197:
+  frontend\src\App.jsx:1198:  const openEditClientModal = (client) => {
+> frontend\src\App.jsx:1199:    setEditingClientId(client.id);
+  frontend\src\App.jsx:1200:    setClientForm(normalizeClientRecord(client));
+  frontend\src\App.jsx:1201:    setShowClientModal(true);
+  frontend\src\App.jsx:1203:
+  frontend\src\App.jsx:1204:  const openNewCarrierModal = () => {
+> frontend\src\App.jsx:1205:    setEditingCarrierId(null);
+  frontend\src\App.jsx:1206:    setCarrierForm(normalizeCarrierRecord(emptyCarrierForm));
+  frontend\src\App.jsx:1207:    setShowCarrierModal(true);
+  frontend\src\App.jsx:1209:
+  frontend\src\App.jsx:1210:  const openEditCarrierModal = (carrier) => {
+> frontend\src\App.jsx:1211:    setEditingCarrierId(carrier.id);
+  frontend\src\App.jsx:1212:    setCarrierForm(normalizeCarrierRecord(carrier));
+  frontend\src\App.jsx:1213:    setShowCarrierModal(true);
+  frontend\src\App.jsx:1243:  };
+  frontend\src\App.jsx:1244:
+> frontend\src\App.jsx:1245:  const openCarrierProfile = (carrierId) => {
+> frontend\src\App.jsx:1246:    setSelectedCarrierId(carrierId);
+  frontend\src\App.jsx:1247:    setShowCarrierProfile(true);
+  frontend\src\App.jsx:1248:  };
+  frontend\src\App.jsx:1264:
+  frontend\src\App.jsx:1265:  const openCarrierDocumentModal = (carrier, doc) => {
+> frontend\src\App.jsx:1266:    setSelectedCarrierId(carrier.id);
+  frontend\src\App.jsx:1267:
+  frontend\src\App.jsx:1268:    setSelectedCarrierDocument({
+  frontend\src\App.jsx:1274:  };
+  frontend\src\App.jsx:1275:
+> frontend\src\App.jsx:1276:  const handleDeleteCarrier = (carrierId) => {
+> frontend\src\App.jsx:1277:    const carrier = carriers.find(item => item.id === carrierId);
+  frontend\src\App.jsx:1278:    const usageCount =
+> frontend\src\App.jsx:1279:      carrierUsageMap.get(`id:${String(carrierId)}`) ||
+  frontend\src\App.jsx:1280:      carrierUsageMap.get(`name:${String(carrier?.name || "").trim().toLowerCase()}`) ||
+  frontend\src\App.jsx:1281:      0;
+  frontend\src\App.jsx:1287:    if (!confirmed) return;
+  frontend\src\App.jsx:1288:
+> frontend\src\App.jsx:1289:    const next = carriers.filter(item => item.id !== carrierId);
+  frontend\src\App.jsx:1290:    saveCarriers(next);
+  frontend\src\App.jsx:1291:
+> frontend\src\App.jsx:1292:    if (String(selectedCarrierId) === String(carrierId)) {
+> frontend\src\App.jsx:1293:      setSelectedCarrierId(null);
+  frontend\src\App.jsx:1294:      setShowCarrierProfile(false);
+  frontend\src\App.jsx:1295:    }
+  frontend\src\App.jsx:1566:    const trimmedName = clientForm.name.trim();
+  frontend\src\App.jsx:1567:    const duplicateClient = clients.find((client) =>
+> frontend\src\App.jsx:1568:      client.id !== editingClientId &&
+  frontend\src\App.jsx:1569:      String(client.name || "").trim().toLowerCase() === trimmedName.toLowerCase()
+  frontend\src\App.jsx:1570:    );
+  frontend\src\App.jsx:1575:    }
+  frontend\src\App.jsx:1576:
+> frontend\src\App.jsx:1577:    if (editingClientId) {
+  frontend\src\App.jsx:1578:      const next = clients.map(client =>
+> frontend\src\App.jsx:1579:        client.id === editingClientId
+  frontend\src\App.jsx:1580:          ? {
+  frontend\src\App.jsx:1581:              ...client,
+  frontend\src\App.jsx:1603:
+  frontend\src\App.jsx:1604:    setClientForm(normalizeClientRecord(emptyClientForm));
+> frontend\src\App.jsx:1605:    setEditingClientId(null);
+  frontend\src\App.jsx:1606:    setShowClientModal(false);
+  frontend\src\App.jsx:1607:  };
+  frontend\src\App.jsx:1608:
+> frontend\src\App.jsx:1609:  const handleDeleteClient = (clientId) => {
+> frontend\src\App.jsx:1610:    const client = clients.find((item) => String(item.id) === String(clientId));
+  frontend\src\App.jsx:1611:    if (!client) return;
+  frontend\src\App.jsx:1612:
+  frontend\src\App.jsx:1623:    if (!confirmed) return;
+  frontend\src\App.jsx:1624:
+> frontend\src\App.jsx:1625:    const next = clients.filter((item) => String(item.id) !== String(clientId));
+  frontend\src\App.jsx:1626:    saveClients(next);
+  frontend\src\App.jsx:1627:
+> frontend\src\App.jsx:1628:    if (String(selectedClientId) === String(clientId)) {
+> frontend\src\App.jsx:1629:      setSelectedClientId(null);
+  frontend\src\App.jsx:1630:      setShowClientProfile(false);
+  frontend\src\App.jsx:1631:    }
+  frontend\src\App.jsx:1655:    const trimmedName = carrierForm.name.trim();
+  frontend\src\App.jsx:1656:    const duplicateCarrier = carriers.find((carrier) =>
+> frontend\src\App.jsx:1657:      carrier.id !== editingCarrierId &&
+  frontend\src\App.jsx:1658:      String(carrier.name || "").trim().toLowerCase() === trimmedName.toLowerCase()
+  frontend\src\App.jsx:1659:    );
+  frontend\src\App.jsx:1664:    }
+  frontend\src\App.jsx:1665:
+> frontend\src\App.jsx:1666:    if (editingCarrierId) {
+  frontend\src\App.jsx:1667:      const next = carriers.map(carrier =>
+> frontend\src\App.jsx:1668:        carrier.id === editingCarrierId
+  frontend\src\App.jsx:1669:          ? {
+  frontend\src\App.jsx:1670:              ...carrier,
+  frontend\src\App.jsx:1702:
+  frontend\src\App.jsx:1703:    setCarrierForm(normalizeCarrierRecord(emptyCarrierForm));
+> frontend\src\App.jsx:1704:    setEditingCarrierId(null);
+  frontend\src\App.jsx:1705:    setShowCarrierModal(false);
+  frontend\src\App.jsx:1706:  };
+  frontend\src\App.jsx:1707:
+> frontend\src\App.jsx:1708:  const openClientProfile = (clientId) => {
+> frontend\src\App.jsx:1709:    setSelectedClientId(clientId);
+  frontend\src\App.jsx:1710:    setShowClientProfile(true);
+  frontend\src\App.jsx:1711:  };
+  frontend\src\App.jsx:2799:              type="text"
+  frontend\src\App.jsx:2800:              placeholder="Ieškoti pagal pavadinimą, kodą, PVM ar el. paštą..."
+> frontend\src\App.jsx:2801:              value={clientSearch}
+> frontend\src\App.jsx:2802:              onChange={(e) => setClientSearch(e.target.value)}
+  frontend\src\App.jsx:2803:              style={{ width: "100%", padding: "9px 14px", fontSize: "14px", border: "1px solid
+ #cbd5e1", borderRadius: "6px", outline: "none", boxSizing: "border-box" }}
+  frontend\src\App.jsx:2804:            />
+  frontend\src\App.jsx:2916:            type="text"
+  frontend\src\App.jsx:2917:            placeholder="Ieškoti pagal pavadinimą, kodą, PVM ar miestą..."
+> frontend\src\App.jsx:2918:            value={carrierSearch}
+> frontend\src\App.jsx:2919:            onChange={(e) => setCarrierSearch(e.target.value)}
+  frontend\src\App.jsx:2920:            style={{ width: "100%", padding: "9px 14px", fontSize: "14px", border: "1px solid #
+cbd5e1", borderRadius: "6px", outline: "none", boxSizing: "border-box" }}
+  frontend\src\App.jsx:2921:          />
+  frontend\src\App.jsx:3376:              accept=".csv,.xlsx,.xls"
+  frontend\src\App.jsx:3377:              style={{ display: "none" }}
+> frontend\src\App.jsx:3378:              onChange={handleImportFile}
+  frontend\src\App.jsx:3379:            />
+  frontend\src\App.jsx:3380:            <button
+  frontend\src\App.jsx:3402:            type="text"
+  frontend\src\App.jsx:3403:            placeholder="Ieškoti pagal pavadinimą, šalį, miestą ar kodą..."
+> frontend\src\App.jsx:3404:            value={importSearch}
+> frontend\src\App.jsx:3405:            onChange={(e) => setImportSearch(e.target.value)}
+  frontend\src\App.jsx:3406:            style={{
+  frontend\src\App.jsx:3407:              width: "100%",
+  frontend\src\App.jsx:3771:            <div style={modalHeader}>
+  frontend\src\App.jsx:3772:              <h2 style={{ margin: 0, color: "#1e3a8a" }}>
+> frontend\src\App.jsx:3773:                {editingClientId ? "Redaguoti klientą" : "Naujas klientas"}
+  frontend\src\App.jsx:3774:              </h2>
+  frontend\src\App.jsx:3775:              <button onClick={() => setShowClientModal(false)} style={closeButton}>✕</button>
+  frontend\src\App.jsx:3780:              <div style={formGroup}>
+  frontend\src\App.jsx:3781:                <label style={labelStyle}>Pavadinimas *</label>
+> frontend\src\App.jsx:3782:                <input style={inputStyle} value={clientForm.name} onChange={(e) => handleClient
+FieldChange("name", e.target.value)} />
+  frontend\src\App.jsx:3783:              </div>
+  frontend\src\App.jsx:3784:              <div style={formGroup}>
+  frontend\src\App.jsx:3785:                <label style={labelStyle}>Kliento tipas</label>
+> frontend\src\App.jsx:3786:                <select style={inputStyle} value={clientForm.clientType} onChange={(e) => handl
+eClientFieldChange("clientType", e.target.value)}>
+  frontend\src\App.jsx:3787:                  <option>Ekspeditorius</option>
+  frontend\src\App.jsx:3788:                  <option>Tiesioginis klientas</option>
+  frontend\src\App.jsx:3791:              <div style={formGroup}>
+  frontend\src\App.jsx:3792:                <label style={labelStyle}>Įmonės kodas</label>
+> frontend\src\App.jsx:3793:                <input style={inputStyle} value={clientForm.companyCode} onChange={(e) => handl
+eClientFieldChange("companyCode", e.target.value)} />
+  frontend\src\App.jsx:3794:              </div>
+  frontend\src\App.jsx:3795:              <div style={formGroup}>
+  frontend\src\App.jsx:3796:                <label style={labelStyle}>PVM kodas</label>
+> frontend\src\App.jsx:3797:                <input style={inputStyle} value={clientForm.vatCode} onChange={(e) => handleCli
+entFieldChange("vatCode", e.target.value)} />
+  frontend\src\App.jsx:3798:              </div>
+  frontend\src\App.jsx:3799:              <div style={formGroup}>
+  frontend\src\App.jsx:3800:                <label style={labelStyle}>Bendras el. paštas</label>
+> frontend\src\App.jsx:3801:                <input style={inputStyle} value={clientForm.email} onChange={(e) => handleClien
+tFieldChange("email", e.target.value)} />
+  frontend\src\App.jsx:3802:              </div>
+  frontend\src\App.jsx:3803:              <div style={formGroup}>
+  frontend\src\App.jsx:3804:                <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:3805:                <input style={inputStyle} value={clientForm.phone} onChange={(e) => handleClien
+tFieldChange("phone", e.target.value)} />
+  frontend\src\App.jsx:3806:              </div>
+  frontend\src\App.jsx:3807:              <div style={formGroup}>
+  frontend\src\App.jsx:3808:                <label style={labelStyle}>Adresas</label>
+> frontend\src\App.jsx:3809:                <input style={inputStyle} value={clientForm.address} onChange={(e) => handleCli
+entFieldChange("address", e.target.value)} />
+  frontend\src\App.jsx:3810:              </div>
+  frontend\src\App.jsx:3811:              <div style={formGroup}>
+  frontend\src\App.jsx:3812:                <label style={labelStyle}>Šalis</label>
+> frontend\src\App.jsx:3813:                <input style={inputStyle} value={clientForm.country} onChange={(e) => handleCli
+entFieldChange("country", e.target.value)} />
+  frontend\src\App.jsx:3814:              </div>
+  frontend\src\App.jsx:3815:              <div style={formGroup}>
+  frontend\src\App.jsx:3816:                <label style={labelStyle}>Web puslapis</label>
+> frontend\src\App.jsx:3817:                <input style={inputStyle} value={clientForm.website} onChange={(e) => handleCli
+entFieldChange("website", e.target.value)} />
+  frontend\src\App.jsx:3818:              </div>
+  frontend\src\App.jsx:3819:            </div>
+  frontend\src\App.jsx:3823:              <div style={formGroup}>
+  frontend\src\App.jsx:3824:                <label style={labelStyle}>Invoice el. paštas</label>
+> frontend\src\App.jsx:3825:                <input style={inputStyle} value={clientForm.invoiceEmail} onChange={(e) => hand
+leClientFieldChange("invoiceEmail", e.target.value)} />
+  frontend\src\App.jsx:3826:              </div>
+  frontend\src\App.jsx:3827:              <div style={formGroup}>
+  frontend\src\App.jsx:3828:                <label style={labelStyle}>CMR el. paštas</label>
+> frontend\src\App.jsx:3829:                <input style={inputStyle} value={clientForm.cmrEmail} onChange={(e) => handleCl
+ientFieldChange("cmrEmail", e.target.value)} />
+  frontend\src\App.jsx:3830:              </div>
+  frontend\src\App.jsx:3831:              <div style={formGroup}>
+  frontend\src\App.jsx:3832:                <label style={labelStyle}>POD el. paštas</label>
+> frontend\src\App.jsx:3833:                <input style={inputStyle} value={clientForm.podEmail} onChange={(e) => handleCl
+ientFieldChange("podEmail", e.target.value)} />
+  frontend\src\App.jsx:3834:              </div>
+  frontend\src\App.jsx:3835:              <div style={{ ...formGroup, gridColumn: "1 / -1" }}>
+  frontend\src\App.jsx:3836:                <label style={labelStyle}>Pastabos</label>
+> frontend\src\App.jsx:3837:                <textarea style={{ ...inputStyle, minHeight: "90px", resize: "vertical" }} valu
+e={clientForm.notes} onChange={(e) => handleClientFieldChange("notes", e.target.value)} />
+  frontend\src\App.jsx:3838:              </div>
+  frontend\src\App.jsx:3839:            </div>
+  frontend\src\App.jsx:3851:                  <div style={formGroup}>
+  frontend\src\App.jsx:3852:                    <label style={labelStyle}>Vardas, pavardė</label>
+> frontend\src\App.jsx:3853:                    <input style={inputStyle} value={contact.name} onChange={(e) => handleConta
+ctChange(contact.id, "name", e.target.value)} />
+  frontend\src\App.jsx:3854:                  </div>
+  frontend\src\App.jsx:3855:                  <div style={formGroup}>
+  frontend\src\App.jsx:3856:                    <label style={labelStyle}>Pareigos</label>
+> frontend\src\App.jsx:3857:                    <input style={inputStyle} value={contact.position} onChange={(e) => handleC
+ontactChange(contact.id, "position", e.target.value)} />
+  frontend\src\App.jsx:3858:                  </div>
+  frontend\src\App.jsx:3859:                  <div style={formGroup}>
+  frontend\src\App.jsx:3860:                    <label style={labelStyle}>El. paštas</label>
+> frontend\src\App.jsx:3861:                    <input style={inputStyle} value={contact.email} onChange={(e) => handleCont
+actChange(contact.id, "email", e.target.value)} />
+  frontend\src\App.jsx:3862:                  </div>
+  frontend\src\App.jsx:3863:                  <div style={formGroup}>
+  frontend\src\App.jsx:3864:                    <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:3865:                    <input style={inputStyle} value={contact.phone} onChange={(e) => handleCont
+actChange(contact.id, "phone", e.target.value)} />
+  frontend\src\App.jsx:3866:                  </div>
+  frontend\src\App.jsx:3867:                </div>
+  frontend\src\App.jsx:3880:                    <input
+  frontend\src\App.jsx:3881:                      style={{ ...inputStyle, fontWeight: "700" }}
+> frontend\src\App.jsx:3882:                      value={dep.title}
+> frontend\src\App.jsx:3883:                      onChange={(e) => handleDepartmentChange(dep.id, "title", e.target.value)}
+  frontend\src\App.jsx:3884:                      placeholder="Skyriaus pavadinimas"
+  frontend\src\App.jsx:3885:                    />
+  frontend\src\App.jsx:3888:                  <div style={formGroup}>
+  frontend\src\App.jsx:3889:                    <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:3890:                    <input style={inputStyle} value={dep.phone} onChange={(e) => handleDepartme
+ntChange(dep.id, "phone", e.target.value)} />
+  frontend\src\App.jsx:3891:                  </div>
+  frontend\src\App.jsx:3892:                  <div style={formGroup}>
+  frontend\src\App.jsx:3893:                    <label style={labelStyle}>El. paštas</label>
+> frontend\src\App.jsx:3894:                    <input style={inputStyle} value={dep.email} onChange={(e) => handleDepartme
+ntChange(dep.id, "email", e.target.value)} />
+  frontend\src\App.jsx:3895:                  </div>
+  frontend\src\App.jsx:3896:                </div>
+  frontend\src\App.jsx:4010:            <div style={modalHeader}>
+  frontend\src\App.jsx:4011:              <h2 style={{ margin: 0, color: "#1e3a8a" }}>
+> frontend\src\App.jsx:4012:                {editingCarrierId ? "Redaguoti vežėją" : "Naujas vežėjas"}
+  frontend\src\App.jsx:4013:              </h2>
+  frontend\src\App.jsx:4014:              <button onClick={() => setShowCarrierModal(false)} style={closeButton}>✕</button>
+  frontend\src\App.jsx:4019:              <div style={formGroup}>
+  frontend\src\App.jsx:4020:                <label style={labelStyle}>Pavadinimas *</label>
+> frontend\src\App.jsx:4021:                <input style={inputStyle} value={carrierForm.name} onChange={(e) => handleCarri
+erFieldChange("name", e.target.value)} />
+  frontend\src\App.jsx:4022:              </div>
+  frontend\src\App.jsx:4023:              <div style={formGroup}>
+  frontend\src\App.jsx:4024:                <label style={labelStyle}>Vežėjo tipas</label>
+> frontend\src\App.jsx:4025:                <select style={inputStyle} value={carrierForm.carrierType} onChange={(e) => han
+dleCarrierFieldChange("carrierType", e.target.value)}>
+  frontend\src\App.jsx:4026:                  <option>Vežėjas</option>
+  frontend\src\App.jsx:4027:                  <option>Vežėjas-ekspeditorius</option>
+  frontend\src\App.jsx:4037:              <div style={formGroup}>
+  frontend\src\App.jsx:4038:                <label style={labelStyle}>Įmonės kodas</label>
+> frontend\src\App.jsx:4039:                <input style={inputStyle} value={carrierForm.companyCode} onChange={(e) => hand
+leCarrierFieldChange("companyCode", e.target.value)} />
+  frontend\src\App.jsx:4040:              </div>
+  frontend\src\App.jsx:4041:              <div style={formGroup}>
+  frontend\src\App.jsx:4042:                <label style={labelStyle}>PVM kodas</label>
+> frontend\src\App.jsx:4043:                <input style={inputStyle} value={carrierForm.vatCode} onChange={(e) => handleCa
+rrierFieldChange("vatCode", e.target.value)} />
+  frontend\src\App.jsx:4044:              </div>
+  frontend\src\App.jsx:4045:              <div style={formGroup}>
+  frontend\src\App.jsx:4046:                <label style={labelStyle}>Bendras el. paštas</label>
+> frontend\src\App.jsx:4047:                <input style={inputStyle} value={carrierForm.email} onChange={(e) => handleCarr
+ierFieldChange("email", e.target.value)} />
+  frontend\src\App.jsx:4048:              </div>
+  frontend\src\App.jsx:4049:              <div style={formGroup}>
+  frontend\src\App.jsx:4050:                <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:4051:                <input style={inputStyle} value={carrierForm.phone} onChange={(e) => handleCarr
+ierFieldChange("phone", e.target.value)} />
+  frontend\src\App.jsx:4052:              </div>
+  frontend\src\App.jsx:4053:              <div style={formGroup}>
+  frontend\src\App.jsx:4054:                <label style={labelStyle}>Adresas</label>
+> frontend\src\App.jsx:4055:                <input style={inputStyle} value={carrierForm.address} onChange={(e) => handleCa
+rrierFieldChange("address", e.target.value)} />
+  frontend\src\App.jsx:4056:              </div>
+  frontend\src\App.jsx:4057:              <div style={formGroup}>
+  frontend\src\App.jsx:4058:                <label style={labelStyle}>Šalis</label>
+> frontend\src\App.jsx:4059:                <input style={inputStyle} value={carrierForm.country} onChange={(e) => handleCa
+rrierFieldChange("country", e.target.value)} />
+  frontend\src\App.jsx:4060:              </div>
+  frontend\src\App.jsx:4061:              <div style={formGroup}>
+  frontend\src\App.jsx:4062:                <label style={labelStyle}>Web puslapis</label>
+> frontend\src\App.jsx:4063:                <input style={inputStyle} value={carrierForm.website} onChange={(e) => handleCa
+rrierFieldChange("website", e.target.value)} />
+  frontend\src\App.jsx:4064:              </div>
+  frontend\src\App.jsx:4065:            </div>
+  frontend\src\App.jsx:4077:                  <div style={formGroup}>
+  frontend\src\App.jsx:4078:                    <label style={labelStyle}>Vardas, pavardė</label>
+> frontend\src\App.jsx:4079:                    <input style={inputStyle} value={contact.name} onChange={(e) => handleCarri
+erManagerChange(contact.id, "name", e.target.value)} />
+  frontend\src\App.jsx:4080:                  </div>
+  frontend\src\App.jsx:4081:                  <div style={formGroup}>
+  frontend\src\App.jsx:4082:                    <label style={labelStyle}>Pareigos</label>
+> frontend\src\App.jsx:4083:                    <input style={inputStyle} value={contact.position} onChange={(e) => handleC
+arrierManagerChange(contact.id, "position", e.target.value)} />
+  frontend\src\App.jsx:4084:                  </div>
+  frontend\src\App.jsx:4085:                  <div style={formGroup}>
+  frontend\src\App.jsx:4086:                    <label style={labelStyle}>El. paštas</label>
+> frontend\src\App.jsx:4087:                    <input style={inputStyle} value={contact.email} onChange={(e) => handleCarr
+ierManagerChange(contact.id, "email", e.target.value)} />
+  frontend\src\App.jsx:4088:                  </div>
+  frontend\src\App.jsx:4089:                  <div style={formGroup}>
+  frontend\src\App.jsx:4090:                    <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:4091:                    <input style={inputStyle} value={contact.phone} onChange={(e) => handleCarr
+ierManagerChange(contact.id, "phone", e.target.value)} />
+  frontend\src\App.jsx:4092:                  </div>
+  frontend\src\App.jsx:4093:                </div>
+  frontend\src\App.jsx:4106:                    <input
+  frontend\src\App.jsx:4107:                      style={{ ...inputStyle, fontWeight: "700" }}
+> frontend\src\App.jsx:4108:                      value={dep.title}
+> frontend\src\App.jsx:4109:                      onChange={(e) => handleCarrierDepartmentChange(dep.id, "title", e.target.
+value)}
+  frontend\src\App.jsx:4110:                      placeholder="Skyriaus pavadinimas"
+  frontend\src\App.jsx:4111:                    />
+  frontend\src\App.jsx:4114:                  <div style={formGroup}>
+  frontend\src\App.jsx:4115:                    <label style={labelStyle}>Telefonas</label>
+> frontend\src\App.jsx:4116:                    <input style={inputStyle} value={dep.phone} onChange={(e) => handleCarrierD
+epartmentChange(dep.id, "phone", e.target.value)} />
+  frontend\src\App.jsx:4117:                  </div>
+  frontend\src\App.jsx:4118:                  <div style={formGroup}>
+  frontend\src\App.jsx:4119:                    <label style={labelStyle}>El. paštas</label>
+> frontend\src\App.jsx:4120:                    <input style={inputStyle} value={dep.email} onChange={(e) => handleCarrierD
+epartmentChange(dep.id, "email", e.target.value)} />
+  frontend\src\App.jsx:4121:                  </div>
+  frontend\src\App.jsx:4122:                </div>
+  frontend\src\App.jsx:4140:                  <div style={formGroup}>
+  frontend\src\App.jsx:4141:                    <label style={labelStyle}>Pavadinimas</label>
+> frontend\src\App.jsx:4142:                    <input style={inputStyle} value={doc.title} onChange={(e) => handleCarrierD
+ocumentChange(doc.id, "title", e.target.value)} />
+  frontend\src\App.jsx:4143:                  </div>
+  frontend\src\App.jsx:4144:                  <div style={formGroup}>
+  frontend\src\App.jsx:4145:                    <label style={labelStyle}>Numeris</label>
+> frontend\src\App.jsx:4146:                    <input style={inputStyle} value={getCarrierDocumentNumberInputValue(doc)} o
+nChange={(e) => handleCarrierDocumentChange(doc.id, "number", e.target.value)} />
+  frontend\src\App.jsx:4147:                  </div>
+  frontend\src\App.jsx:4148:                  <div style={formGroup}>
+  frontend\src\App.jsx:4149:                    <label style={labelStyle}>Galioja iki</label>
+> frontend\src\App.jsx:4150:                    <input type="date" style={inputStyle} value={getCarrierDocumentValidUntilIn
+putValue(doc)} onChange={(e) => handleCarrierDocumentChange(doc.id, "validUntil", e.target.value)} />
+  frontend\src\App.jsx:4151:                  </div>
+  frontend\src\App.jsx:4152:                  <div style={formGroup}>
+  frontend\src\App.jsx:4153:  <label style={labelStyle}>Nuoroda</label>
+> frontend\src\App.jsx:4154:  <input style={inputStyle} value={doc.link} readOnly />
+  frontend\src\App.jsx:4155:</div>
+  frontend\src\App.jsx:4156:
+  frontend\src\App.jsx:4188:      if ((doc.fileName || doc.link) && !window.confirm("Šiam dokumentui failas jau yra. Ar pak
+eisti esamą failą?")) return;
+  frontend\src\App.jsx:4189:
+> frontend\src\App.jsx:4190:      const uploadData = await handleFileUpload(file, "carrier", editingCarrierId || "TEST123")
+;
+  frontend\src\App.jsx:4191:      console.log("uploadData.extracted", JSON.stringify(uploadData?.extracted || {}));
+  frontend\src\App.jsx:4192:      console.log("uploadData.extracted.number", JSON.stringify(uploadData?.extracted?.number |
+| ""));
+  frontend\src\App.jsx:4200:  <input
+  frontend\src\App.jsx:4201:    type="file"
+> frontend\src\App.jsx:4202:    onChange={async (e) => {
+  frontend\src\App.jsx:4203:      const file = e.target.files?.[0];
+  frontend\src\App.jsx:4204:      if (!file) return;
+  frontend\src\App.jsx:4206:      if ((doc.fileName || doc.link) && !window.confirm("Šiam dokumentui failas jau yra. Ar pak
+eisti esamą failą?")) return;
+  frontend\src\App.jsx:4207:
+> frontend\src\App.jsx:4208:      const uploadData = await handleFileUpload(file, "carrier", editingCarrierId || "TEST123")
+;
+  frontend\src\App.jsx:4209:      console.log("uploadData.extracted", JSON.stringify(uploadData?.extracted || {}));
+  frontend\src\App.jsx:4210:      console.log("uploadData.extracted.number", JSON.stringify(uploadData?.extracted?.number |
+| ""));
+  frontend\src\App.jsx:4254:                </div>
+  frontend\src\App.jsx:4255:                <div style={twoCol}>
+> frontend\src\App.jsx:4256:                  <div style={formGroup}><label style={labelStyle}>Vardas, pavardė *</label><in
+put style={inputStyle} value={driver.name || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "name", e.target.val
+ue)} /></div>
+> frontend\src\App.jsx:4257:                  <div style={formGroup}><label style={labelStyle}>Telefonas</label><input styl
+e={inputStyle} value={driver.phone || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "phone", e.target.value)} /
+></div>
+> frontend\src\App.jsx:4258:                  <div style={formGroup}><label style={labelStyle}>Pažymėjimo Nr.</label><input
+ style={inputStyle} value={driver.licenseNumber || ""} onChange={(e) => handleCarrierDriverChange(driver.id, "licenseNumber
+", e.target.value)} /></div>
+  frontend\src\App.jsx:4259:                </div>
+  frontend\src\App.jsx:4260:              </div>
+  frontend\src\App.jsx:4271:                </div>
+  frontend\src\App.jsx:4272:                <div style={twoCol}>
+> frontend\src\App.jsx:4273:                  <div style={formGroup}><label style={labelStyle}>Valst. numeris *</label><inp
+ut style={inputStyle} value={truck.licensePlate || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "licensePlate", 
+e.target.value)} /></div>
+> frontend\src\App.jsx:4274:                  <div style={formGroup}><label style={labelStyle}>Modelis</label><input style=
+{inputStyle} value={truck.model || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "model", e.target.value)} /></di
+v>
+> frontend\src\App.jsx:4275:                  <div style={formGroup}><label style={labelStyle}>Metai</label><input type="nu
+mber" style={inputStyle} value={truck.year || ""} onChange={(e) => handleCarrierTruckChange(truck.id, "year", e.target.valu
+e)} /></div>
+  frontend\src\App.jsx:4276:                </div>
+  frontend\src\App.jsx:4277:              </div>
+  frontend\src\App.jsx:4288:                </div>
+  frontend\src\App.jsx:4289:                <div style={twoCol}>
+> frontend\src\App.jsx:4290:                  <div style={formGroup}><label style={labelStyle}>Valst. numeris *</label><inp
+ut style={inputStyle} value={trailer.licensePlate || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "licensePl
+ate", e.target.value)} /></div>
+> frontend\src\App.jsx:4291:                  <div style={formGroup}><label style={labelStyle}>Modelis</label><input style=
+{inputStyle} value={trailer.model || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "model", e.target.value)} 
+/></div>
+> frontend\src\App.jsx:4292:                  <div style={formGroup}><label style={labelStyle}>Metai</label><input type="nu
+mber" style={inputStyle} value={trailer.year || ""} onChange={(e) => handleCarrierTrailerChange(trailer.id, "year", e.targe
+t.value)} /></div>
+  frontend\src\App.jsx:4293:                </div>
+  frontend\src\App.jsx:4294:              </div>
+  frontend\src\App.jsx:4301:              <textarea
+  frontend\src\App.jsx:4302:                style={{ ...inputStyle, minHeight: "110px", resize: "vertical" }}
+> frontend\src\App.jsx:4303:                value={carrierForm.notes}
+> frontend\src\App.jsx:4304:                onChange={(e) => handleCarrierFieldChange("notes", e.target.value)}
+  frontend\src\App.jsx:4305:              />
+  frontend\src\App.jsx:4306:            </div>
+
+

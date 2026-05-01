@@ -1,0 +1,66 @@
+﻿
+  frontend\src\orders_settings_only.jsx:3588:    }
+  frontend\src\orders_settings_only.jsx:3589:    try {
+> frontend\src\orders_settings_only.jsx:3590:      const savedDraft = JSON.parse(localStorage.getItem("currentOrderDraftForm") || "null");
+  frontend\src\orders_settings_only.jsx:3591:      if (savedDraft?.projectDraft || savedDraft?.executionDraft) {
+  frontend\src\orders_settings_only.jsx:3592:        const mergedProjectDraft = {
+  frontend\src\orders_settings_only.jsx:3621:  useEffect(() => {
+  frontend\src\orders_settings_only.jsx:3622:    if (type === "order") {
+> frontend\src\orders_settings_only.jsx:3623:      localStorage.setItem("currentOrderDraftForm", JSON.stringify(buildDraftStorageSnapshot(projectDraft, executionDraft)));
+  frontend\src\orders_settings_only.jsx:3624:    }
+  frontend\src\orders_settings_only.jsx:3625:  }, [type, projectDraft, executionDraft]);
+  frontend\src\orders_settings_only.jsx:4287:      afterSave: () => {
+  frontend\src\orders_settings_only.jsx:4288:        setFormActionMessage("Užsakymas išsaugotas.");
+> frontend\src\orders_settings_only.jsx:4289:        localStorage.removeItem("currentOrderDraftForm");
+  frontend\src\orders_settings_only.jsx:4290:        closePreview();
+  frontend\src\orders_settings_only.jsx:4291:        onClose();
+  frontend\src\orders_settings_only.jsx:4479:              <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>3. KROVINYS</div>
+  frontend\src\orders_settings_only.jsx:4480:              <div style={formGrid}>
+> frontend\src\orders_settings_only.jsx:4481:                <div style={formGroup}><label style={label}>Krovinio tipas</label><input list="cargo-type-options" style={inputBase} 
+value={projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || ""} onChange={(e) => updateFormData({ cargoType: e.target.value, cargoName: e.target.value, cargo
+: e.target.value })} onBlur={(e) => { const v = e.target.value.trim(); if (!v) return; const key = "ordersCargoTypeOptions"; const list = JSON.parse(localStorage.getItem(key) || 
+"[]"); if (!list.includes(v)) localStorage.setItem(key, JSON.stringify([...list, v])); }} placeholder="Pasirinkite arba įrašykite..." /><datalist id="cargo-type-options">{["Autom
+obiliai","Neutralus krovinys","Dalinis krovinys","Pilna fūra","Baldai","Padangos", ...JSON.parse(localStorage.getItem("ordersCargoTypeOptions") || "[]")].map((v) => <option key={
+v} value={v} />)}</datalist></div>
+  frontend\src\orders_settings_only.jsx:4482:                <div style={formGroup}><label style={label}>Kiekis</label><select style={inputBase} value={projectDraft.quantity || "
+"} onInput={(e) => setProjectDraft((prev) => ({ ...prev, quantity: e.target.value, vehicleCount: e.target.value }))} onChange={(e) => setProjectDraft((prev) => ({ ...prev, quanti
+ty: e.target.value, vehicleCount: e.target.value }))}><option value="">Pasirinkite...</option>{[1,2,3,4,5,6,7,8,9,10].map((n) => <option key={n} value={String(n)}>{n}</option>)}<
+/select></div>
+  frontend\src\orders_settings_only.jsx:4483:                <div style={formGroup}><label style={label}>LDM</label><input list="ldm-options" style={inputBase} value={projectDraf
+t.ldm || ""} onChange={(e) => updateFormData({ ldm: e.target.value })} placeholder="Pasirinkite arba įrašykite..." /><datalist id="ldm-options">{["0.5","1","1.5","2","2.5","3","4
+","5","6","7.7","10","13.6"].map((v) => <option key={v} value={v} />)}</datalist></div>
+  frontend\src\orders_settings_only.jsx:4494:                <div style={formGroup}><label style={label}>Data *</label><input style={inputBase} type="date" value={projectDraft.lo
+adingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div>
+  frontend\src\orders_settings_only.jsx:4495:                <div style={formGroup}><label style={label}>Laikas</label><input style={inputBase} type="time" value={projectDraft.lo
+adingTime || ""} onChange={(e) => updateFormData({ loadingTime: e.target.value })} /></div>
+> frontend\src\orders_settings_only.jsx:4496:                <div style={formGroup}><label style={label}>Įmonė</label><input list="loading-company-options" style={inputBase} valu
+e={projectDraft.loadingCompanyName || ""} onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} onBlur={(e) => { const v = e.target.value.trim(); if (!v) retur
+n; const key = "ordersLoadingCompanyOptions"; const list = JSON.parse(localStorage.getItem(key) || "[]"); if (!list.includes(v)) localStorage.setItem(key, JSON.stringify([...list
+, v])); }} placeholder="Įveskite arba pasirinkite įmonę..." /><datalist id="loading-company-options">{JSON.parse(localStorage.getItem("ordersLoadingCompanyOptions") || "[]").map(
+(v) => <option key={v} value={v} />)}</datalist></div>
+  frontend\src\orders_settings_only.jsx:4497:                <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={projectDraft.loadingStreet
+ || ""} onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div>
+  frontend\src\orders_settings_only.jsx:4498:                <div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} value={projectDraft.loadingCity
+ || ""} onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.u
+nloadingCity}` : "" }); }} /></div>
+  frontend\src\App.jsx:343:    if (typeof window === "undefined") return [];
+  frontend\src\App.jsx:344:    try {
+> frontend\src\App.jsx:345:      return JSON.parse(localStorage.getItem("businessReminderOverrides") || "[]");
+  frontend\src\App.jsx:346:    } catch {
+  frontend\src\App.jsx:347:      return [];
+  frontend\src\App.jsx:417:
+  frontend\src\App.jsx:418:  React.useEffect(() => {
+> frontend\src\App.jsx:419:    // Clear all legacy localStorage keys to prevent QuotaExceededError
+  frontend\src\App.jsx:420:    if (typeof window !== "undefined") {
+> frontend\src\App.jsx:421:      Object.keys(window.localStorage)
+  frontend\src\App.jsx:422:        .filter(k => k.startsWith("radanaras"))
+> frontend\src\App.jsx:423:        .forEach(k => window.localStorage.removeItem(k));
+  frontend\src\App.jsx:424:    }
+  frontend\src\App.jsx:425:
+  frontend\src\App.jsx:467:  useEffect(() => {
+  frontend\src\App.jsx:468:    try {
+> frontend\src\App.jsx:469:      localStorage.setItem("businessReminderOverrides", JSON.stringify(reminderOverrides));
+  frontend\src\App.jsx:470:    } catch {}
+  frontend\src\App.jsx:471:  }, [reminderOverrides]);
+
+

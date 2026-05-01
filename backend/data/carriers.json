@@ -16,6 +16,13 @@
         "position": "Direktorius ",
         "email": "Info@tralveza.com",
         "phone": "+370 644 46543"
+      },
+      {
+        "id": 1777457509107,
+        "name": "Saimondas Lukošius",
+        "position": "Transporto vadybininkas ",
+        "email": "Info@tralveza.com",
+        "phone": "+37060800847"
       }
     ],
     "documentContacts": [
@@ -84,7 +91,11 @@
         "year": "",
         "id": 1775938372099
       }
-    ]
+    ],
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "updatedAt": "2026-04-29T10:12:47.163Z"
   },
   {
     "id": "CR20260401204606",
@@ -161,7 +172,8 @@
         "year": "0"
       }
     ],
-    "trailers": []
+    "trailers": [],
+    "isOwnCompany": true
   },
   {
     "id": "IMP1775684103422",
@@ -237,7 +249,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kaunas"
+    "_city": "Kaunas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103424",
@@ -313,7 +330,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilkaviðkis.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Vilkaviðkis"
+    "_city": "Vilkaviðkis",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103428",
@@ -389,7 +411,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Ðiauliai.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Ðiauliai"
+    "_city": "Ðiauliai",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103429",
@@ -465,7 +492,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Vilnius"
+    "_city": "Vilnius",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103434",
@@ -541,7 +573,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Ukmergë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Ukmergë"
+    "_city": "Ukmergë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103436",
@@ -617,7 +654,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Koùodzieý.",
     "_importSource": "InfoTrans",
     "_country": "Lenkija",
-    "_city": "Koùodzieý"
+    "_city": "Koùodzieý",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103450",
@@ -693,7 +735,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kaunas"
+    "_city": "Kaunas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103456",
@@ -769,7 +816,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Liudvinavas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Liudvinavas"
+    "_city": "Liudvinavas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103459",
@@ -845,7 +897,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kazlø Rûda.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kazlø Rûda"
+    "_city": "Kazlø Rûda",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103465",
@@ -921,7 +978,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Graikija. Miestas: ??????.",
     "_importSource": "InfoTrans",
     "_country": "Graikija",
-    "_city": "??????"
+    "_city": "??????",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103467",
@@ -997,7 +1059,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kaunas"
+    "_city": "Kaunas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103468",
@@ -1073,7 +1140,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103476",
@@ -1149,7 +1221,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kalvarija"
+    "_city": "Kalvarija",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103479",
@@ -1225,7 +1302,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kaunas"
+    "_city": "Kaunas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103480",
@@ -1301,7 +1383,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lenkija. Miestas: Puñsk.",
     "_importSource": "InfoTrans",
     "_country": "Lenkija",
-    "_city": "Puñsk"
+    "_city": "Puñsk",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103481",
@@ -1377,7 +1464,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kaunas"
+    "_city": "Kaunas",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103485",
@@ -1453,7 +1545,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Vilnius"
+    "_city": "Vilnius",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103486",
@@ -1529,7 +1626,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Klaipëda.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Klaipëda"
+    "_city": "Klaipëda",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103489",
@@ -1605,7 +1707,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103490",
@@ -1681,7 +1788,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilkaviðkis.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Vilkaviðkis"
+    "_city": "Vilkaviðkis",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103493",
@@ -1757,7 +1869,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kalvarija"
+    "_city": "Kalvarija",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103502",
@@ -1833,7 +1950,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103507",
@@ -1909,7 +2031,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Karmëlava.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Karmëlava"
+    "_city": "Karmëlava",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103514",
@@ -1985,7 +2112,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Tauragë"
+    "_city": "Tauragë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103518",
@@ -2061,7 +2193,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Alytus.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Alytus"
+    "_city": "Alytus",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103520",
@@ -2137,7 +2274,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103521",
@@ -2213,7 +2355,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103530",
@@ -2289,7 +2436,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103531",
@@ -2365,7 +2517,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Prienai.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Prienai"
+    "_city": "Prienai",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103533",
@@ -2441,7 +2598,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Këdainiai.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Këdainiai"
+    "_city": "Këdainiai",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103534",
@@ -2517,7 +2679,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Tauragë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Tauragë"
+    "_city": "Tauragë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103544",
@@ -2593,7 +2760,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Vilnius.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Vilnius"
+    "_city": "Vilnius",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103546",
@@ -2669,7 +2841,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Prienai.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Prienai"
+    "_city": "Prienai",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103558",
@@ -2745,7 +2922,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103559",
@@ -2821,7 +3003,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kalvarija.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Kalvarija"
+    "_city": "Kalvarija",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103565",
@@ -2897,7 +3084,12 @@
     "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
-    "_city": "Marijampolë"
+    "_city": "Marijampolë",
+    "isOwnCompany": false,
+    "country": "",
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103578",
@@ -2974,7 +3166,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Prienai",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103582",
@@ -3051,7 +3247,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Marijampolë",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103583",
@@ -3128,7 +3328,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Jurbarkas",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103589",
@@ -3205,7 +3409,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Vilnius",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103590",
@@ -3282,7 +3490,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Marijampolë",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103591",
@@ -3359,7 +3571,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Vilnius",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103592",
@@ -3436,7 +3652,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Palanga",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103593",
@@ -3513,7 +3733,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Kaunas",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103594",
@@ -3590,7 +3814,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Vilnius",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103598",
@@ -3667,7 +3895,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Vilnius",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "IMP1775684103421",
@@ -3744,7 +3976,11 @@
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Kaunas",
-    "country": "Lietuva"
+    "country": "Lietuva",
+    "isOwnCompany": false,
+    "drivers": [],
+    "trucks": [],
+    "trailers": []
   },
   {
     "id": "CR20260416000101",
@@ -3801,7 +4037,8 @@
     "country": "Lietuva",
     "drivers": [],
     "trucks": [],
-    "trailers": []
+    "trailers": [],
+    "isOwnCompany": false
   },
   {
     "id": "CR20260416000102",
@@ -3852,7 +4089,8 @@
     "country": "Lietuva",
     "drivers": [],
     "trucks": [],
-    "trailers": []
+    "trailers": [],
+    "isOwnCompany": false
   },
   {
     "id": "CR20260416000103",
@@ -3903,6 +4141,7 @@
     "country": "Lietuva",
     "drivers": [],
     "trucks": [],
-    "trailers": []
+    "trailers": [],
+    "isOwnCompany": false
   }
 ]

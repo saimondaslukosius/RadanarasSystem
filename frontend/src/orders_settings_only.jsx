@@ -18,7 +18,10 @@ const td = { padding: "14px 12px", borderTop: "1px solid #e2e8f0", color: "#1e29
 const emptyState = { textAlign: "center", padding: "60px 20px", color: "#64748b" };
 const modalOverlay = { position: "fixed", inset: 0, background: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 };
 const modal = { background: "white", borderRadius: "12px", padding: "30px", maxWidth: "800px", width: "90%", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)" };
+const fullscreenOrderModal = { ...modal, width: "calc(100vw - 40px)", height: "calc(100vh - 40px)", maxWidth: "none", maxHeight: "none", padding: "24px", overflow: "hidden", display: "flex", flexDirection: "column" };
 const modalHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px", paddingBottom: "16px", borderBottom: "2px solid #e2e8f0" };
+const fullscreenOrderModalHeader = { ...modalHeader, flexShrink: 0 };
+const fullscreenOrderModalBody = { overflowY: "auto", minHeight: 0, flex: 1, paddingRight: "8px" };
 const closeBtn = { background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: "#64748b", padding: 0, width: "32px", height: "32px", borderRadius: "6px" };
 const formGrid = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "24px" };
 const formGroup = { display: "flex", flexDirection: "column" };
@@ -160,6 +163,7 @@ const STATUS_MAP = {
   active:           { bg: "#dcfce7", color: "#15803d", label: "Aktyvus" },
   draft:            { bg: "#fef3c7", color: "#ca8a04", label: "Juodraštis" },
   generated:        { bg: "#fef3c7", color: "#ca8a04", label: "Paruoštas" },
+  cancelled:        { bg: "#f1f5f9", color: "#64748b", label: "Atšauktas" },
 };
 const statusBadgeStyle = (status) => { const s = STATUS_MAP[status] || { bg: "#f1f5f9", color: "#475569" }; return { display: "inline-block", padding: "4px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: 600, background: s.bg, color: s.color, whiteSpace: "nowrap" }; };
 const statusLabel = (status) => (STATUS_MAP[status]?.label || status || "?");
@@ -2914,6 +2918,11 @@ export function Orders({
   emptyTitle = "Nėra užsakymų",
   emptyDescription = "Sukurkite pirmą užsakymą",
   variant = "default",
+  openClientProfile = null,
+  openCarrierProfile = null,
+  onOpenComment = null,
+  onOpenDamage = null,
+  onOpenCancel = null,
 }) {
   const deleteOrder = (id) => {
     if (window.confirm("Ar tikrai norite ištrinti šį užsakymą?")) {
@@ -3109,46 +3118,234 @@ export function Orders({
     </table>
   );
 
-  const renderExpeditionTable = () => (
-    <table style={table}>
-      <thead>
-        <tr>
-          <th style={th}>Projekto ID</th>
-          <th style={th}>Kliento užsakymo Nr.</th>
-          <th style={th}>Klientas</th>
-          <th style={th}>Vežėjas</th>
-          <th style={th}>Maršrutas</th>
-          <th style={th}>Pakrovimas</th>
-          <th style={th}>Iškrovimas</th>
-          <th style={th}>Kliento kaina</th>
-          <th style={th}>Vežėjo kaina</th>
-          <th style={th}>Pelnas</th>
-          <th style={th}>CMR</th>
-          <th style={th}>Statusas</th>
-          <th style={th}>Veiksmai</th>
-        </tr>
-      </thead>
-      <tbody>
-        {orders.map((order) => (
-          <tr key={order.id}>
-            <td style={td}><strong>{resolveProjectId(order)}</strong></td>
-            <td style={{ ...td, fontSize: "12px" }}>{order.clientOrderNumber || "—"}</td>
-            <td style={td}>{order.clientName || "—"}</td>
-            <td style={td}>{order.carrierName || "—"}</td>
-            <td style={{ ...td, fontSize: "12px", maxWidth: "180px" }}>{order.route || "—"}</td>
-            <td style={td}>{order.loadingDate || "—"}</td>
-            <td style={td}>{order.unloadingDate || "—"}</td>
-            <td style={td}>{renderPrice(order.clientPrice)}</td>
-            <td style={td}>{renderPrice(resolveExecutionCost(order))}</td>
-            <td style={td}>{renderProfit(order)}</td>
-            <td style={td}>{renderTrafficLight(getCmrState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
-            <td style={td}><span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span></td>
-            <td style={td}>{renderActions(order)}</td>
+  const renderExpeditionTable = () => {
+    // helper: atrasti kliento ID pagal order laukus
+    const resolveClientForProfile = (order) => {
+      if (!clients) return null;
+      if (order.clientId) {
+        const byId = clients.find((c) => String(c.id) === String(order.clientId));
+        if (byId) return byId;
+      }
+      return clients.find((c) => c.name === order.clientName) || null;
+    };
+    // helper: atrasti vežėjo ID pagal order laukus
+    const resolveCarrierForProfile = (order) => {
+      if (!carriers) return null;
+      if (order.carrierId) {
+        const byId = carriers.find((c) => String(c.id) === String(order.carrierId));
+        if (byId) return byId;
+      }
+      return carriers.find((c) => c.name === order.carrierName) || null;
+    };
+
+    const linkStyle = {
+      cursor: "pointer",
+      color: "#3b82f6",
+      fontWeight: 700,
+      textDecoration: "none",
+      background: "none",
+      border: "none",
+      padding: 0,
+      fontSize: "inherit",
+    };
+    const linkHover = { textDecoration: "underline" };
+
+    const damageState = (order) => {
+      if (order.damageStatus === "active" || order.hasDamage === true) return "active";
+      return "none";
+    };
+
+    const commentCount = (order) => (Array.isArray(order.comments) ? order.comments.length : 0);
+
+    const tinyBtn = (accent, bg) => ({
+      padding: "4px 10px",
+      borderRadius: "6px",
+      border: `1px solid ${accent}`,
+      background: bg,
+      color: accent,
+      fontSize: "11px",
+      fontWeight: 700,
+      cursor: "pointer",
+      whiteSpace: "nowrap",
+    });
+
+    return (
+      <table style={table}>
+        <thead>
+          <tr>
+            <th style={{ ...th, width: "40px" }}>Nr.</th>
+            <th style={th}>Projekto ID</th>
+            <th style={th}>Sukurta</th>
+            <th style={th}>Kliento užs. Nr.</th>
+            <th style={th}>Klientas</th>
+            <th style={th}>Vežėjas</th>
+            <th style={th}>Maršrutas</th>
+            <th style={th}>Pakrovimas</th>
+            <th style={th}>Iškrovimas</th>
+            <th style={th}>Kl. kaina</th>
+            <th style={th}>Vež. kaina</th>
+            <th style={th}>Pelnas</th>
+            <th style={th}>CMR</th>
+            <th style={th}>SF</th>
+            <th style={th}>Žala</th>
+            <th style={th}>Statusas</th>
+            <th style={th}>Komentarai</th>
+            <th style={th}>Veiksmai</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+        </thead>
+        <tbody>
+          {orders.map((order, idx) => {
+            const dmg = damageState(order);
+            const cCount = commentCount(order);
+            const clientRec = resolveClientForProfile(order);
+            const carrierRec = resolveCarrierForProfile(order);
+            const isCancelled = order.status === "cancelled" || order.status === "Atšauktas";
+            return (
+              <tr
+                key={order.id}
+                style={{ transition: "background 0.1s", opacity: isCancelled ? 0.55 : 1, background: isCancelled ? "#f8fafc" : undefined }}
+                onMouseEnter={(e) => { if (!isCancelled) e.currentTarget.style.background = "#f8fafc"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = isCancelled ? "#f8fafc" : ""; }}
+              >
+                {/* Nr. */}
+                <td style={{ ...td, color: "#94a3b8", fontSize: "12px", textAlign: "right" }}>{idx + 1}</td>
+                {/* Projekto ID */}
+                <td style={td}>
+                  <button
+                    style={linkStyle}
+                    onClick={() => openModal("order", order)}
+                    onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
+                    onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}
+                    title="Atidaryti projektą"
+                  >
+                    {resolveProjectId(order)}
+                  </button>
+                </td>
+                {/* Sukurta */}
+                <td style={{ ...td, fontSize: "12px", color: "#64748b" }}>
+                  {order.createdAt ? String(order.createdAt).slice(0, 10) : (order.projectDate || order.date || "—")}
+                </td>
+                {/* Kliento užsakymo Nr. */}
+                <td style={{ ...td, fontSize: "12px" }}>
+                  {order.clientOrderNumber ? (
+                    <button
+                      style={{ ...linkStyle, fontSize: "12px", fontWeight: 600 }}
+                      onClick={() => openModal("order", order)}
+                      onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}
+                      title="Atidaryti užsakymą"
+                    >
+                      {order.clientOrderNumber}
+                    </button>
+                  ) : "—"}
+                </td>
+                {/* Klientas */}
+                <td style={td}>
+                  {order.clientName ? (
+                    <button
+                      style={linkStyle}
+                      onClick={() => {
+                        if (openClientProfile && clientRec) openClientProfile(clientRec.id, "client");
+                        else if (openClientProfile) openClientProfile(order.clientId || order.clientName, "client");
+                      }}
+                      onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}
+                      title="Atidaryti kliento profilį"
+                    >
+                      {order.clientName}
+                    </button>
+                  ) : "—"}
+                </td>
+                {/* Vežėjas */}
+                <td style={td}>
+                  {order.carrierName ? (
+                    <button
+                      style={linkStyle}
+                      onClick={() => {
+                        if (openCarrierProfile && carrierRec) openCarrierProfile(carrierRec.id);
+                        else if (openCarrierProfile) openCarrierProfile(order.carrierId || order.carrierName);
+                      }}
+                      onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}
+                      title="Atidaryti vežėjo profilį"
+                    >
+                      {order.carrierName}
+                    </button>
+                  ) : "—"}
+                </td>
+                {/* Maršrutas */}
+                <td style={{ ...td, fontSize: "12px", maxWidth: "160px" }}>
+                  {order.route ? (
+                    <button
+                      style={{ ...linkStyle, fontSize: "12px", fontWeight: 600, color: "#0f766e" }}
+                      onClick={() => alert("Žemėlapio peržiūra bus čia")}
+                      onMouseEnter={(e) => Object.assign(e.currentTarget.style, linkHover)}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = "none"; }}
+                      title="Žemėlapio peržiūra"
+                    >
+                      {order.route}
+                    </button>
+                  ) : "—"}
+                </td>
+                <td style={td}>{order.loadingDate || "—"}</td>
+                <td style={td}>{order.unloadingDate || "—"}</td>
+                <td style={td}>{renderPrice(order.clientPrice)}</td>
+                <td style={td}>{renderPrice(resolveExecutionCost(order))}</td>
+                <td style={td}>{renderProfit(order)}</td>
+                <td style={td}>{renderTrafficLight(getCmrState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+                <td style={td}>{renderTrafficLight(getClientInvoiceState(order), { present: "Yra", missing: "Nėra", na: "N/A" })}</td>
+                {/* Žala */}
+                <td style={td}>
+                  <button
+                    style={dmg === "active"
+                      ? tinyBtn("#991b1b", "#fee2e2")
+                      : tinyBtn("#94a3b8", "#f8fafc")
+                    }
+                    onClick={() => onOpenDamage ? onOpenDamage(order) : alert("Žalos byla: " + (order.projectId || order.orderNumber || order.id))}
+                    title="Žalos byla"
+                  >
+                    {dmg === "active" ? "⚠ Žala" : "Nėra"}
+                  </button>
+                </td>
+                {/* Statusas */}
+                <td style={td}>
+                  <span style={statusBadgeStyle(order.status)}>{statusLabel(order.status)}</span>
+                  {isCancelled && order.cancelReason && (
+                    <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "3px", maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={order.cancelReason}>
+                      {order.cancelReason}
+                    </div>
+                  )}
+                </td>
+                {/* Komentarai */}
+                <td style={td}>
+                  <button
+                    style={tinyBtn(cCount > 0 ? "#1d4ed8" : "#94a3b8", cCount > 0 ? "#dbeafe" : "#f8fafc")}
+                    onClick={() => onOpenComment ? onOpenComment(order) : alert("Komentarai")}
+                    title="Projekto komentarai"
+                  >
+                    💬 {cCount > 0 ? cCount : ""}
+                  </button>
+                </td>
+                {/* Veiksmai */}
+                <td style={td}>
+                  {renderActions(order)}
+                  {!order.__demo && !isCancelled && (
+                    <button
+                      style={{ ...tinyBtn("#991b1b", "#fff1f2"), marginTop: "4px", display: "block" }}
+                      onClick={() => onOpenCancel ? onOpenCancel(order) : alert("Atšaukimas")}
+                      title="Atšaukti projektą"
+                    >
+                      Atšaukti
+                    </button>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  };
 
   const renderOwnFleetTable = () => (
     <table style={table}>
@@ -3243,7 +3440,8 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
   const [selectedTrailerId, setSelectedTrailerId] = useState("");
   const [selectedDriverId, setSelectedDriverId] = useState("");
   const [showNewClientModal, setShowNewClientModal] = useState(false);
-  const [newClientDraft, setNewClientDraft] = useState({ name: "", companyCode: "", vatCode: "", email: "", phone: "", address: "", contactName: "", contactEmail: "", contactPhone: "" });
+  const emptyNewClientDraft = { name: "", clientType: "Ekspeditorius", companyCode: "", vatCode: "", email: "", phone: "", address: "", country: "", website: "", invoiceEmail: "", cmrEmail: "", podEmail: "", notes: "", contacts: [{ id: 1, name: "", position: "", email: "", phone: "" }], departmentContacts: [{ id: 1, title: "Administracija", phone: "", email: "" }, { id: 2, title: "Buhalterija", phone: "", email: "" }, { id: 3, title: "Klientų aptarnavimas", phone: "", email: "" }, { id: 4, title: "Personalas", phone: "", email: "" }, { id: 5, title: "Krovinių gabenimas", phone: "", email: "" }] };
+  const [newClientDraft, setNewClientDraft] = useState(emptyNewClientDraft);
   const [entityEditModal, setEntityEditModal] = useState(null);
   const lastPreparedFutureBundleRef = useRef(null);
   // quickAdd: null | { type: "manager"|"driver"|"truck"|"trailer", fields: {...} }
@@ -3754,34 +3952,39 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
       window.alert("Įveskite kliento pavadinimą.");
       return;
     }
+
     const clientId = `CL-${Date.now()}`;
+    const cleanedContacts = (newClientDraft.contacts || []).filter((c) =>
+      (c.name || "").trim() || (c.position || "").trim() || (c.email || "").trim() || (c.phone || "").trim()
+    );
+    const cleanedDepartments = (newClientDraft.departmentContacts || []).filter((d) =>
+      (d.title || "").trim() || (d.phone || "").trim() || (d.email || "").trim()
+    );
+
     const createdClient = {
       id: clientId,
       name: newClientDraft.name.trim(),
-      clientType: "Tiesioginis klientas",
+      clientType: newClientDraft.clientType || "Ekspeditorius",
       companyCode: newClientDraft.companyCode.trim(),
       vatCode: newClientDraft.vatCode.trim(),
       email: newClientDraft.email.trim(),
       phone: newClientDraft.phone.trim(),
       address: newClientDraft.address.trim(),
-      invoiceEmail: newClientDraft.email.trim(),
-      cmrEmail: newClientDraft.email.trim(),
-      podEmail: newClientDraft.email.trim(),
-      contacts: [
-        {
-          id: 1,
-          name: newClientDraft.contactName.trim(),
-          position: "",
-          email: newClientDraft.contactEmail.trim(),
-          phone: newClientDraft.contactPhone.trim(),
-        },
-      ],
-      departmentContacts: [],
-      notes: "",
+      country: newClientDraft.country.trim(),
+      website: newClientDraft.website.trim(),
+      invoiceEmail: newClientDraft.invoiceEmail.trim(),
+      cmrEmail: newClientDraft.cmrEmail.trim(),
+      podEmail: newClientDraft.podEmail.trim(),
+      notes: newClientDraft.notes.trim(),
+      contacts: cleanedContacts,
+      departmentContacts: cleanedDepartments,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    saveClients([...clients, createdClient]);
+
+    saveClients([createdClient, ...clients]);
     setShowNewClientModal(false);
-    setNewClientDraft({ name: "", companyCode: "", vatCode: "", email: "", phone: "", address: "", contactName: "", contactEmail: "", contactPhone: "" });
+    setNewClientDraft(emptyNewClientDraft);
     applySelectedClient(clientId);
   };
 
@@ -3805,8 +4008,6 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
       return;
     }
 
-    const defaultContact = getDefaultClientContact(client);
-
     updateFormData({
       clientId: String(client.id),
       clientName: client.name || "",
@@ -3815,12 +4016,12 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
       clientPhone: client.phone || "",
       clientEmail: client.email || "",
       clientAddress: client.address || "",
-      clientContactId: defaultContact ? String(defaultContact.id) : "",
-      clientContactName: defaultContact?.name || "",
-      clientContactPhone: defaultContact?.phone || "",
-      clientContactEmail: defaultContact?.email || "",
+      clientContactId: "",
+      clientContactName: "",
+      clientContactPhone: "",
+      clientContactEmail: "",
     });
-    setSelectedClientContactId(defaultContact ? String(defaultContact.id) : "");
+    setSelectedClientContactId("");
     setFormActionMessage(`Pasirinktas klientas: ${client.name || "be pavadinimo"}`);
   };
 
@@ -4122,16 +4323,9 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
       return;
     }
 
-    const defaultContact = getDefaultClientContact(selectedClient);
-    if (!defaultContact) return;
-
-    setSelectedClientContactId(String(defaultContact.id));
-    updateFormData({
-      clientContactId: String(defaultContact.id),
-      clientContactName: defaultContact.name || "",
-      clientContactPhone: defaultContact.phone || "",
-      clientContactEmail: defaultContact.email || "",
-    });
+    // Kontaktas nebeparenkamas automatiškai.
+    // Vartotojas pats pasirenka konkretų kliento vadybininką.
+    return;
   }, [
     projectDraft.clientId,
     projectDraft.clientContactId,
@@ -4299,8 +4493,8 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
   return (
     <>
     <div style={modalOverlay} onClick={onClose}>
-      <div style={modal} onClick={(e) => e.stopPropagation()}>
-        <div style={modalHeader}>
+      <div style={fullscreenOrderModal} onClick={(e) => e.stopPropagation()}>
+        <div style={fullscreenOrderModalHeader}>
           <h2 style={{ fontSize: "20px", color: "#1e3a8a", margin: 0 }}>
             {initialData?.id
               ? "Redaguoti krovinį"
@@ -4312,7 +4506,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
           </h2>
           <button style={closeBtn} onClick={onClose}>×</button>
         </div>
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form style={fullscreenOrderModalBody} onSubmit={(e) => e.preventDefault()}>
           <div style={{ marginBottom: "20px", padding: "18px", background: "linear-gradient(135deg, #eff6ff, #f8fafc)", border: "1px solid #bfdbfe", borderRadius: "14px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
               <div>
@@ -4412,32 +4606,90 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               <div style={formGrid}>
                 <div style={{ ...formGroup, gridColumn: "span 2" }}>
                   <label style={label}>Klientas *</label>
-                  <input style={{ ...inputBase, marginBottom: "10px" }} value={clientPickerSearch} onChange={(e) => setClientPickerSearch(e.target.value)} placeholder="Ieškoti kliento pagal pavadinimą, kodą, PVM ar email..." />
-                  <div style={{ ...pickerGrid, maxHeight: "180px", overflowY: "auto", paddingRight: "4px" }}>
-                    {filteredClientOptions.map((client) => {
-                      const isActive = String(projectDraft.clientId || "") === String(client.id);
-                      return (
-                        <button key={client.id} type="button" style={isActive ? pickerButtonActive : pickerButton} onClick={() => applySelectedClient(String(client.id))}>
-                          <div>{client.name}</div>
-                          <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>{client.companyCode || client.vatCode || client.email || "Kliento įrašas"}</div>
-                        </button>
+                  <input
+                    list="client-picker-options"
+                    style={inputBase}
+                    value={clientPickerSearch}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setClientPickerSearch(value);
+                      const matched = clients.find((client) =>
+                        [client.name, client.companyCode, client.vatCode, client.email].filter(Boolean).join(" | ") === value
                       );
+                      if (matched) applySelectedClient(String(matched.id));
+                    }}
+                    placeholder="Pasirinkite arba pradėkite vesti klientą..."
+                  />
+                  <datalist id="client-picker-options">
+                    {clients.map((client) => {
+                      const clientLabel = [client.name, client.companyCode, client.vatCode, client.email].filter(Boolean).join(" | ");
+                      return <option key={client.id} value={clientLabel} />;
                     })}
-                  </div>
+                  </datalist>
+
+                  {selectedClient && (
+                    <div style={{ marginTop: "8px", padding: "10px", border: "1px solid #bfdbfe", background: "#eff6ff", borderRadius: "10px", fontSize: "12px", color: "#1e3a8a", fontWeight: 700 }}>
+                      <div>{selectedClient.name}</div>
+                      <div style={{ marginTop: "4px", color: "#475569", fontWeight: 500 }}>
+                        {[selectedClient.companyCode, selectedClient.vatCode, selectedClient.email].filter(Boolean).join(" | ") || "Kliento įrašas"}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div style={formGroup}>
                   <label style={label}>Kontaktas</label>
                   {selectedClientContacts.length > 0 ? (
-                    <div style={pickerGrid}>
-                      {selectedClientContacts.map((contact) => {
-                        const isActive = (selectedClientContactId || matchedClientContactId) === String(contact.id);
-                        return (
-                          <button key={contact.id} type="button" style={isActive ? pickerButtonActive : pickerButton} onClick={() => applySelectedClientContact(String(contact.id))}>
-                            <div>{contact.name || "Kontaktas"}</div>
-                            <div style={{ fontSize: "11px", color: isActive ? "#1d4ed8" : "#64748b", marginTop: "4px" }}>{contact.email || contact.phone || "Kontaktinė informacija"}</div>
-                          </button>
-                        );
-                      })}
+                    <div>
+                      <select
+                        style={inputBase}
+                        value={matchedClientContactId || ""}
+                        onInput={(e) => {
+                          applySelectedClientContact(e.target.value);
+                        }}
+                        onChange={(e) => {
+                          applySelectedClientContact(e.target.value);
+                        }}
+                      >
+                        <option value="">Pasirinkite vadybininką...</option>
+                        {selectedClientContacts.map((contact) => (
+                          <option key={contact.id} value={String(contact.id)}>
+                            {[contact.name, contact.position, contact.email, contact.phone].filter(Boolean).join(" | ")}
+                          </option>
+                        ))}
+                      </select>
+
+                      {selectedClient && (
+                        <button
+                          type="button"
+                          style={{ ...btnSecondary, marginTop: "8px", fontSize: "12px" }}
+                          onClick={() => {
+  if (!selectedClient) return;
+  setNewClientDraft({
+    ...emptyNewClientDraft,
+    ...selectedClient,
+    clientType: selectedClient.clientType || "Ekspeditorius",
+    contacts: Array.isArray(selectedClient.contacts) && selectedClient.contacts.length > 0
+      ? selectedClient.contacts
+      : [{ id: 1, name: "", position: "", email: "", phone: "" }],
+    departmentContacts: Array.isArray(selectedClient.departmentContacts) && selectedClient.departmentContacts.length > 0
+      ? selectedClient.departmentContacts
+      : emptyNewClientDraft.departmentContacts,
+  });
+  setShowNewClientModal(true);
+}}
+                        >
+                          + Pridėti / redaguoti vadybininką
+                        </button>
+                      )}
+
+                      {(projectDraft.clientContactId || projectDraft.clientContactName || projectDraft.clientContactEmail || projectDraft.clientContactPhone) && (
+                        <div style={{ marginTop: "8px", padding: "10px", border: "1px solid #bfdbfe", background: "#eff6ff", borderRadius: "10px", fontSize: "12px", color: "#1e3a8a", fontWeight: 600 }}>
+                          <div>{projectDraft.clientContactName || "Kontaktas"}</div>
+                          <div style={{ marginTop: "4px", color: "#475569", fontWeight: 500 }}>
+                            {[projectDraft.clientContactEmail, projectDraft.clientContactPhone].filter(Boolean).join(" | ") || "Kontaktinė informacija nenurodyta"}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : <div style={{ padding: "12px", border: "1px dashed #cbd5e1", borderRadius: "10px", color: "#64748b", fontSize: "12px" }}>Kliento kontaktų nėra, naudokite bendrus duomenis.</div>}
                 </div>
@@ -4468,19 +4720,32 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                       }]
                     : [],
                 }),
-                onEdit: selectedClient ? () => openEntityEditModal("client") : null,
+                onEdit: selectedClient ? () => {
+  setNewClientDraft({
+    ...emptyNewClientDraft,
+    ...selectedClient,
+    clientType: selectedClient.clientType || "Ekspeditorius",
+    contacts: Array.isArray(selectedClient.contacts) && selectedClient.contacts.length > 0
+      ? selectedClient.contacts
+      : [{ id: 1, name: "", position: "", email: "", phone: "" }],
+    departmentContacts: Array.isArray(selectedClient.departmentContacts) && selectedClient.departmentContacts.length > 0
+      ? selectedClient.departmentContacts
+      : emptyNewClientDraft.departmentContacts,
+  });
+  setShowNewClientModal(true);
+} : null,
               })}
             </div>
 
             <div style={{ padding: "18px", background: "#fff", border: "1px solid #dbeafe", borderRadius: "14px" }}>
               <div style={{ marginBottom: "14px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>3. KROVINYS</div>
               <div style={formGrid}>
-                <div style={formGroup}><label style={label}>Krovinio tipas</label><input style={inputBase} value={projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || ""} onChange={(e) => updateFormData({ cargoType: e.target.value, cargoName: e.target.value, cargo: e.target.value })} placeholder="pvz. Automobiliai" /></div>
-                <div style={formGroup}><label style={label}>Kiekis</label><input style={inputBase} value={projectDraft.quantity || projectDraft.vehicleCount || ""} onChange={(e) => updateFormData({ quantity: e.target.value, vehicleCount: e.target.value })} placeholder="pvz. 6 vnt." /></div>
-                <div style={formGroup}><label style={label}>LDM</label><input style={inputBase} value={projectDraft.ldm || ""} onChange={(e) => updateFormData({ ldm: e.target.value })} placeholder="pvz. 10.5" /></div>
-                <div style={formGroup}><label style={label}>Svoris</label><input style={inputBase} value={projectDraft.weight || ""} onChange={(e) => updateFormData({ weight: e.target.value })} placeholder="pvz. 12500 kg" /></div>
-                <div style={formGroup}><label style={label}>Temperatūra</label><input style={inputBase} value={projectDraft.temperature || ""} onChange={(e) => updateFormData({ temperature: e.target.value })} placeholder="pvz. +2 / +8" /></div>
-                <div style={formGroup}><label style={label}>Palečių sk.</label><input style={inputBase} value={projectDraft.palletCount || ""} onChange={(e) => updateFormData({ palletCount: e.target.value })} placeholder="pvz. 33" /></div>
+                <div style={formGroup}><label style={label}>Krovinio tipas</label><input list="cargo-type-options" style={inputBase} value={projectDraft.cargoType || projectDraft.cargoName || projectDraft.cargo || ""} onChange={(e) => updateFormData({ cargoType: e.target.value, cargoName: e.target.value, cargo: e.target.value })} placeholder="Pasirinkite arba įrašykite..." /><datalist id="cargo-type-options">{["Automobiliai","Neutralus krovinys","Dalinis krovinys","Pilna fūra","Baldai","Padangos"].map((v) => <option key={v} value={v} />)}</datalist></div>
+                <div style={formGroup}><label style={label}>Kiekis</label><select style={inputBase} value={projectDraft.quantity || ""} onInput={(e) => setProjectDraft((prev) => ({ ...prev, quantity: e.target.value, vehicleCount: e.target.value }))} onChange={(e) => setProjectDraft((prev) => ({ ...prev, quantity: e.target.value, vehicleCount: e.target.value }))}><option value="">Pasirinkite...</option>{[1,2,3,4,5,6,7,8,9,10].map((n) => <option key={n} value={String(n)}>{n}</option>)}</select></div>
+                <div style={formGroup}><label style={label}>LDM</label><input list="ldm-options" style={inputBase} value={projectDraft.ldm || ""} onChange={(e) => updateFormData({ ldm: e.target.value })} placeholder="Pasirinkite arba įrašykite..." /><datalist id="ldm-options">{["0.5","1","1.5","2","2.5","3","4","5","6","7.7","10","13.6"].map((v) => <option key={v} value={v} />)}</datalist></div>
+                <div style={formGroup}><label style={label}>Svoris</label><input list="weight-options" style={inputBase} value={projectDraft.weight || ""} onChange={(e) => updateFormData({ weight: e.target.value })} placeholder="Pasirinkite arba įrašykite..." /><datalist id="weight-options">{["500 kg","1000 kg","1500 kg","2000 kg","3000 kg","5000 kg","10000 kg","24000 kg"].map((v) => <option key={v} value={v} />)}</datalist></div>
+                <div style={formGroup}><label style={label}>Temperatūra</label><input list="temperature-options" style={inputBase} value={projectDraft.temperature || ""} onChange={(e) => updateFormData({ temperature: e.target.value })} placeholder="Pasirinkite arba įrašykite..." /><datalist id="temperature-options">{["Netaikoma","Ambient","+15°C to +25°C","+2°C to +8°C","-18°C"].map((v) => <option key={v} value={v} />)}</datalist></div>
+                <div style={formGroup}><label style={label}>Palečių sk.</label><select style={inputBase} value={projectDraft.palletCount || ""} onInput={(e) => setProjectDraft((prev) => ({ ...prev, palletCount: e.target.value }))} onChange={(e) => setProjectDraft((prev) => ({ ...prev, palletCount: e.target.value }))}><option value="">Nenurodyta</option>{Array.from({ length: 33 }, (_, i) => i + 1).map((n) => <option key={n} value={String(n)}>{n}</option>)}</select></div>
                 <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Pastabos</label><textarea rows="3" style={inputBase} value={projectDraft.cargoNotes || ""} onChange={(e) => updateFormData({ cargoNotes: e.target.value })} placeholder="Papildoma informacija apie krovinį." /></div>
               </div>
             </div>
@@ -4490,7 +4755,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               <div style={formGrid}>
                 <div style={formGroup}><label style={label}>Data *</label><input style={inputBase} type="date" value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div>
                 <div style={formGroup}><label style={label}>Laikas</label><input style={inputBase} type="time" value={projectDraft.loadingTime || ""} onChange={(e) => updateFormData({ loadingTime: e.target.value })} /></div>
-                <div style={formGroup}><label style={label}>Įmonė</label><input style={inputBase} value={projectDraft.loadingCompanyName || ""} onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} /></div>
+                <div style={formGroup}><label style={label}>Įmonė</label><input style={inputBase} value={projectDraft.loadingCompanyName || ""} onChange={(e) => updateFormData({ loadingCompanyName: e.target.value })} placeholder="Įveskite įmonę..." /></div>
                 <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={projectDraft.loadingStreet || ""} onChange={(e) => updateFormData({ loadingStreet: e.target.value })} /></div>
                 <div style={formGroup}><label style={label}>Miestas *</label><input style={inputBase} value={projectDraft.loadingCity || ""} onChange={(e) => { const loadingCity = e.target.value; updateFormData({ loadingCity, route: loadingCity && projectDraft.unloadingCity ? `${loadingCity} → ${projectDraft.unloadingCity}` : "" }); }} /></div>
                 <div style={formGroup}><label style={label}>Pašto kodas</label><input style={inputBase} value={projectDraft.loadingPostalCode || ""} onChange={(e) => updateFormData({ loadingPostalCode: e.target.value })} /></div>
@@ -4635,7 +4900,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
               <div style={formGrid}>
                 <div style={formGroup}><label style={label}>Kliento kaina</label><input style={inputBase} type="number" step="0.01" value={projectDraft.clientPrice || ""} onChange={(e) => updateFormData({ clientPrice: parseFloat(e.target.value) || 0 })} /></div>
                 <div style={formGroup}><label style={label}>{executionCostLabel}</label><input style={inputBase} type="number" step="0.01" value={executionDraft.orderType === "own_transport" ? (executionDraft.executionCost || executionDraft.carrierPrice || "") : (executionDraft.carrierPrice || "")} onChange={(e) => { const value = parseFloat(e.target.value) || 0; updateFormData(executionDraft.orderType === "own_transport" ? { executionCost: value, carrierPrice: value } : { carrierPrice: value }); }} /></div>
-                <div style={formGroup}><label style={label}>PVM režimas</label><select style={inputBase} value={vatModeValue} onChange={(e) => { const newValue = e.target.options[e.target.selectedIndex].value; console.log('🔴 PVM select onChange:', newValue); updateFormData({ vatMode: newValue, carrierPriceWithVAT: newValue === "with_vat" }); }}><option value="without_vat">Be PVM</option><option value="with_vat">Su PVM</option></select></div>
+                <div style={formGroup}><label style={label}>PVM režimas</label><select style={inputBase} value={vatModeValue} onInput={(e) => { const newValue = e.target.value; updateFormData({ vatMode: newValue, carrierPriceWithVAT: newValue === "with_vat" }); }} onChange={(e) => { const newValue = e.target.value; updateFormData({ vatMode: newValue, carrierPriceWithVAT: newValue === "with_vat" }); }}><option value="without_vat">Be PVM</option><option value="with_vat">Su PVM</option></select></div>
                 <div style={formGroup}><label style={label}>Automatinis pelnas</label><div style={{ ...inputBase, background: currentProfit >= 0 ? "#ecfdf5" : "#fef2f2", color: currentProfit >= 0 ? "#166534" : "#991b1b", fontWeight: 700 }}>{currentProfit.toFixed(2)} EUR</div></div>
               </div>
             </div>
@@ -4649,7 +4914,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
                 <div style={formGroup}><label style={label}>CMR (po vykdymo, optional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ documents: { ...(projectDraft.documents || {}), cmr: dataUrl } }); }} /></div>
                 <div style={formGroup}><label style={label}>Kiti vykdymo dokumentai (optional)</label><input style={inputBase} type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; const dataUrl = await readFileAsDataUrl(file); updateFormData({ documents: { ...(projectDraft.documents || {}), pod: dataUrl } }); }} /></div>
                 <div style={formGroup}><label style={label}>Preview</label><button type="button" style={{ ...btn, background: "#7c3aed" }} onClick={openPreviewFromDrafts}>Atidaryti preview</button></div>
-                <div style={formGroup}><label style={label}>Originalai reikalingi</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div>
+                <div style={formGroup}><label style={label}>Originalai reikalingi</label><select style={inputBase} value={originalsRequiredValue} onInput={(e) => updateFormData({ originalsRequired: e.target.value })} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div>
               </div>
             </div>
 
@@ -5183,7 +5448,7 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
             D. Datos ir vykdymo instrukcijos
           </div>
           <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📅 Datos</h4><div style={formGrid}><div style={formGroup}><label style={label}>Pakrovimo data *</label><input style={inputBase} type="date" required value={projectDraft.loadingDate || ""} onChange={(e) => updateFormData({ loadingDate: e.target.value })} /></div><div style={formGroup}><label style={label}>Iškrovimo data *</label><input style={inputBase} type="date" required value={projectDraft.unloadingDate || ""} onChange={(e) => updateFormData({ unloadingDate: e.target.value })} /></div></div>{projectDraft.loadingDate && projectDraft.unloadingDate && (() => { const start = new Date(projectDraft.loadingDate); const end = new Date(projectDraft.unloadingDate); const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); return <div style={{ marginTop: "8px", padding: "12px", background: days >= 0 ? "#eff6ff" : "#fee2e2", border: `1px solid ${days >= 0 ? "#3b82f6" : "#ef4444"}`, borderRadius: "6px", fontSize: "13px" }}>{days >= 0 ? <>ℹ️ Trukmė: <strong>{days} {days === 1 ? "diena" : days < 10 ? "dienos" : "dienų"}</strong></> : <span style={{ color: "#dc2626" }}>⚠️ Iškrovimo data ankstesnė už pakrovimo!</span>}</div>; })()}</div>
-          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={projectDraft.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={projectDraft.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={projectDraft.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukcijos vežėjui"}</label><textarea rows="3" style={inputBase} value={executionDraft.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={originalsRequiredValue} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div><div style={formGroup}><label style={label}>Statusas</label><select style={inputBase} value={executionDraft.status || "new"} onChange={(e) => updateFormData({ status: e.target.value })}>{Object.entries(STATUS_MAP).filter(([k]) => !["active","draft","generated"].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
+          <div style={{ marginTop: "16px" }}><h4 style={sectionTitle}>📋 Papildoma informacija</h4><div style={formGrid}><div style={formGroup}><label style={label}>Load/Ref numeris (pakrovimui)</label><input style={inputBase} value={projectDraft.loadRefLoading || ""} placeholder="pvz. LRN-2024-001" onChange={(e) => updateFormData({ loadRefLoading: e.target.value })} /></div><div style={formGroup}><label style={label}>Load/Ref numeris (iškrovimui)</label><input style={inputBase} value={projectDraft.loadRefUnloading || ""} placeholder="pvz. DLV-2024-001" onChange={(e) => updateFormData({ loadRefUnloading: e.target.value })} /></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>VIN numeriai automobilių (atskirti kableliais)</label><textarea rows="2" style={{ ...inputBase, fontFamily: "monospace", fontSize: "12px" }} value={projectDraft.vinNumbers || ""} placeholder="pvz. WBA1234567890ABCD, WBA9876543210EFGH, ..." onChange={(e) => updateFormData({ vinNumbers: e.target.value })} /></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>{executionDraft.orderType === "own_transport" ? "Instrukcijos vairuotojui" : "Instrukcijos vežėjui"}</label><textarea rows="3" style={inputBase} value={executionDraft.instructions || ""} placeholder="pvz. Skambinti prieš 1h iki pakrovimo. Automobiliai turi būti dengti..." onChange={(e) => updateFormData({ instructions: e.target.value })} /></div><div style={{ ...formGrid, marginTop: "12px" }}><div style={formGroup}><label style={label}>Originalūs dokumentai</label><select style={inputBase} value={originalsRequiredValue} onInput={(e) => updateFormData({ originalsRequired: e.target.value })} onChange={(e) => updateFormData({ originalsRequired: e.target.value })}><option value="not_required">Nereikalingi</option><option value="required">Reikalingi</option></select></div><div style={formGroup}><label style={label}>Statusas</label><select style={inputBase} value={executionDraft.status || "new"} onChange={(e) => updateFormData({ status: e.target.value })}>{Object.entries(STATUS_MAP).filter(([k]) => !["active","draft","generated"].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div></div><div style={{ ...formGroup, marginTop: "12px" }}><label style={label}>Pastabos</label><textarea rows="2" style={inputBase} value={projectDraft.notes || ""} placeholder="Papildomos pastabos..." onChange={(e) => updateFormData({ notes: e.target.value })} /></div></div>
           {executionDraft.orderType === "resale_to_carrier" && executionDraft.carrierId && <div style={{ marginTop: "16px" }}><label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}><input type="checkbox" checked={executionDraft.sendToCarrier !== false} onChange={(e) => updateFormData({ sendToCarrier: e.target.checked })} />📧 Siųsti orderį vežėjui el. paštu</label></div>}
 
           <div style={{ marginTop: "20px", marginBottom: "10px", fontSize: "15px", fontWeight: 700, color: "#1e3a8a" }}>
@@ -5239,21 +5504,87 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
 
     {showNewClientModal && (
       <div style={modalOverlay} onClick={() => setShowNewClientModal(false)}>
-        <div style={{ ...modal, maxWidth: "680px" }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ ...modal, maxWidth: "980px", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
           <div style={modalHeader}>
             <h3 style={{ margin: 0, color: "#1e3a8a" }}>Naujas klientas</h3>
             <button type="button" style={closeBtn} onClick={() => setShowNewClientModal(false)}>×</button>
           </div>
+          <div style={{ marginBottom: "14px", fontWeight: 700, color: "#1e3a8a" }}>Įmonės informacija</div>
           <div style={formGrid}>
             <div style={formGroup}><label style={label}>Pavadinimas *</label><input style={inputBase} value={newClientDraft.name} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, name: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Kliento tipas</label><select style={inputBase} value={newClientDraft.clientType} onInput={(e) => setNewClientDraft((prev) => ({ ...prev, clientType: e.target.value }))} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, clientType: e.target.value }))}><option value="Ekspeditorius">Ekspeditorius</option><option value="Tiesioginis klientas">Tiesioginis klientas</option><option value="Klientas">Klientas</option><option value="Klientas + Vežėjas">Klientas + Vežėjas</option><option value="Ekspeditorius + Vežėjas">Ekspeditorius + Vežėjas</option></select></div>
             <div style={formGroup}><label style={label}>Įmonės kodas</label><input style={inputBase} value={newClientDraft.companyCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, companyCode: e.target.value }))} /></div>
             <div style={formGroup}><label style={label}>PVM kodas</label><input style={inputBase} value={newClientDraft.vatCode} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, vatCode: e.target.value }))} /></div>
-            <div style={formGroup}><label style={label}>El. paštas</label><input style={inputBase} value={newClientDraft.email} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, email: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Bendras el. paštas</label><input style={inputBase} value={newClientDraft.email} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, email: e.target.value }))} /></div>
             <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={newClientDraft.phone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, phone: e.target.value }))} /></div>
             <div style={formGroup}><label style={label}>Adresas</label><input style={inputBase} value={newClientDraft.address} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, address: e.target.value }))} /></div>
-            <div style={formGroup}><label style={label}>Kontaktinis asmuo</label><input style={inputBase} value={newClientDraft.contactName} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactName: e.target.value }))} /></div>
-            <div style={formGroup}><label style={label}>Kontaktinis el. paštas</label><input style={inputBase} value={newClientDraft.contactEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactEmail: e.target.value }))} /></div>
-            <div style={formGroup}><label style={label}>Kontaktinis telefonas</label><input style={inputBase} value={newClientDraft.contactPhone} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contactPhone: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Šalis</label><input style={inputBase} value={newClientDraft.country} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, country: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>Web puslapis</label><input style={inputBase} value={newClientDraft.website} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, website: e.target.value }))} /></div>
+          </div>
+
+          <div style={{ marginTop: "18px", marginBottom: "14px", fontWeight: 700, color: "#1e3a8a" }}>Dokumentų ir komunikacijos kanalai</div>
+          <div style={formGrid}>
+            <div style={formGroup}><label style={label}>Invoice el. paštas</label><input style={inputBase} value={newClientDraft.invoiceEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, invoiceEmail: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>CMR el. paštas</label><input style={inputBase} value={newClientDraft.cmrEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, cmrEmail: e.target.value }))} /></div>
+            <div style={formGroup}><label style={label}>POD el. paštas</label><input style={inputBase} value={newClientDraft.podEmail} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, podEmail: e.target.value }))} /></div>
+            <div style={{ ...formGroup, gridColumn: "1 / -1" }}><label style={label}>Pastabos</label><textarea rows="3" style={inputBase} value={newClientDraft.notes} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, notes: e.target.value }))} /></div>
+          </div>
+
+          <div style={{ marginTop: "18px", marginBottom: "14px", fontWeight: 700, color: "#1e3a8a" }}>Vadybininkų kontaktai</div>
+          {(newClientDraft.contacts || []).map((contact, index) => (
+            <div key={contact.id} style={{ padding: "12px", border: "1px solid #dbeafe", borderRadius: "10px", marginBottom: "10px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontWeight: 700 }}>Kontaktas #{index + 1}<button type="button" style={{ background: "#fee2e2", color: "#991b1b", border: "0", borderRadius: "6px", padding: "5px 8px", fontSize: "11px", fontWeight: 700, cursor: "pointer" }} onClick={() => setNewClientDraft((prev) => ({ ...prev, contacts: prev.contacts.filter((c) => c.id !== contact.id) }))}>Pašalinti</button></div>
+              <div style={formGrid}>
+                <div style={formGroup}><label style={label}>Vardas, pavardė</label><input style={inputBase} value={contact.name || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contacts: prev.contacts.map((c) => c.id === contact.id ? { ...c, name: e.target.value } : c) }))} /></div>
+                <div style={formGroup}><label style={label}>Pareigos</label><input style={inputBase} value={contact.position || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contacts: prev.contacts.map((c) => c.id === contact.id ? { ...c, position: e.target.value } : c) }))} /></div>
+                <div style={formGroup}><label style={label}>El. paštas</label><input style={inputBase} value={contact.email || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contacts: prev.contacts.map((c) => c.id === contact.id ? { ...c, email: e.target.value } : c) }))} /></div>
+                <div style={formGroup}><label style={label}>Telefonas</label><input style={inputBase} value={contact.phone || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, contacts: prev.contacts.map((c) => c.id === contact.id ? { ...c, phone: e.target.value } : c) }))} /></div>
+              </div>
+            </div>
+          ))}
+          <button type="button" style={btnSecondary} onClick={() => setNewClientDraft((prev) => ({ ...prev, contacts: [...(prev.contacts || []), { id: Date.now(), name: "", position: "", email: "", phone: "" }] }))}>+ Pridėti vadybininką</button>
+
+          <div style={{ marginTop: "18px", marginBottom: "14px", fontWeight: 700, color: "#1e3a8a" }}>Papildomi kontaktai / skyriai</div>
+          <div style={formGrid}>
+            {(newClientDraft.departmentContacts || []).map((dep) => (
+              <div key={dep.id} style={{ padding: "12px", border: "1px solid #dbeafe", borderRadius: "10px", background: "#f8fafc" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                  <input
+                    style={{ ...inputBase, fontWeight: 700 }}
+                    value={dep.title || ""}
+                    onChange={(e) => setNewClientDraft((prev) => ({ ...prev, departmentContacts: prev.departmentContacts.map((d) => d.id === dep.id ? { ...d, title: e.target.value } : d) }))}
+                    placeholder="Skyriaus pavadinimas"
+                  />
+                  <button
+                    type="button"
+                    style={{ background: "#fee2e2", color: "#991b1b", border: 0, borderRadius: "6px", padding: "6px 9px", fontSize: "11px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                    onClick={() => setNewClientDraft((prev) => ({ ...prev, departmentContacts: prev.departmentContacts.filter((d) => d.id !== dep.id) }))}
+                  >
+                    Pašalinti
+                  </button>
+                </div>
+
+                <div style={formGroup}>
+                  <label style={label}>Telefonas</label>
+                  <input style={inputBase} value={dep.phone || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, departmentContacts: prev.departmentContacts.map((d) => d.id === dep.id ? { ...d, phone: e.target.value } : d) }))} />
+                </div>
+
+                <div style={formGroup}>
+                  <label style={label}>El. paštas</label>
+                  <input style={inputBase} value={dep.email || ""} onChange={(e) => setNewClientDraft((prev) => ({ ...prev, departmentContacts: prev.departmentContacts.map((d) => d.id === dep.id ? { ...d, email: e.target.value } : d) }))} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "12px" }}>
+            <button
+              type="button"
+              style={btnSecondary}
+              onClick={() => setNewClientDraft((prev) => ({ ...prev, departmentContacts: [...(prev.departmentContacts || []), { id: Date.now(), title: "", phone: "", email: "" }] }))}
+            >
+              + Pridėti skyrių
+            </button>
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
             <button type="button" style={btnSecondary} onClick={() => setShowNewClientModal(false)}>Atšaukti</button>
@@ -5410,3 +5741,28 @@ export function Modal({ type, initialData, onClose, clients, carriers, saveOrder
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

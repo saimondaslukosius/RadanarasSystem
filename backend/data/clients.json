@@ -1,22 +1,33 @@
 [
   {
-    "id": "CL20260413170428",
-    "name": "Test klientas ",
-    "clientType": "Ekspeditorius",
-    "companyCode": "",
-    "vatCode": "",
-    "email": "",
-    "phone": "",
-    "address": "",
-    "country": "",
+    "id": "CL-1777467221789",
+    "name": "Dolama, UAB",
+    "clientType": "Ekspeditorius + Vežėjas",
+    "companyCode": "303106467",
+    "vatCode": "LT100007903911",
+    "email": "info@dolama.lt",
+    "phone": "+37067715354",
+    "address": "Pievų 3-oji g. 12, Kulių k., LT-95405 Klaipėdos r.",
+    "country": "Lietuva",
     "website": "",
+    "invoiceEmail": "info@dolama.lt",
+    "cmrEmail": "info@dolama.lt",
+    "podEmail": "info@dolama.lt",
+    "notes": "",
     "contacts": [
       {
         "id": 1,
-        "name": "",
-        "position": "",
-        "email": "",
-        "phone": ""
+        "name": "   Domantas Butkus   ",
+        "position": " Direktorius",
+        "email": "info@dolama.lt",
+        "phone": "+37067715354"
+      },
+      {
+        "id": 1777466793899,
+        "name": " Žymantas Butkus",
+        "position": "Pardavimų vadybininkas ",
+        "email": "zymantas@dolama.lt",
+        "phone": "+370 677 15354"
       }
     ],
     "departmentContacts": [
@@ -51,10 +62,136 @@
         "email": ""
       }
     ],
+    "createdAt": "2026-04-29T12:53:41.789Z",
+    "updatedAt": "2026-04-29T14:18:01.901Z",
+    "managerContacts": [
+      {
+        "id": 1,
+        "name": "   Domantas Butkus   ",
+        "position": " Direktorius",
+        "email": "info@dolama.lt",
+        "phone": "+37067715354"
+      },
+      {
+        "id": 1777466793899,
+        "name": " Žymantas Butkus",
+        "position": "Pardavimų vadybininkas ",
+        "email": "zymantas@dolama.lt",
+        "phone": "+370 677 15354"
+      }
+    ],
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "link": "",
+        "fileName": ""
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "link": ""
+      }
+    ],
+    "drivers": [],
+    "trucks": [],
+    "trailers": [],
+    "isOwnCompany": false
+  },
+  {
+    "id": "CL-1777466409462",
+    "name": "Hegelmann Multimodal UAB",
+    "clientType": "Klientas",
+    "companyCode": "305594378",
+    "vatCode": "LT100013305912",
+    "email": "",
+    "phone": "\"\"+37037308983\"\"",
+    "address": "Kaunas, Lietuva",
+    "country": "",
+    "website": "",
     "invoiceEmail": "",
     "cmrEmail": "",
     "podEmail": "",
-    "notes": ""
+    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Kaunas.",
+    "contacts": [
+      {
+        "id": 1,
+        "name": " Deividas Kaklauskas  ",
+        "position": "Pardavimų vadybininkas ",
+        "email": " dkaklauskas@hegelmann.com",
+        "phone": "+37037302409"
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "createdAt": "2026-04-29T12:40:09.462Z",
+    "updatedAt": "2026-04-29T12:40:09.462Z"
   },
   {
     "id": "CL20260404001700",
@@ -162,13 +299,14 @@
         "email": ""
       }
     ],
-    "clientType": "Ekspeditorius",
+    "clientType": "Ekspeditorius + Vežėjas",
     "website": " http://www.delamode-baltics.com",
     "country": "",
     "invoiceEmail": "",
     "cmrEmail": "",
     "podEmail": "",
-    "notes": ""
+    "notes": "",
+    "updatedAt": "2026-04-30T09:18:30.589Z"
   },
   {
     "id": "IMP1775684103597",
@@ -378,75 +516,6 @@
     "podEmail": ""
   },
   {
-    "id": "IMP1775684103466",
-    "name": "Dolama, UAB",
-    "companyCode": "303106467",
-    "vatCode": "LT100007903911",
-    "email": "",
-    "phone": "",
-    "address": "Klaipëda, Lietuva",
-    "website": "",
-    "managerContacts": [
-      {
-        "id": 1,
-        "name": "\"\"transporto vadybininkas Þymantas Butkus  zymantas@dolama.lt Direktorius Domantas Butkus   \"\"",
-        "position": "",
-        "email": "",
-        "phone": ""
-      }
-    ],
-    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Klaipëda.",
-    "_importSource": "InfoTrans",
-    "_country": "Lietuva",
-    "_city": "Klaipëda",
-    "clientType": "Klientas",
-    "contacts": [
-      {
-        "id": 1,
-        "name": "\"\"transporto vadybininkas Þymantas Butkus  zymantas@dolama.lt Direktorius Domantas Butkus   \"\"",
-        "position": "",
-        "email": "",
-        "phone": ""
-      }
-    ],
-    "departmentContacts": [
-      {
-        "id": 1,
-        "title": "Administracija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 2,
-        "title": "Buhalterija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 3,
-        "title": "Klientų aptarnavimas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 4,
-        "title": "Personalas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 5,
-        "title": "Krovinių gabenimas",
-        "phone": "",
-        "email": ""
-      }
-    ],
-    "country": "",
-    "invoiceEmail": "",
-    "cmrEmail": "",
-    "podEmail": ""
-  },
-  {
     "id": "IMP1775684103469",
     "name": "Dpmotors, UAB",
     "companyCode": "306064607",
@@ -541,9 +610,9 @@
     "contacts": [
       {
         "id": 1,
-        "name": "\"\"Logistics manager Aiste Udrenaite  planning@focus-logistics.eu Logistics manager Nerijus Lisanka",
+        "name": " Aiste Udrenaite ",
         "position": "",
-        "email": "",
+        "email": " planning@focus-logistics.eu",
         "phone": ""
       }
     ],
@@ -1142,30 +1211,58 @@
     "companyCode": "158297016",
     "vatCode": "LT582970113",
     "email": "",
-    "phone": "\"\"+37044772222\"\"",
-    "address": "Jurbarkas, Lietuva",
-    "website": "",
+    "phone": " +370 37 524222",
+    "address": " P. Paulaičio g. 13B, LT-74111 Jurbarkas",
+    "website": " http://www.manvesta.eu",
     "managerContacts": [
       {
         "id": 1,
-        "name": "\"\"Expedition manager Ramunë Savickienë +370 447 52 222 Ramune Savickiene | MANVESTA  \"\"",
-        "position": "",
-        "email": "",
-        "phone": "\"\"+37044772222\"\""
+        "name": "Ramunë Savickienë ",
+        "position": "Expedition manager",
+        "email": "ramune.savickiene@manvesta.lt",
+        "phone": " +370 447 52 222"
+      },
+      {
+        "id": 1777479291520,
+        "name": "Mustafa Koc",
+        "position": "Forwarding manager",
+        "email": "mustafa.koc@manvesta.lt",
+        "phone": "+370 615 34222"
+      },
+      {
+        "id": 1777479376545,
+        "name": "Jakub Chiszberg",
+        "position": "Forwarding manager",
+        "email": "jakub.chiszberg@manvesta.eu",
+        "phone": "+48 728 261 325"
       }
     ],
-    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Jurbarkas.",
+    "notes": "",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Jurbarkas",
-    "clientType": "Klientas",
+    "clientType": "Klientas + Vežėjas",
     "contacts": [
       {
         "id": 1,
-        "name": "\"\"Expedition manager Ramunë Savickienë +370 447 52 222 Ramune Savickiene | MANVESTA  \"\"",
-        "position": "",
-        "email": "",
-        "phone": "\"\"+37044772222\"\""
+        "name": "Ramunë Savickienë ",
+        "position": "Expedition manager",
+        "email": "ramune.savickiene@manvesta.lt",
+        "phone": " +370 447 52 222"
+      },
+      {
+        "id": 1777479291520,
+        "name": "Mustafa Koc",
+        "position": "Forwarding manager",
+        "email": "mustafa.koc@manvesta.lt",
+        "phone": "+370 615 34222"
+      },
+      {
+        "id": 1777479376545,
+        "name": "Jakub Chiszberg",
+        "position": "Forwarding manager",
+        "email": "jakub.chiszberg@manvesta.eu",
+        "phone": "+48 728 261 325"
       }
     ],
     "departmentContacts": [
@@ -1200,10 +1297,63 @@
         "email": ""
       }
     ],
-    "country": "",
+    "country": "Lietuva",
     "invoiceEmail": "",
     "cmrEmail": "",
-    "podEmail": ""
+    "podEmail": "",
+    "updatedAt": "2026-04-29T16:22:40.146Z",
+    "documentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "documents": [
+      {
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "",
+        "validUntil": "",
+        "link": ""
+      },
+      {
+        "id": 2,
+        "title": "Transporto licencija",
+        "number": "",
+        "validUntil": "",
+        "link": ""
+      }
+    ],
+    "drivers": [],
+    "trucks": [],
+    "trailers": [],
+    "isOwnCompany": false
   },
   {
     "id": "IMP1775684103525",
@@ -1499,7 +1649,7 @@
         "phone": "\"\"020 899 1049\"\""
       }
     ],
-    "notes": "Importuota iš InfoTrans. Šalis: Olandija. Miestas: Amsterdam.",
+    "notes": "",
     "_importSource": "InfoTrans",
     "_country": "Olandija",
     "_city": "Amsterdam",
@@ -1507,10 +1657,24 @@
     "contacts": [
       {
         "id": 1,
-        "name": "\"\"Carrier Operations Representative Jakub Chiszberg  Jakub Chiszberg  pardavimai Vladana  Stamenic",
-        "position": "",
+        "name": "Jakub Chiszberg   ",
+        "position": "Pardavimų Vadybininkas ",
+        "email": "mstrzelczyk@rpmmoves.com",
+        "phone": "+48 668 841 839"
+      },
+      {
+        "id": 1777456897309,
+        "name": "Kasia",
+        "position": "Pardavimų vadybinkė ",
         "email": "",
-        "phone": "\"\"020 899 1049\"\""
+        "phone": "+48 665 060 829"
+      },
+      {
+        "id": 1777457184620,
+        "name": "MOdestas Taškinas ",
+        "position": "Pardavimų vadybininkas ",
+        "email": "",
+        "phone": "+48 518 282 318"
       }
     ],
     "departmentContacts": [
@@ -1548,7 +1712,8 @@
     "country": "",
     "invoiceEmail": "",
     "cmrEmail": "",
-    "podEmail": ""
+    "podEmail": "",
+    "updatedAt": "2026-04-29T10:10:38.727Z"
   },
   {
     "id": "IMP1775684103563",
@@ -3711,7 +3876,7 @@
     "_importSource": "InfoTrans",
     "_country": "Lenkija",
     "_city": "Warszawa",
-    "clientType": "Klientas",
+    "clientType": "Ekspeditorius + Vežėjas",
     "country": "Lenkija",
     "contacts": [
       {
@@ -3756,7 +3921,8 @@
     ],
     "invoiceEmail": "",
     "cmrEmail": "",
-    "podEmail": ""
+    "podEmail": "",
+    "updatedAt": "2026-04-30T15:33:35.132Z"
   },
   {
     "id": "IMP1775684103552",
