@@ -6,6 +6,8 @@ import { ORDER_DRAFT_PERSIST_TARGETS } from "./order_draft_persistence_adapter";
 import { buildLegacyOrderLikeRowsFromFutureBuckets } from "./order_domain_view_adapter";
 import { buildReminderSnapshot, createManualReminderUpdate, getCarrierDocumentHealth } from "./missing_data_engine";
 import * as XLSX from "xlsx";
+import LoginPage from './LoginPage.jsx';
+// AdminConsole removed from company app — accessible via /#/admin (separate admin shell)
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
@@ -145,6 +147,27 @@ const getDaysLeft = (date) => {
 const isOwnCompanyCarrier = (carrier = {}) =>
   carrier?.isOwnCompany === true || carrier?.carrierType === "Nuosavas transportas";
 
+const isClientRole = (company = {}) => {
+  const t = company.clientType || company.carrierType || "";
+  return ["Klientas", "Tiesioginis klientas", "Ekspeditorius", "Klientas + Vežėjas", "Ekspeditorius + Vežėjas", "Vežėjas + Klientas", "Vežėjas + Ekspeditorius"].includes(t);
+};
+
+const isCarrierRole = (company = {}) => {
+  const t = company.carrierType || company.clientType || "";
+  return ["Vežėjas", "Vežėjas-ekspeditorius", "Nuosavas transportas", "Klientas + Vežėjas", "Ekspeditorius + Vežėjas", "Vežėjas + Klientas", "Vežėjas + Ekspeditorius"].includes(t);
+};
+
+const prepareCarrierFormFromMixedCompany = (company = {}) => {
+  const derivedCarrierType = company.carrierType || company.clientType || "Klientas + Vežėjas";
+  const derivedManagers =
+    Array.isArray(company.managerContacts) && company.managerContacts.length > 0
+      ? company.managerContacts
+      : Array.isArray(company.contacts) && company.contacts.length > 0
+        ? company.contacts.map(c => ({ id: c.id || 1, name: c.name || "", position: c.position || "", email: c.email || "", phone: c.phone || "" }))
+        : undefined;
+  return normalizeCarrierRecord({ ...company, carrierType: derivedCarrierType, managerContacts: derivedManagers });
+};
+
 const matchesCarrierDocumentFilter = (carrier, filterType) => {
   if (!filterType) return true;
   if (isOwnCompanyCarrier(carrier)) return false;
@@ -274,6 +297,26 @@ const dedupeImports = (importsList, carriersList, clientsList) => {
 
 const OBSERVER_MAX_EVENTS = 200;
 
+// ── Auth fetch interceptor ──────────────────────────────────────────────────
+// Automatiškai prideda JWT Authorization header prie visų /api/ ir /upload/ užklausų.
+// Tokenas saugomas localStorage['rauth_token'] (ne 'radanaras*' prefiksas — nebus išvalytas).
+const _baseFetch = window.fetch.bind(window);
+window.fetch = function authFetch(url, options) {
+  const opts   = options ? { ...options } : {};
+  const urlStr = typeof url === 'string' ? url : (url instanceof Request ? url.url : '');
+  if (urlStr.includes('/api/') || urlStr.startsWith('/upload/')) {
+    const token = localStorage.getItem('rauth_token');
+    if (token) {
+      if (opts.headers instanceof Headers) {
+        opts.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        opts.headers = { ...(opts.headers || {}), Authorization: `Bearer ${token}` };
+      }
+    }
+  }
+  return _baseFetch(url, opts);
+};
+
 const formatObserverTime = (date = new Date()) =>
   date.toLocaleTimeString("lt-LT", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
@@ -338,6 +381,22 @@ function App() {
   const [carriersFilter, setCarriersFilter] = useState(null);
   const [projectRegistryFilter, setProjectRegistryFilter] = useState("all");
   const [ownTransportTab, setOwnTransportTab] = useState("projects");
+  const [ekspedDateFilter, setEkspedDateFilter] = useState("all");
+  const [ekspedDragOver, setEkspedDragOver] = useState(false);
+  const [ekspedDateFrom, setEkspedDateFrom] = useState("");
+  const [ekspedDateTo, setEkspedDateTo] = useState("");
+  const [ekspedCommentModal, setEkspedCommentModal] = useState(null);
+  const [ekspedCommentText, setEkspedCommentText] = useState("");
+  const [ekspedDamageModal, setEkspedDamageModal] = useState(null);
+  const [ekspedFilterClient, setEkspedFilterClient] = useState("");
+  const [ekspedFilterCarrier, setEkspedFilterCarrier] = useState("");
+  const [ekspedFilterStatus, setEkspedFilterStatus] = useState("");
+  const [ekspedShowCancelled, setEkspedShowCancelled] = useState(false);
+  const ekspedClientFilterRef = useRef(null);
+  const ekspedCarrierFilterRef = useRef(null);
+  const ekspedStatusFilterRef = useRef(null);
+  const [ekspedCancelModal, setEkspedCancelModal] = useState(null);
+  const [ekspedCancelReason, setEkspedCancelReason] = useState("");
   const [dashboardStats, setDashboardStats] = useState(null);
   const [reminderOverrides, setReminderOverrides] = useState(() => {
     if (typeof window === "undefined") return [];
@@ -350,9 +409,11 @@ function App() {
   const [showReminderCenter, setShowReminderCenter] = useState(false);
   const [reminderCenterScope, setReminderCenterScope] = useState("all");
   const importFileRef = useRef(null);
+  const orderImportFileRef = useRef(null);
 
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [selectedCarrierId, setSelectedCarrierId] = useState(null);
+  const [profileContext, setProfileContext] = useState("client");
   const [selectedCarrierDocument, setSelectedCarrierDocument] = useState(null);
 
   const [showClientModal, setShowClientModal] = useState(false);
@@ -363,9 +424,11 @@ function App() {
   const [showCarrierProfile, setShowCarrierProfile] = useState(false);
   const [showCarrierDocumentModal, setShowCarrierDocumentModal] = useState(false);
   const [editingCarrierId, setEditingCarrierId] = useState(null);
+  const [editingMixedClientId, setEditingMixedClientId] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderModalType, setOrderModalType] = useState("order");
   const [orderWorkflowMode, setOrderWorkflowMode] = useState("default");
+  const [orderImportPrefill, setOrderImportPrefill] = useState(null);
   const [editingOrder, setEditingOrder] = useState(null);
   const [showTransportModal, setShowTransportModal] = useState(false);
   const [migrationDryRunVisible, setMigrationDryRunVisible] = useState(false);
@@ -384,6 +447,9 @@ function App() {
   const [appObserverErrorCount, setAppObserverErrorCount] = useState(0);
   const [appObserverFetchErrorCount, setAppObserverFetchErrorCount] = useState(0);
   const [appObserverCopyStatus, setAppObserverCopyStatus] = useState("");
+  // ── Auth state ─────────────────────────────────────────────────────────────
+  const [authUser,    setAuthUser]    = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const isDev = import.meta.env.DEV;
   const modalVisibilityRef = useRef({
     showOrderModal: false,
@@ -415,7 +481,20 @@ function App() {
     setAppObserverCopyStatus("");
   };
 
+  const handleLogout = async () => {
+    try { await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST' }); } catch {}
+    localStorage.removeItem('rauth_token');
+    setAuthUser(null);
+  };
+
   React.useEffect(() => {
+    // ── Auth tikrinimas prieš bet kokį duomenų krausymą ───────────────────
+    const token = localStorage.getItem('rauth_token');
+    if (!token) {
+      setAuthLoading(false);
+      return; // Nėra tokeno → rodys LoginPage
+    }
+
     // Clear all legacy localStorage keys to prevent QuotaExceededError
     if (typeof window !== "undefined") {
       Object.keys(window.localStorage)
@@ -426,6 +505,24 @@ function App() {
     const abortController = new AbortController();
 
     const loadData = async () => {
+      // Patikrina tokeno galiojimą prieš kraunant duomenis
+      try {
+        const meRes = await fetch(`${API_BASE}/api/auth/me`, { signal: abortController.signal });
+        if (!meRes.ok) {
+          localStorage.removeItem('rauth_token');
+          setAuthLoading(false);
+          return;
+        }
+        const meData = await meRes.json();
+        setAuthUser(meData.user);
+      } catch (e) {
+        if (abortController.signal.aborted) return;
+        localStorage.removeItem('rauth_token');
+        setAuthLoading(false);
+        return;
+      }
+      setAuthLoading(false);
+
       const backendData = await loadFromBackend(abortController.signal);
       if (abortController.signal.aborted) return;
 
@@ -790,6 +887,7 @@ function App() {
     { name: "Projektai", key: "projektai", title: "Esama projektų ir užsakymų lentelė su pagrindiniais įrašais." },
     { name: "Ekspedijavimas", key: "ekspedijavimas", title: "Ekspedijavimo shell ekranas. Pilnas workflow bus išplėstas kitame etape." },
     { name: "Nuosavas transportas", key: "nuosavas-transportas", title: "Esamas transporto karkasas. Vėliau bus pajungti gyvi fleet duomenys." },
+    { name: "Sąmatos", key: "samatos", title: "Būsimas krovinių kainų skaičiavimo ir vadybininko sprendimų modulis." },
     { name: "Finansai", key: "finansai", title: "Esamas finansų ekranas. Dalis turinio šiuo metu dar demo." },
     { name: "Duomenų bazė", key: "importas", title: "Bendra klientų, vežėjų ir importo bazė visai sistemai." },
     { name: "Įmonės nustatymai", key: "settings", title: "Įmonės duomenys, dokumentų ir šablonų nustatymai." }
@@ -816,9 +914,11 @@ function App() {
     { name: "Projektai", key: "projektai", title: "Centrinis visų expedition ir own_fleet projektų registras." },
     { name: "Ekspedijavimas", key: "ekspedijavimas", title: "Workflow modulis išoriniams vežėjams ir subrangovams." },
     { name: "Nuosavas transportas", key: "nuosavas-transportas", title: "Workflow modulis mūsų fleet, vairuotojams ir transporto priemonėms." },
+    { name: "Sąmatos", key: "samatos", title: "Būsimas krovinių kainų skaičiavimo ir vadybininko sprendimų modulis." },
     { name: "Finansai", key: "finansai", title: "Finansinė suvestinė iš projektų, sąskaitų ir terminų duomenų." },
     { name: "Importas", key: "importas", title: "Importo ir vidinių master-data bazių modulis klientams, vežėjams ir kontaktams." },
     { name: "Įmonės nustatymai", key: "settings", title: "Įmonės duomenys, dokumentų ir šablonų nustatymai." }
+    // Admin Console removed — accessible via /#/admin hash route (separate restricted UI)
   ];
 
   const handleRunMigrationDryRun = async () => {
@@ -956,7 +1056,7 @@ function App() {
         clientOrderNumber: "CL-78451",
         clientName: "Veho Lietuva, UAB",
         orderType: "own_transport",
-        carrierName: "Radanaras MB",
+        carrierName: "TransFlow",
         route: "Vilnius → Kaunas",
         loadingDate: "2026-04-21",
         unloadingDate: "2026-04-21",
@@ -979,7 +1079,7 @@ function App() {
         clientOrderNumber: "CL-78488",
         clientName: "Mercedes-Benz Lietuva",
         orderType: "own_transport",
-        carrierName: "Radanaras MB",
+        carrierName: "TransFlow",
         route: "Kaunas → Ryga",
         loadingDate: "2026-04-22",
         unloadingDate: "2026-04-23",
@@ -1002,7 +1102,7 @@ function App() {
         clientOrderNumber: "CL-78511",
         clientName: "Delamode Baltics",
         orderType: "own_transport",
-        carrierName: "Radanaras MB",
+        carrierName: "TransFlow",
         route: "Klaipėda → Vilnius",
         loadingDate: "2026-04-24",
         unloadingDate: "2026-04-24",
@@ -1020,9 +1120,124 @@ function App() {
       },
     ].slice(0, Math.max(0, 3 - baseOwnTransportOrdersForView.length));
   }, [baseOwnTransportOrdersForView.length]);
-  const ownTransportOrdersForView = [...baseOwnTransportOrdersForView, ...ownFleetDemoProjects];
+  const ownTransportOrdersForView = baseOwnTransportOrdersForView;
+
+  const expeditionDemoProjects = useMemo(() => {
+    if (baseExpeditionOrdersForView.length >= 3) return [];
+    return [
+      {
+        id: "demo-exp-001",
+        projectId: "EXP-2026-001",
+        orderNumber: "RAD-EXP-001",
+        clientOrderNumber: "DOL-4421",
+        clientId: "CL-1777467221789",
+        clientName: "Dolama, UAB",
+        carrierId: "CR20260402013001",
+        carrierName: "Tralveža, MB",
+        orderType: "expedition",
+        route: "Klaipėda → Varšuva",
+        loadingDate: "2026-04-28",
+        unloadingDate: "2026-04-30",
+        clientPrice: 1850,
+        carrierPrice: 1400,
+        status: "in_progress",
+        cmrStatus: "missing",
+        clientInvoiceStatus: "missing",
+        carrierInvoiceStatus: "missing",
+        createdAt: "2026-04-26T08:00:00.000Z",
+        __demo: true,
+      },
+      {
+        id: "demo-exp-002",
+        projectId: "EXP-2026-002",
+        orderNumber: "RAD-EXP-002",
+        clientOrderNumber: "DOL-4435",
+        clientId: "CL-1777467221789",
+        clientName: "Dolama, UAB",
+        carrierId: "CR20260402013001",
+        carrierName: "Tralveža, MB",
+        orderType: "expedition",
+        route: "Vilnius → Hamburgas",
+        loadingDate: "2026-04-25",
+        unloadingDate: "2026-04-27",
+        clientPrice: 2400,
+        carrierPrice: 1900,
+        status: "delivered",
+        cmrStatus: "present",
+        clientInvoiceStatus: "missing",
+        carrierInvoiceStatus: "present",
+        createdAt: "2026-04-23T09:30:00.000Z",
+        __demo: true,
+      },
+      {
+        id: "demo-exp-003",
+        projectId: "EXP-2026-003",
+        orderNumber: "RAD-EXP-003",
+        clientOrderNumber: "CL-9912",
+        clientName: "Delamode Baltics",
+        carrierName: "UAB Linava Trans",
+        orderType: "expedition",
+        route: "Ryga → Amsterdamas",
+        loadingDate: "2026-04-22",
+        unloadingDate: "2026-04-24",
+        clientPrice: 3100,
+        carrierPrice: 2600,
+        status: "completed",
+        cmrStatus: "present",
+        clientInvoiceStatus: "present",
+        carrierInvoiceStatus: "present",
+        createdAt: "2026-04-20T10:00:00.000Z",
+        __demo: true,
+      },
+      {
+        id: "demo-exp-004",
+        projectId: "EXP-2026-004",
+        orderNumber: "RAD-EXP-004",
+        clientOrderNumber: "DOL-4450",
+        clientId: "CL-1777467221789",
+        clientName: "Dolama, UAB",
+        carrierId: "CR20260402013001",
+        carrierName: "Tralveža, MB",
+        orderType: "expedition",
+        route: "Kaunas → Berlynas",
+        loadingDate: "2026-05-02",
+        unloadingDate: "2026-05-04",
+        clientPrice: 2200,
+        carrierPrice: 1750,
+        status: "active",
+        cmrStatus: "missing",
+        clientInvoiceStatus: "missing",
+        carrierInvoiceStatus: "missing",
+        createdAt: "2026-04-29T11:00:00.000Z",
+        __demo: true,
+      },
+      {
+        id: "demo-exp-005",
+        projectId: "EXP-2026-005",
+        orderNumber: "RAD-EXP-005",
+        clientOrderNumber: "CL-3307",
+        clientName: "Scan Global Logistics",
+        carrierName: "MB Greitas Kelias",
+        orderType: "expedition",
+        route: "Talinas → Praha",
+        loadingDate: "2026-04-19",
+        unloadingDate: "2026-04-21",
+        clientPrice: 2750,
+        carrierPrice: 2200,
+        status: "cancelled",
+        cancelReason: "Klientas atsisakė paskutinę minutę",
+        cancelledAt: "2026-04-18T15:00:00.000Z",
+        cmrStatus: "missing",
+        clientInvoiceStatus: "missing",
+        carrierInvoiceStatus: "missing",
+        createdAt: "2026-04-17T08:00:00.000Z",
+        __demo: true,
+      },
+    ].slice(0, Math.max(0, 5 - baseExpeditionOrdersForView.length));
+  }, [baseExpeditionOrdersForView.length]);
+
   const expeditionOrdersForView = baseExpeditionOrdersForView;
-  const registryOrdersForView = [...baseRegistryOrdersForView, ...ownFleetDemoProjects];
+  const registryOrdersForView = baseRegistryOrdersForView;
   const reminderSnapshot = useMemo(
     () =>
       buildReminderSnapshot({
@@ -1203,12 +1418,26 @@ function App() {
 
   const openNewCarrierModal = () => {
     setEditingCarrierId(null);
+    setEditingMixedClientId(null);
     setCarrierForm(normalizeCarrierRecord(emptyCarrierForm));
+    setShowCarrierModal(true);
+  };
+
+  const closeCarrierModal = () => {
+    setShowCarrierModal(false);
+    setEditingMixedClientId(null);
+  };
+
+  const openEditMixedClientAsCarrier = (client) => {
+    setEditingCarrierId(null);
+    setEditingMixedClientId(client.id);
+    setCarrierForm(prepareCarrierFormFromMixedCompany(client));
     setShowCarrierModal(true);
   };
 
   const openEditCarrierModal = (carrier) => {
     setEditingCarrierId(carrier.id);
+    setEditingMixedClientId(null);
     setCarrierForm(normalizeCarrierRecord(carrier));
     setShowCarrierModal(true);
     return;
@@ -1244,6 +1473,7 @@ function App() {
 
   const openCarrierProfile = (carrierId) => {
     setSelectedCarrierId(carrierId);
+    setProfileContext("carrier");
     setShowCarrierProfile(true);
   };
 
@@ -1251,6 +1481,7 @@ function App() {
     setOrderModalType(type);
     setEditingOrder(order);
     setOrderWorkflowMode(options.workflowMode || "default");
+    setOrderImportPrefill(options.prefill || null);
     setShowOrderModal(true);
   };
 
@@ -1653,6 +1884,39 @@ function App() {
     const cleanedTrucks = (carrierForm.trucks || []).filter(t => t.licensePlate?.trim() || t.model?.trim());
     const cleanedTrailers = (carrierForm.trailers || []).filter(t => t.licensePlate?.trim() || t.model?.trim());
     const trimmedName = carrierForm.name.trim();
+
+    if (editingMixedClientId) {
+      const originalClient = clients.find(c => String(c.id) === String(editingMixedClientId));
+      if (!originalClient) { closeCarrierModal(); return; }
+      const savedCompany = {
+        ...originalClient,
+        name: trimmedName,
+        companyCode: carrierForm.companyCode,
+        vatCode: carrierForm.vatCode,
+        email: carrierForm.email,
+        phone: carrierForm.phone,
+        address: carrierForm.address,
+        country: carrierForm.country,
+        website: carrierForm.website,
+        managerContacts: cleanedManagers,
+        documentContacts: cleanedDepartments,
+        documents: cleanedDocuments,
+        drivers: cleanedDrivers,
+        trucks: cleanedTrucks,
+        trailers: cleanedTrailers,
+        notes: carrierForm.notes || "",
+        isOwnCompany: false,
+        updatedAt: new Date().toISOString(),
+        clientType: originalClient.clientType,
+      };
+      saveClients(clients.map(c => String(c.id) === String(editingMixedClientId) ? savedCompany : c));
+      setCarrierForm(normalizeCarrierRecord(emptyCarrierForm));
+      setEditingMixedClientId(null);
+      setEditingCarrierId(null);
+      setShowCarrierModal(false);
+      return;
+    }
+
     const duplicateCarrier = carriers.find((carrier) =>
       carrier.id !== editingCarrierId &&
       String(carrier.name || "").trim().toLowerCase() === trimmedName.toLowerCase()
@@ -1705,20 +1969,17 @@ function App() {
     setShowCarrierModal(false);
   };
 
-  const openClientProfile = (clientId) => {
+  const openClientProfile = (clientId, context = "client") => {
     setSelectedClientId(clientId);
+    setProfileContext(context);
     setShowClientProfile(true);
   };
 
   const renderDashboard = () => {
     const activeOrdersCount = orders.filter(o => o.status !== "Juodraštis").length;
     const draftOrdersCount = orders.filter(o => o.status === "Juodraštis").length;
-    const fin = dashboardStats?.financial || {};
     const carrierDocs = reminderSnapshot.carrierDocuments;
     const reminderStats = reminderSnapshot.reminderStats;
-    const fmtEur = (val) => val !== undefined
-      ? "€" + Number(val).toLocaleString("lt-LT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : "—";
     const cardBaseStyle = {
       cursor: "pointer",
       transition: "transform 0.16s ease, box-shadow 0.16s ease",
@@ -1726,48 +1987,16 @@ function App() {
 
     return (
       <div>
-        <h2 style={{ marginTop: 0, color: "#1e3a8a" }}>Dashboard</h2>
-
-        {/* Financial summary cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginTop: "20px" }}>
-          {/* Revenue — green */}
-          <div
-            title="Rodo bendras pajamas. Atidaro Finansų ekraną."
-            onClick={() => setPage("finansai")}
-            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #15803d, #22c55e)" }}
-          >
-            <div style={statTitle}>Pajamos (Revenue)</div>
-            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalRevenue)}</div>
-            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
-              ↗ +{fin.revenueChange ?? 15}%
-            </div>
-          </div>
-
-          {/* Expenses — orange */}
-          <div
-            title="Rodo bendras išlaidas. Atidaro Finansų ekraną."
-            onClick={() => setPage("finansai")}
-            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #c2410c, #fb923c)" }}
-          >
-            <div style={statTitle}>Išlaidos (Expenses)</div>
-            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalCost)}</div>
-            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
-              Marža: {fin.profitMargin ?? 0}%
-            </div>
-          </div>
-
-          {/* Profit — blue */}
-          <div
-            title="Rodo bendrą pelną. Atidaro Finansų ekraną."
-            onClick={() => setPage("finansai")}
-            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #1e3a8a, #3b82f6)" }}
-          >
-            <div style={statTitle}>Pelnas (Profit)</div>
-            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalProfit)}</div>
-            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
-              ↘ Optimizacija
-            </div>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "0" }}>
+          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Dashboard</h2>
+          <span style={{
+            fontSize: "11px", fontWeight: "700",
+            background: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
+            color: "white", padding: "3px 10px", borderRadius: "999px",
+            letterSpacing: "0.4px", opacity: 0.85
+          }}>
+            v0.9.0-beta
+          </span>
         </div>
 
         {/* Operational stats */}
@@ -1862,91 +2091,51 @@ function App() {
           </div>
         </div>
 
-        {/* Today widget */}
-        <div style={{ marginTop: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>📦 Šiandien</span>
-            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys</span>
+        {/* Empty state when no orders */}
+        {orders.length === 0 && (
+          <div style={{
+            marginTop: "20px",
+            background: "#f8fafc",
+            border: "2px dashed #cbd5e1",
+            borderRadius: "14px",
+            padding: "32px 24px",
+            textAlign: "center",
+            color: "#64748b"
+          }}>
+            <div style={{ fontSize: "36px", marginBottom: "10px" }}>📋</div>
+            <div style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a", marginBottom: "6px" }}>Užsakymų dar nėra</div>
+            <div style={{ fontSize: "13px" }}>Sukurkite pirmą krovinį naudodami greitus veiksmus žemiau.</div>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-            <div
-              title="Rodo šiandienos pakrovimus. Atidaro Projektų ekraną."
-              onClick={() => setPage("projektai")}
-              style={{ ...cardBaseStyle, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "18px 22px" }}
-            >
-              <div style={{ fontSize: "13px", color: "#15803d", fontWeight: 600, marginBottom: "6px" }}>🟢 Pakrovimai</div>
-              <div style={{ fontSize: "36px", fontWeight: 700, color: "#15803d" }}>3</div>
-              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>suplanuoti šiandien</div>
-            </div>
-            <div
-              title="Rodo šiandienos iškrovimus. Atidaro Projektų ekraną."
-              onClick={() => setPage("projektai")}
-              style={{ ...cardBaseStyle, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "12px", padding: "18px 22px" }}
-            >
-              <div style={{ fontSize: "13px", color: "#1d4ed8", fontWeight: 600, marginBottom: "6px" }}>🔵 Iškrovimai</div>
-              <div style={{ fontSize: "36px", fontWeight: 700, color: "#1d4ed8" }}>5</div>
-              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>suplanuoti šiandien</div>
-            </div>
-          </div>
-        </div>
+        )}
 
-        {/* Attention required widget */}
+        {/* Quick actions */}
         <div style={{ marginTop: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>⚠️ Dėmesio reikalauja</span>
-            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys</span>
-          </div>
-          <div
-            title="Demo suvestinė. Vėliau čia bus realūs perspėjimai apie dokumentus, vėlavimus ir apmokėjimus."
-            style={{ background: "#fff7ed", border: "2px solid #fed7aa", borderRadius: "12px", padding: "18px 22px", display: "flex", gap: "32px", flexWrap: "wrap" }}
-          >
-            <div>
-              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Trūksta dokumentų</div>
-              <div style={{ fontSize: "24px", fontWeight: 700, color: "#c2410c" }}>2</div>
-            </div>
-            <div style={{ borderLeft: "1px solid #fed7aa", paddingLeft: "32px" }}>
-              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Vėluoja</div>
-              <div style={{ fontSize: "24px", fontWeight: 700, color: "#b91c1c" }}>1</div>
-            </div>
-            <div style={{ borderLeft: "1px solid #fed7aa", paddingLeft: "32px" }}>
-              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Laukia apmokėjimo</div>
-              <div style={{ fontSize: "24px", fontWeight: 700, color: "#b45309" }}>3</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top carriers widget */}
-        <div style={{ marginTop: "20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>📊 TOP Vežėjai</span>
-            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys — funkcija neveikia</span>
-          </div>
-          <div
-            title="Demo blokas. Vėliau čia bus realus vežėjų reitingavimas ir našumo duomenys."
-            style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-          >
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#f8fafc" }}>
-                  <th style={{ padding: "11px 16px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Vežėjas</th>
-                  <th style={{ padding: "11px 16px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Reitingas</th>
-                  <th style={{ padding: "11px 16px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Užsakymai</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: "Schenker MB", rating: "⭐ 4.8", orders: 156 },
-                  { name: "DSV Solutions", rating: "⭐ 4.6", orders: 78 },
-                  { name: "Rhenus Freight", rating: "⭐ 4.4", orders: 54 },
-                ].map((row, i) => (
-                  <tr key={row.name} style={{ background: i % 2 === 0 ? "white" : "#f8fafc" }}>
-                    <td style={{ padding: "11px 16px", fontSize: "14px", fontWeight: 600, color: "#1e293b", borderBottom: "1px solid #e2e8f0" }}>{row.name}</td>
-                    <td style={{ padding: "11px 16px", textAlign: "center", fontSize: "14px", color: "#b45309", borderBottom: "1px solid #e2e8f0" }}>{row.rating}</td>
-                    <td style={{ padding: "11px 16px", textAlign: "center", fontSize: "14px", fontWeight: 700, color: "#1e3a8a", borderBottom: "1px solid #e2e8f0" }}>{row.orders}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "12px" }}>Greiti veiksmai</div>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <button
+              type="button"
+              title="Sukurti naują užsakymą / krovinį"
+              style={{ ...primaryButton, padding: "10px 20px", fontSize: "14px" }}
+              onClick={() => openOrderModal("order", null)}
+            >
+              + Naujas krovinys
+            </button>
+            <button
+              type="button"
+              title="Pridėti naują klientą į bazę"
+              style={{ ...secondaryButton, padding: "10px 20px", fontSize: "14px" }}
+              onClick={openNewClientModal}
+            >
+              + Naujas klientas
+            </button>
+            <button
+              type="button"
+              title="Pridėti naują vežėją į bazę"
+              style={{ ...secondaryButton, padding: "10px 20px", fontSize: "14px" }}
+              onClick={openNewCarrierModal}
+            >
+              + Naujas vežėjas
+            </button>
           </div>
         </div>
       </div>
@@ -2745,15 +2934,20 @@ function App() {
   };
 
   const renderClients = () => {
+    const crossRoleFromCarriers = (Array.isArray(carriers) ? carriers : []).filter(c =>
+      c.carrierType === "Vežėjas + Klientas" || c.carrierType === "Vežėjas + Ekspeditorius"
+    );
+    const crossCarrierIds = new Set(crossRoleFromCarriers.map(c => String(c.id)));
+    const allForClientView = [...clients, ...crossRoleFromCarriers];
     const q = clientSearch.trim().toLowerCase();
     const filtered = q
-      ? clients.filter(c =>
+      ? allForClientView.filter(c =>
           (c.name || "").toLowerCase().includes(q) ||
           (c.companyCode || "").toLowerCase().includes(q) ||
           (c.vatCode || "").toLowerCase().includes(q) ||
           (c.email || "").toLowerCase().includes(q)
         )
-      : clients;
+      : allForClientView;
     const directClientsCount = clients.filter((client) => client.clientType === "Tiesioginis klientas").length;
     const forwarderClientsCount = clients.filter((client) => client.clientType === "Ekspeditorius").length;
     const activeClientsCount = clients.filter((client) => {
@@ -2766,7 +2960,7 @@ function App() {
       <div>
         <div style={pageHeaderRow}>
           <div>
-            <h2 style={{ margin: 0, color: "#1e3a8a" }}>Klientai ({clients.length})</h2>
+            <h2 style={{ margin: 0, color: "#1e3a8a" }}>Klientai ({allForClientView.length})</h2>
             <div style={{ marginTop: "6px", color: "#64748b", fontSize: "14px" }}>
               Bendra klientų bazė visam app: Projektams, Ekspedijavimui ir Nuosavam transportui.
             </div>
@@ -2836,7 +3030,7 @@ function App() {
                       {item.name}
                     </button>
                   </td>
-                  <td style={tdStyle}>{item.clientType || "-"}</td>
+                  <td style={tdStyle}>{item.clientType || item.carrierType || "-"}</td>
                   <td style={tdStyle}>{item.companyCode}</td>
                   <td style={tdStyle}>{item.vatCode}</td>
                   <td style={tdStyle}>{item.email}</td>
@@ -2846,9 +3040,19 @@ function App() {
                     {clientUsageMap.get(`id:${String(item.id)}`) || clientUsageMap.get(`name:${String(item.name || "").trim().toLowerCase()}`) || 0}
                   </td>
                   <td style={tdStyle}>
-                    <button style={smallActionButton} onClick={() => openClientProfile(item.id)}>Peržiūrėti</button>
-                    <button style={smallEditButton} onClick={() => openEditClientModal(item)}>Redaguoti</button>
-                    <button style={dangerActionButton} onClick={() => handleDeleteClient(item.id)}>Šalinti</button>
+                    {crossCarrierIds.has(String(item.id)) ? (
+                      <>
+                        <button style={smallActionButton} onClick={() => openCarrierProfile(item.id)}>Peržiūrėti</button>
+                        <button style={smallEditButton} onClick={() => openEditCarrierModal(item)}>Redaguoti</button>
+                        <button style={dangerActionButton} onClick={() => handleDeleteCarrier(item.id)}>Šalinti</button>
+                      </>
+                    ) : (
+                      <>
+                        <button style={smallActionButton} onClick={() => openClientProfile(item.id)}>Peržiūrėti</button>
+                        <button style={smallEditButton} onClick={() => openEditClientModal(item)}>Redaguoti</button>
+                        <button style={dangerActionButton} onClick={() => handleDeleteClient(item.id)}>Šalinti</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -2861,15 +3065,20 @@ function App() {
 
   const renderCarriers = () => {
     const safeCarriers = Array.isArray(carriers) ? carriers : [];
+    const crossRoleFromClients = clients.filter(c =>
+      c.clientType === "Klientas + Vežėjas" || c.clientType === "Ekspeditorius + Vežėjas"
+    );
+    const crossClientIds = new Set(crossRoleFromClients.map(c => String(c.id)));
+    const allForCarrierView = [...safeCarriers, ...crossRoleFromClients];
     const q = carrierSearch.trim().toLowerCase();
     const filteredBySearch = q
-      ? safeCarriers.filter(c =>
+      ? allForCarrierView.filter(c =>
           (c.name || "").toLowerCase().includes(q) ||
           (c.companyCode || "").toLowerCase().includes(q) ||
           (c.vatCode || "").toLowerCase().includes(q) ||
           (c.address || "").toLowerCase().includes(q)
         )
-      : safeCarriers;
+      : allForCarrierView;
     const filtered = filteredBySearch.filter((carrier) => matchesCarrierDocumentFilter(carrier, carriersFilter));
     const ownFleetCount = safeCarriers.filter((carrier) => carrier.isOwnCompany || carrier.carrierType === "Nuosavas transportas").length;
     const externalCarrierCount = safeCarriers.length - ownFleetCount;
@@ -2883,7 +3092,7 @@ function App() {
     <div>
       <div style={pageHeaderRow}>
         <div>
-          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Vežėjai ({carriers.length})</h2>
+          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Vežėjai ({allForCarrierView.length})</h2>
           <div style={{ marginTop: "6px", color: "#64748b", fontSize: "14px" }}>
             Bendra vežėjų ir fleet bazė ekspedicijai, nuosavam transportui ir vykdymo workflow.
           </div>
@@ -2962,7 +3171,7 @@ function App() {
 
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
                     <span style={{ display: "inline-block", background: "#dbeafe", color: "#1e40af", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", whiteSpace: "nowrap" }}>
-                      {item.carrierType === "Nuosavas transportas" ? "Nuosavas" : item.carrierType || "-"}
+                      {item.carrierType === "Nuosavas transportas" ? "Nuosavas" : item.carrierType || item.clientType || "-"}
                     </span>
                   </td>
 
@@ -3011,9 +3220,20 @@ function App() {
 
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
-                      <button style={smallActionButton} onClick={() => openEditCarrierModal(item)}>Papildyti dokumentus</button>
-                      <button style={smallEditButton} onClick={() => openEditCarrierModal(item)}>Redaguoti</button>
-                      <button style={dangerActionButton} onClick={() => handleDeleteCarrier(item.id)}>Šalinti</button>
+                      {crossClientIds.has(String(item.id)) ? (
+                        <>
+                          <button style={smallActionButton} onClick={() => openClientProfile(item.id, "carrier")}>Peržiūrėti</button>
+                          <button style={smallActionButton} onClick={() => openEditMixedClientAsCarrier(item)}>Papildyti dokumentus</button>
+                          <button style={smallEditButton} onClick={() => openEditMixedClientAsCarrier(item)}>Redaguoti</button>
+                          <button style={dangerActionButton} onClick={() => handleDeleteClient(item.id)}>Šalinti</button>
+                        </>
+                      ) : (
+                        <>
+                          <button style={smallActionButton} onClick={() => openEditCarrierModal(item)}>Papildyti dokumentus</button>
+                          <button style={smallEditButton} onClick={() => openEditCarrierModal(item)}>Redaguoti</button>
+                          <button style={dangerActionButton} onClick={() => handleDeleteCarrier(item.id)}>Šalinti</button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -3263,94 +3483,505 @@ function App() {
     );
   };
 
-  const renderEkspedijavimasBusinessWorkflow = () => {
-    const externalCarriers = carriers.filter((carrier) => !carrier.isOwnCompany);
+    const handleOrderImportFile = async (file) => {
+    if (!file) return;
 
-    const actionCards = [
-      {
-        title: "Naujas rankinis krovinys",
-        text: "Sukurti naują projektą rankiniu būdu iš formos.",
-        button: "+ Naujas krovinys",
-        onClick: () => openOrderModal("order", null, { workflowMode: "expedition" }),
-        accent: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-      },
-      {
-        title: "Iš kliento laiško / PDF",
-        text: "Įkelti laišką, PDF ar screenshot ir paruošti juodraštį iš dokumento.",
-        button: "Atidaryti importą",
-        onClick: () => openDatabaseSection("imports"),
-        accent: "linear-gradient(135deg, #b45309, #f59e0b)",
-      },
-      {
-        title: "Iš duomenų bazės",
-        text: "Pasirinkti klientą ir vežėją iš esamos bazės.",
-        button: "Atidaryti bazes",
-        onClick: () => openDatabaseSection("clients"),
-        accent: "linear-gradient(135deg, #0f766e, #14b8a6)",
-      },
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${API_BASE}/api/orders/import`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!result?.ok) {
+        window.alert(result?.error || "Nepavyko importuoti kliento užsakymo.");
+        return;
+      }
+
+      console.log("ORDER IMPORT RESULT", result);
+
+      const p = result.parsed || {};
+
+      openOrderModal("order", null, {
+        workflowMode: "expedition",
+        prefill: p,
+        importResult: result
+      });
+    } catch (error) {
+      console.error("Order import failed:", error);
+      window.alert("Nepavyko importuoti kliento užsakymo.");
+    }
+  };
+const renderEkspedijavimasBusinessWorkflow = () => {
+    // ── filtravimas ──────────────────────────────────────────────────
+    const isCancelledStatus = (o) => {
+  const s = String(o?.status || "").trim().toLowerCase();
+  return s.includes("cancel") || s.includes("atšauk") || s.includes("atsauk");
+};
+
+    const normalizeText = (v) => String(v || "").trim().toLowerCase();
+
+    const matchesClientFilter = (o) => {
+      if (!ekspedFilterClient) return true;
+      const rec = clients.find((c) => String(c.id || c.name) === String(ekspedFilterClient));
+      const recId   = String(rec?.id || "");
+      const recName = normalizeText(rec?.name || ekspedFilterClient);
+      return (
+        (recId && String(o.clientId || "") === recId) ||
+        normalizeText(o.clientName || o.client || "") === recName
+      );
+    };
+
+    const matchesCarrierFilter = (o) => {
+      if (!ekspedFilterCarrier) return true;
+      const rec = carriers.find((c) => String(c.id || c.name) === String(ekspedFilterCarrier));
+      const recId   = String(rec?.id || "");
+      const recName = normalizeText(rec?.name || ekspedFilterCarrier);
+      return (
+        (recId && String(o.carrierId || "") === recId) ||
+        normalizeText(o.carrierName || o.carrier || "") === recName
+      );
+    };
+
+    const matchesStatusFilter = (o) => {
+      if (!ekspedFilterStatus) return true;
+      if (normalizeText(ekspedFilterStatus) === "cancelled") return isCancelledStatus(o);
+return normalizeText(o.status).includes(normalizeText(ekspedFilterStatus));
+    };
+
+    const filteredExpedOrders = expeditionOrdersForView.filter((o) => {
+      // 1. atšaukti
+      if (!ekspedShowCancelled && isCancelledStatus(o)) return false;
+
+      // 2. datos filtras pagal sukūrimo datą
+      if (ekspedDateFrom || ekspedDateTo) {
+        const raw = o.createdAt || o.projectDate || o.date || "";
+        const d = raw ? String(raw).slice(0, 10) : "";
+        if (!d) return false;
+        if (ekspedDateFrom && d < ekspedDateFrom) return false;
+        if (ekspedDateTo && d > ekspedDateTo) return false;
+      }
+
+      // 3. kliento filtras
+      if (!matchesClientFilter(o)) return false;
+
+      // 4. vežėjo filtras
+      if (!matchesCarrierFilter(o)) return false;
+
+      // 5. statuso filtras
+      if (!matchesStatusFilter(o)) return false;
+
+      return true;
+    });
+
+    // ── datų presetai ────────────────────────────────────────────────
+    const pad = (n) => String(n).padStart(2, "0");
+    const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const setPreset = (preset) => {
+      const today = new Date();
+      if (preset === "today") { const t = fmtDate(today); setEkspedDateFrom(t); setEkspedDateTo(t); }
+      else if (preset === "week") {
+        const mon = new Date(today); mon.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+        const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+        setEkspedDateFrom(fmtDate(mon)); setEkspedDateTo(fmtDate(sun));
+      } else if (preset === "month") {
+        setEkspedDateFrom(fmtDate(new Date(today.getFullYear(), today.getMonth(), 1)));
+        setEkspedDateTo(fmtDate(new Date(today.getFullYear(), today.getMonth() + 1, 0)));
+      }
+    };
+
+    // ── statistika (finansai be atšauktų) ────────────────────────────
+    const financialOrders = filteredExpedOrders.filter((o) => !isCancelledStatus(o));
+    const expRevenue  = financialOrders.reduce((s, o) => s + Number(o.clientPrice || 0), 0);
+    const expCosts    = financialOrders.reduce((s, o) => s + Number(o.carrierPrice || 0), 0);
+    const expProfit   = expRevenue - expCosts;
+    const cmrWaiting  = filteredExpedOrders.filter((o) => { const s = o.cmrStatus; return !s || s === "missing"; }).length;
+    const sfWaiting   = filteredExpedOrders.filter((o) => { const s = o.clientInvoiceStatus; return !s || s === "missing"; }).length;
+    const damageCount = filteredExpedOrders.filter((o) => o.damageStatus === "active" || o.hasDamage === true).length;
+    const nowMs = Date.now();
+    const lateCount = filteredExpedOrders.filter((o) => {
+      if (!o.unloadingDate) return false;
+      if (o.status === "completed" || o.status === "delivered" || isCancelledStatus(o)) return false;
+      return new Date(o.unloadingDate).getTime() < nowMs;
+    }).length;
+    const cancelledCount = filteredExpedOrders.filter(isCancelledStatus).length;
+
+    // ── Excel export ─────────────────────────────────────────────────
+    const handleExcelExport = () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = filteredExpedOrders.map((o) => ({
+        "Projekto ID":           o.projectId || o.orderNumber || String(o.id || ""),
+        "Kliento užsakymo Nr.":  o.clientOrderNumber || "",
+        "Klientas":              o.clientName || "",
+        "Vežėjas":               o.carrierName || "",
+        "Maršrutas":             o.route || "",
+        "Pakrovimas":            o.loadingDate || "",
+        "Iškrovimas":            o.unloadingDate || "",
+        "Kliento kaina":         Number(o.clientPrice || 0),
+        "Vežėjo kaina":          Number(o.carrierPrice || 0),
+        "Pelnas":                Number(o.clientPrice || 0) - Number(o.carrierPrice || 0),
+        "CMR":                   o.cmrStatus || "",
+        "SF":                    o.clientInvoiceStatus || "",
+        "Žala":                  (o.damageStatus === "active" || o.hasDamage) ? "Žala" : "Nėra",
+        "Statusas":              o.status || "",
+        "Komentarų sk.":         Array.isArray(o.comments) ? o.comments.length : 0,
+        "Atšaukimo priežastis":  o.cancelReason || "",
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Ekspedicija");
+      XLSX.writeFile(wb, `expedicija_${today}.xlsx`);
+    };
+
+    // ── komentarų išsaugojimas ───────────────────────────────────────
+    const handleAddEkspedComment = () => {
+      const text = ekspedCommentText.trim();
+      if (!text || !ekspedCommentModal) return;
+      const newComment = { id: Date.now(), text, createdAt: new Date().toISOString(), author: "Vadybininkas" };
+      const updatedOrder = { ...ekspedCommentModal, comments: [...(ekspedCommentModal.comments || []), newComment] };
+      saveOrders(orders.map((o) => String(o.id) === String(ekspedCommentModal.id) ? updatedOrder : o));
+      setEkspedCommentModal(updatedOrder);
+      setEkspedCommentText("");
+    };
+
+    // ── atšaukimo patvirtinimas ──────────────────────────────────────
+    const handleConfirmCancel = () => {
+      if (!ekspedCancelModal) return;
+      saveOrders(orders.map((o) =>
+        String(o.id) === String(ekspedCancelModal.id)
+          ? { ...o, status: "cancelled", cancelReason: ekspedCancelReason.trim(), cancelledAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+          : o
+      ));
+      setEkspedCancelModal(null);
+      setEkspedCancelReason("");
+    };
+
+    // ── UI stiliai ───────────────────────────────────────────────────
+    const expCard = (accent) => ({
+      background: "white", border: "1px solid #e2e8f0", borderLeft: `4px solid ${accent}`,
+      borderRadius: "12px", padding: "14px 16px", boxShadow: "0 1px 3px rgba(15,23,42,0.06)",
+    });
+    const expCardNum = (color) => ({ fontSize: "24px", fontWeight: 800, color, lineHeight: 1, marginTop: "5px" });
+    const expCardLabel = { fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" };
+    const fInput = {
+      border: "1px solid #cbd5e1", borderRadius: "8px", padding: "6px 10px",
+      fontSize: "13px", outline: "none", color: "#0f172a", background: "white",
+    };
+    const modalBox = {
+      background: "white", borderRadius: "16px", padding: "28px",
+      maxWidth: "540px", width: "100%", boxShadow: "0 20px 40px rgba(0,0,0,0.20)",
+      maxHeight: "85vh", overflowY: "auto",
+    };
+    const hasActiveFilters = ekspedDateFrom || ekspedDateTo || ekspedFilterClient || ekspedFilterCarrier || ekspedFilterStatus;
+
+    // ── statusų parinktys ────────────────────────────────────────────
+    const STATUS_OPTIONS = [
+      { value: "", label: "Visi statusai" },
+      { value: "draft", label: "Juodraštis" },
+      { value: "active", label: "Aktyvus" },
+      { value: "in_progress", label: "Vykdomas" },
+      { value: "delivered", label: "Pristatyta" },
+      { value: "completed", label: "Užbaigta" },
+      { value: "finance", label: "Finansuose" },
+      { value: "paid", label: "Apmokėta" },
+      { value: "cancelled", label: "Atšauktas" },
     ];
 
     return (
-      <div>
-        <div style={pageHeaderRow}>
-          <div>
-            <h2 style={{ margin: 0, color: "#1e3a8a" }}>Ekspedijavimas</h2>
-            <div style={{ marginTop: "6px", color: "#64748b", fontSize: "14px" }}>
-              Čia kuriami projektai, kuriuos vykdo išoriniai vežėjai.
+      <>
+        <div>
+          {/* ── viršus ─────────────────────────────────────────── */}
+          <div style={pageHeaderRow}>
+            <div>
+              <h2 style={{ margin: 0, color: "#1e3a8a" }}>Ekspedijavimas</h2>
+              <div style={{ marginTop: "6px", color: "#64748b", fontSize: "14px" }}>
+                Ekspedicinių projektų darbo centras.
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                style={{ ...secondaryButton, fontSize: "13px", padding: "8px 16px" }}
+                onClick={handleExcelExport}
+                title="Eksportuoti filtruotus projektus į Excel"
+              >
+                ⬇ Excel
+              </button>
+              <button
+                type="button"
+                style={primaryButton}
+                onClick={() => openOrderModal("order", null, { workflowMode: "expedition" })}
+              >
+                + Naujas krovinys
+              </button>
             </div>
           </div>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <button type="button" title="Sukurti naują ekspedicinį projektą rankiniu būdu." style={primaryButton} onClick={() => openOrderModal("order", null, { workflowMode: "expedition" })}>+ Naujas krovinys</button>
-            <button type="button" title="Atidaro bendrą klientų bazę." style={secondaryButton} onClick={() => openDatabaseSection("clients")}>Klientų bazė</button>
-            <button type="button" title="Atidaro bendrą vežėjų bazę." style={secondaryButton} onClick={() => openDatabaseSection("carriers")}>Vežėjų bazė</button>
-            <button type="button" title="Atidaro importo srautą laiškui, PDF ar screenshot." style={secondaryButton} onClick={() => openDatabaseSection("imports")}>Iš email / PDF / screenshot</button>
-          </div>
-        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px", marginBottom: "20px" }}>
-          {actionCards.map((card) => (
-            <div key={card.title} style={{ background: "white", borderRadius: "14px", border: "1px solid #e2e8f0", padding: "20px", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
-              <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: card.accent, marginBottom: "14px" }} />
-              <div style={{ fontWeight: 800, color: "#0f172a", fontSize: "16px", marginBottom: "8px" }}>{card.title}</div>
-              <div style={{ color: "#64748b", fontSize: "14px", lineHeight: 1.5, minHeight: "42px", marginBottom: "16px" }}>{card.text}</div>
-              <button type="button" style={secondaryButton} onClick={card.onClick}>{card.button}</button>
+          {/* ── kompaktiškas įkėlimo blokas ─────────────────────── */}
+          <div
+            style={{
+              background: "white", border: "1px solid #e2e8f0", borderRadius: "10px",
+              padding: "10px 16px", marginBottom: "16px",
+              display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap",
+              boxShadow: "0 1px 2px rgba(15,23,42,0.04)",
+            }}
+            onDragOver={(e) => { e.preventDefault(); setEkspedDragOver(true); }}
+            onDragLeave={() => setEkspedDragOver(false)}
+            onDrop={(e) => { e.preventDefault(); setEkspedDragOver(false); }}
+          >
+            <span style={{ fontSize: "18px" }}>📎</span>
+            <span style={{ fontWeight: 700, fontSize: "14px", color: "#0f172a" }}>Įkelti kliento užsakymą</span>
+            <span style={{ fontSize: "12px", color: "#94a3b8" }}>PDF / EML / screenshot</span>
+            <span style={{ background: "#fef3c7", color: "#b45309", border: "1px solid #fde68a", borderRadius: "999px", fontSize: "10px", fontWeight: 800, padding: "2px 8px", letterSpacing: "0.05em" }}>DEMO</span>
+            {ekspedDragOver && <span style={{ color: "#3b82f6", fontSize: "12px", fontWeight: 700 }}>⬇ Paleisti čia</span>}
+            <div style={{ marginLeft: "auto" }}>
+              <input
+                ref={orderImportFileRef}
+                type="file"
+                accept=".pdf,.eml,.png,.jpg,.jpeg,.webp,.txt"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  handleOrderImportFile(file);
+                }}
+              />
+              <button type="button" style={{ ...secondaryButton, padding: "6px 14px", fontSize: "12px" }} onClick={() => orderImportFileRef.current?.click()}>
+                📂 Pasirinkti failą
+              </button>
             </div>
-          ))}
+          </div>
+
+          {/* ── statistikos kortelės ─────────────────────────────── */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", marginBottom: "10px" }}>
+            <div style={expCard("#3b82f6")}><div style={expCardLabel}>Projektai</div><div style={expCardNum("#1e3a8a")}>{filteredExpedOrders.length}</div></div>
+            <div style={expCard("#f59e0b")}><div style={expCardLabel}>Laukia CMR</div><div style={expCardNum("#b45309")}>{cmrWaiting}</div></div>
+            <div style={expCard("#a78bfa")}><div style={expCardLabel}>Laukia SF</div><div style={expCardNum("#6d28d9")}>{sfWaiting}</div></div>
+            <div style={expCard(lateCount > 0 ? "#ef4444" : "#cbd5e1")}><div style={expCardLabel}>Vėlavimai</div><div style={expCardNum(lateCount > 0 ? "#991b1b" : "#94a3b8")}>{lateCount}</div></div>
+            <div style={expCard(cancelledCount > 0 ? "#94a3b8" : "#cbd5e1")}><div style={expCardLabel}>Atšaukti</div><div style={expCardNum("#64748b")}>{cancelledCount}</div></div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "16px" }}>
+            <div style={expCard("#14b8a6")}><div style={expCardLabel}>Pajamos</div><div style={expCardNum("#0f766e")}>{expRevenue.toFixed(2)} €</div></div>
+            <div style={expCard("#8b5cf6")}><div style={expCardLabel}>Išlaidos</div><div style={expCardNum("#5b21b6")}>{expCosts.toFixed(2)} €</div></div>
+            <div style={expCard(expProfit >= 0 ? "#22c55e" : "#ef4444")}><div style={expCardLabel}>Pelnas</div><div style={expCardNum(expProfit >= 0 ? "#166534" : "#991b1b")}>{expProfit.toFixed(2)} €</div></div>
+            <div style={expCard(damageCount > 0 ? "#ef4444" : "#cbd5e1")}><div style={expCardLabel}>Žalos / pretenzijos</div><div style={expCardNum(damageCount > 0 ? "#991b1b" : "#94a3b8")}>{damageCount}</div></div>
+          </div>
+
+          {/* ── filtrų juosta ────────────────────────────────────── */}
+          <div style={{
+            background: "white", border: "1px solid #e2e8f0", borderRadius: "12px",
+            padding: "12px 16px", marginBottom: "10px",
+            boxShadow: "0 1px 3px rgba(15,23,42,0.04)",
+          }}>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+              {/* datos */}
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600, whiteSpace: "nowrap" }}>Nuo</span>
+                <input type="date" value={ekspedDateFrom} onChange={(e) => setEkspedDateFrom(e.target.value)} style={fInput} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600, whiteSpace: "nowrap" }}>Iki</span>
+                <input type="date" value={ekspedDateTo} onChange={(e) => setEkspedDateTo(e.target.value)} style={fInput} />
+              </div>
+              {/* presetai */}
+              {[["today","Šiandien"],["week","Savaitė"],["month","Mėnuo"]].map(([p,l]) => (
+                <button key={p} type="button" style={{ ...fInput, cursor: "pointer", fontWeight: 600, fontSize: "12px" }} onClick={() => setPreset(p)}>{l}</button>
+              ))}
+              {/* klientas */}
+              <input
+                ref={ekspedClientFilterRef}
+                list="eksped-client-filter-options"
+                placeholder="Visi klientai / ieškoti..."
+                onChange={(e) => { const typed = e.currentTarget.value || ""; const rec = (clients || []).find((c) => String(c.name || "") === typed); const v = rec ? String(rec.id || rec.name) : typed; setEkspedFilterClient(v); }}
+                style={{ ...fInput, minWidth: "220px" }}
+              />
+              <datalist id="eksped-client-filter-options">
+                {(clients || []).map((c) => (
+                  <option key={c.id || c.name} value={String(c.name || "")} />
+                ))}
+              </datalist>
+              {/* vežėjas */}
+              <input
+                ref={ekspedCarrierFilterRef}
+                list="eksped-carrier-filter-options"
+                placeholder="Visi vežėjai / ieškoti..."
+                onChange={(e) => { const typed = e.currentTarget.value || ""; const rec = (carriers || []).find((c) => String(c.name || "") === typed); const v = rec ? String(rec.id || rec.name) : typed; setEkspedFilterCarrier(v); }}
+                style={{ ...fInput, minWidth: "220px" }}
+              />
+              <datalist id="eksped-carrier-filter-options">
+                {(carriers || []).map((c) => (
+                  <option key={c.id || c.name} value={String(c.name || "")} />
+                ))}
+              </datalist>
+              {/* statusas */}
+              <select
+                ref={ekspedStatusFilterRef}
+                defaultValue=""
+                onChange={(e) => { const v = e.currentTarget.selectedOptions?.[0]?.value || e.currentTarget.value || ""; setEkspedFilterStatus(String(v)); setEkspedShowCancelled(String(v) === "cancelled"); }}
+                style={{ ...fInput, minWidth: "130px" }}
+              >
+                {STATUS_OPTIONS.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              {/* rodyti atšauktus */}
+              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#475569", cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}>
+                <input
+                  type="checkbox"
+                  checked={ekspedShowCancelled}
+                  onChange={(e) => { const checked = e.target.checked; setEkspedShowCancelled(checked); if (checked) { setEkspedFilterStatus("cancelled"); if (ekspedStatusFilterRef.current) ekspedStatusFilterRef.current.value = "cancelled"; } }}
+                  style={{ width: "15px", height: "15px", cursor: "pointer" }}
+                />
+                Rodyti atšauktus
+              </label>
+              {/* išvalyti */}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={() => { setEkspedDateFrom(""); setEkspedDateTo(""); setEkspedFilterClient(""); setEkspedFilterCarrier(""); setEkspedFilterStatus(""); setEkspedShowCancelled(false); if (ekspedClientFilterRef.current) ekspedClientFilterRef.current.value = ""; if (ekspedCarrierFilterRef.current) ekspedCarrierFilterRef.current.value = ""; if (ekspedStatusFilterRef.current) ekspedStatusFilterRef.current.value = ""; }}
+                  style={{ ...fInput, cursor: "pointer", color: "#ef4444", borderColor: "#fca5a5", fontWeight: 600, fontSize: "12px" }}
+                >
+                  ✕ Išvalyti
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* ── projektų lentelė ────────────────────────────────── */}
+          <OrdersPage
+            orders={filteredExpedOrders}
+            saveOrders={saveOrders}
+            clients={clients}
+            carriers={carriers}
+            openModal={openOrderModal}
+            title="Ekspedicijos projektai"
+            showCreateButton={false}
+            emptyTitle="Nėra ekspedicijos projektų"
+            emptyDescription="Nauji ekspedicijos projektai kuriami šiame modulyje."
+            variant="expedition"
+            openClientProfile={openClientProfile}
+            openCarrierProfile={openCarrierProfile}
+            onOpenComment={(order) => { setEkspedCommentModal(order); setEkspedCommentText(""); }}
+            onOpenDamage={(order) => setEkspedDamageModal(order)}
+            onOpenCancel={(order) => { setEkspedCancelModal(order); setEkspedCancelReason(""); }}
+          />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "20px" }}>
-          <div style={{ ...statCard, background: "linear-gradient(135deg, #1e3a8a, #3b82f6)" }}>
-            <div style={statTitle}>Ekspedicijos projektai</div>
-            <div style={statValue}>{expeditionOrdersForView.length}</div>
+        {/* ── Komentarų modalas ────────────────────────────────── */}
+        {ekspedCommentModal && (
+          <div style={overlayStyle}>
+            <div style={modalBox}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h3 style={{ margin: 0, color: "#1e3a8a" }}>💬 Projekto komentarai</h3>
+                <button onClick={() => setEkspedCommentModal(null)} style={closeButton}>✕</button>
+              </div>
+              <div style={{ fontSize: "13px", color: "#64748b", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px 14px", marginBottom: "18px" }}>
+                <strong>{ekspedCommentModal.projectId || ekspedCommentModal.orderNumber || ekspedCommentModal.id || "—"}</strong>
+                {ekspedCommentModal.clientName && <> · {ekspedCommentModal.clientName}</>}
+                {ekspedCommentModal.route && <> · {ekspedCommentModal.route}</>}
+              </div>
+              {(ekspedCommentModal.comments || []).length === 0 ? (
+                <div style={{ textAlign: "center", padding: "28px 20px", color: "#94a3b8", background: "#f8fafc", borderRadius: "10px", marginBottom: "18px", fontSize: "14px" }}>Komentarų nėra</div>
+              ) : (
+                <div style={{ marginBottom: "18px", display: "flex", flexDirection: "column", gap: "10px", maxHeight: "300px", overflowY: "auto" }}>
+                  {(ekspedCommentModal.comments || []).map((c) => (
+                    <div key={c.id} style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "10px", padding: "12px 14px" }}>
+                      <div style={{ fontSize: "13px", color: "#0f172a", lineHeight: 1.55 }}>{c.text}</div>
+                      <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "6px" }}>{c.author || "Vadybininkas"} · {c.createdAt ? new Date(c.createdAt).toLocaleString("lt-LT") : ""}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <textarea value={ekspedCommentText} onChange={(e) => setEkspedCommentText(e.target.value)} placeholder="Naujas komentaras..." style={{ width: "100%", minHeight: "80px", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "13px", resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "12px" }}>
+                <button style={secondaryButton} onClick={() => setEkspedCommentModal(null)}>Uždaryti</button>
+                <button style={{ ...primaryButton, opacity: ekspedCommentText.trim() ? 1 : 0.5 }} onClick={handleAddEkspedComment} disabled={!ekspedCommentText.trim()}>Pridėti komentarą</button>
+              </div>
+            </div>
           </div>
-          <div style={{ ...statCard, background: "linear-gradient(135deg, #0f766e, #14b8a6)" }}>
-            <div style={statTitle}>Vežėjų bazė</div>
-            <div style={statValue}>{externalCarriers.length}</div>
-          </div>
-          <div style={{ ...statCard, background: "linear-gradient(135deg, #b45309, #f59e0b)" }}>
-            <div style={statTitle}>Laukia CMR / SF</div>
-            <div style={statValue}>{expeditionOrdersForView.filter((order) => matchesProjectRegistryFilter(order, "docs_pending") || matchesProjectRegistryFilter(order, "unpaid")).length}</div>
-          </div>
-        </div>
+        )}
 
-        <OrdersPage
-          orders={expeditionOrdersForView}
-          saveOrders={saveOrders}
-          clients={clients}
-          carriers={carriers}
-          openModal={openOrderModal}
-          title="Ekspedicijos projektai"
-          showCreateButton={false}
-          emptyTitle="Nėra ekspedicijos projektų"
-          emptyDescription="Nauji ekspedicijos projektai kuriami šiame modulyje."
-          variant="expedition"
-        />
-      </div>
+        {/* ── Žalos modalas ───────────────────────────────────── */}
+        {ekspedDamageModal && (
+          <div style={overlayStyle}>
+            <div style={{ ...modalBox, maxWidth: "560px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h3 style={{ margin: 0, color: "#991b1b" }}>⚠ Žalos byla</h3>
+                <button onClick={() => setEkspedDamageModal(null)} style={closeButton}>✕</button>
+              </div>
+              <div style={{ background: "#fff1f2", border: "1px solid #fca5a5", borderRadius: "10px", padding: "14px 16px", marginBottom: "20px", display: "grid", gap: "4px" }}>
+                {ekspedDamageModal.projectId && <div style={{ fontSize: "13px", color: "#64748b" }}>Projektas: <strong style={{ color: "#0f172a" }}>{ekspedDamageModal.projectId}</strong></div>}
+                {ekspedDamageModal.clientName && <div style={{ fontSize: "13px", color: "#64748b" }}>Klientas: <strong style={{ color: "#0f172a" }}>{ekspedDamageModal.clientName}</strong></div>}
+                {ekspedDamageModal.carrierName && <div style={{ fontSize: "13px", color: "#64748b" }}>Vežėjas: <strong style={{ color: "#0f172a" }}>{ekspedDamageModal.carrierName}</strong></div>}
+                {ekspedDamageModal.route && <div style={{ fontSize: "13px", color: "#64748b" }}>Maršrutas: <strong style={{ color: "#0f172a" }}>{ekspedDamageModal.route}</strong></div>}
+              </div>
+              <div style={{ display: "grid", gap: "14px", marginBottom: "20px" }}>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }}>Žalos statusas</div>
+                  <div style={{ padding: "10px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "13px", color: ekspedDamageModal.damageStatus ? "#991b1b" : "#94a3b8" }}>{ekspedDamageModal.damageStatus || "Nėra aktyvių žalų"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }}>VIN numeriai</div>
+                  <div style={{ padding: "10px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "13px", color: "#475569" }}>{ekspedDamageModal.vinNumbers || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }}>Žalos aprašymas</div>
+                  <div style={{ padding: "10px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", fontSize: "13px", color: "#475569", minHeight: "60px" }}>{ekspedDamageModal.damageDescription || "—"}</div>
+                </div>
+                <div style={{ padding: "12px 14px", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", fontSize: "12px", color: "#9a3412", lineHeight: 1.5 }}>⚠ Ateityje: jei žala registruota, mokėjimas vežėjui gali būti sulaikytas iki žalos išsprendimo.</div>
+                <div style={{ padding: "12px 14px", background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "8px", fontSize: "12px", color: "#0369a1", lineHeight: 1.5 }}>📎 Nuotraukos ir dokumentai — šis modulis bus išplėstas kitame etape.</div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button style={secondaryButton} onClick={() => setEkspedDamageModal(null)}>Uždaryti</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Atšaukimo modalas ───────────────────────────────── */}
+        {ekspedCancelModal && (
+          <div style={overlayStyle}>
+            <div style={{ ...modalBox, maxWidth: "480px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h3 style={{ margin: 0, color: "#991b1b" }}>Atšaukti projektą</h3>
+                <button onClick={() => setEkspedCancelModal(null)} style={closeButton}>✕</button>
+              </div>
+              <div style={{ background: "#fff1f2", border: "1px solid #fca5a5", borderRadius: "10px", padding: "12px 14px", marginBottom: "18px", fontSize: "13px", color: "#64748b" }}>
+                Projektas: <strong style={{ color: "#0f172a" }}>{ekspedCancelModal.projectId || ekspedCancelModal.orderNumber || ekspedCancelModal.id}</strong>
+                {ekspedCancelModal.clientName && <> · {ekspedCancelModal.clientName}</>}
+              </div>
+              <div style={{ marginBottom: "6px", fontSize: "12px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Atšaukimo priežastis</div>
+              <textarea
+                value={ekspedCancelReason}
+                onChange={(e) => setEkspedCancelReason(e.target.value)}
+                placeholder="Nurodykite atšaukimo priežastį..."
+                style={{ width: "100%", minHeight: "90px", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "13px", resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+              />
+              <div style={{ marginTop: "8px", padding: "10px 12px", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", fontSize: "12px", color: "#9a3412" }}>
+                Projektas nebus ištrintas. Statusas bus pakeistas į „Atšauktas" ir bus išsaugota priežastis.
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "16px" }}>
+                <button style={secondaryButton} onClick={() => setEkspedCancelModal(null)}>Atšaukti veiksmą</button>
+                <button
+                  style={{ background: "linear-gradient(135deg, #991b1b, #ef4444)", color: "white", border: "none", padding: "12px 18px", borderRadius: "10px", cursor: "pointer", fontWeight: 600 }}
+                  onClick={handleConfirmCancel}
+                >
+                  Patvirtinti atšaukimą
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
   };
 
   const renderSettings = () => {
-    return <SettingsPage settings={settings} saveSettings={saveSettings} />;
+    return <SettingsPage settings={settings} saveSettings={saveSettings} authUser={authUser} />;
   };
 
   const renderImports = () => {
@@ -3493,11 +4124,105 @@ function App() {
     );
   };
 
+  const renderSamatosDemo = () => {
+    const demoCards = [
+      {
+        title: "Užklausa",
+        text: "Čia ateityje bus galima įkelti kliento užklausą tekstu, Excel failu, tenderiu arba rankiniu būdu suvesti maršrutą."
+      },
+      {
+        title: "Maršrutas",
+        text: "Sistema patikrins trūkstamą informaciją: pakrovimo vietą, iškrovimo vietą, kiekį, LDM, svorį, datas, transporto tipą ir paprašys papildyti, jei ko trūksta."
+      },
+      {
+        title: "Vežėjų paieška",
+        text: "Sistema ieškos tinkamų vežėjų pagal jų profilyje sukauptus maršrutus, kryptis, kainas, dažnumą ir transporto tipą."
+      },
+      {
+        title: "Kainos skaičiavimas",
+        text: "Sistema skaičiuos savikainą, vežėjo kainą, pardavimo kainą klientui, pelną ir maržą."
+      },
+      {
+        title: "Istorija",
+        text: "Sistema naudos ankstesnių užsakymų statistiką: kokia kaina buvo vežta, kas vežė, kokia buvo marža, ar maršrutas kartojasi."
+      },
+      {
+        title: "Sukurti projektą",
+        text: "Iš sąmatos ateityje bus galima sukurti ekspedijavimo projektą, nuosavo transporto projektą, orderį vežėjui arba finansinį įrašą."
+      }
+    ];
+
+    const workflowItems = [
+      ["1. Kliento užklausa", "Čia ateityje bus galima įkelti kliento užklausą tekstu, Excel failu, tenderiu arba rankiniu būdu suvesti maršrutą."],
+      ["2. Automatinė analizė", "Sistema patikrins trūkstamą informaciją: pakrovimo vietą, iškrovimo vietą, kiekį, LDM, svorį, datas, transporto tipą ir paprašys papildyti, jei ko trūksta."],
+      ["3. Vežėjų bazės paieška", "Sistema ieškos tinkamų vežėjų pagal jų profilyje sukauptus maršrutus, kryptis, kainas, dažnumą ir transporto tipą."],
+      ["4. Kainos skaičiavimas", "Sistema skaičiuos savikainą, vežėjo kainą, pardavimo kainą klientui, pelną ir maržą."],
+      ["5. Istoriniai duomenys", "Sistema naudos ankstesnių užsakymų statistiką: kokia kaina buvo vežta, kas vežė, kokia buvo marža, ar maršrutas kartojasi."],
+      ["6. Tiesioginių klientų atradimas", "Sistema ateityje matys pasikartojančias pakrovimo/iškrovimo vietas ir padės identifikuoti galimus tiesioginius klientus."],
+      ["7. Ryšys su kitais moduliais", "Iš sąmatos ateityje bus galima sukurti: ekspedijavimo projektą, nuosavo transporto projektą, orderį vežėjui ir finansinį įrašą."]
+    ];
+
+    return (
+      <div>
+        <div style={{ background: "white", borderRadius: "12px", padding: "24px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "16px", alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div>
+              <h2 style={{ margin: 0, color: "#1e3a8a" }}>Sąmatos / Skaičiuoklė</h2>
+              <div style={{ marginTop: "8px", color: "#64748b", fontSize: "14px", lineHeight: 1.55, maxWidth: "820px" }}>
+                Tai būsimas krovinių kainų skaičiavimo ir vadybininko sprendimų modulis. Šis ekranas yra tik vizualus demo be backend ir be naujo duomenų saugojimo.
+              </div>
+            </div>
+            <div style={{ padding: "8px 12px", background: "#ecfeff", border: "1px solid #bae6fd", borderRadius: "999px", color: "#0f766e", fontSize: "12px", fontWeight: 800 }}>
+              DEMO
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", marginBottom: "20px" }}>
+          {demoCards.map((card) => (
+            <div key={card.title} style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "18px", boxShadow: "0 1px 3px rgba(15,23,42,0.06)" }}>
+              <div style={{ fontSize: "15px", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>{card.title}</div>
+              <div style={{ fontSize: "13px", color: "#475569", lineHeight: 1.55 }}>{card.text}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.35fr) minmax(320px, 0.65fr)", gap: "18px" }}>
+          <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "20px", boxShadow: "0 1px 3px rgba(15,23,42,0.06)" }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px", color: "#1e3a8a" }}>Kaip veiks modulis ateityje</h3>
+            <div style={{ display: "grid", gap: "12px" }}>
+              {workflowItems.map(([title, text]) => (
+                <div key={title} style={{ padding: "14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px" }}>
+                  <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a", marginBottom: "5px" }}>{title}</div>
+                  <div style={{ fontSize: "13px", color: "#475569", lineHeight: 1.5 }}>{text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ background: "linear-gradient(135deg, #0f172a, #1e3a8a)", color: "white", borderRadius: "12px", padding: "20px", boxShadow: "0 14px 30px rgba(15,23,42,0.22)" }}>
+            <div style={{ fontSize: "12px", letterSpacing: "0.08em", textTransform: "uppercase", color: "#bfdbfe", fontWeight: 800, marginBottom: "8px" }}>Demo pavyzdys</div>
+            <h3 style={{ marginTop: 0, marginBottom: "18px" }}>Riga LV → Vilnius LT</h3>
+            <div style={{ display: "grid", gap: "12px", fontSize: "13px" }}>
+              <div><strong>Carrier:</strong> ANDVA UAB</div>
+              <div><strong>1 vnt. kaina:</strong> 150 EUR</div>
+              <div><strong>Pilno autovežio kaina:</strong> 90 EUR / vnt.</div>
+              <div style={{ paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.22)", lineHeight: 1.55 }}>
+                <strong>Pastaba:</strong> veža LV/EE ↔ LT kiekvieną savaitę
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderPage = () => {
     if (page === "dashboard")      return renderDashboard();
     if (page === "projektai")      return renderProjectsRegistry();
     if (page === "ekspedijavimas") return renderEkspedijavimasBusinessWorkflow();
     if (page === "nuosavas-transportas") return renderOwnTransportBusinessWorkflow();
+    if (page === "samatos")        return renderSamatosDemo();
     if (page === "finansai")       return <Finansai />;
     if (page === "importas")       return renderImportHub();
     return renderSettings();
@@ -3540,6 +4265,162 @@ function App() {
     console.log("currentSelectedCarrierDocument.validUntil", JSON.stringify(currentSelectedCarrierDocument.validUntil || ""));
   }, [currentSelectedCarrierDocument]);
 
+  const renderClientRoleBlock = (company) => {
+    const usageCount = clientUsageMap.get(`id:${String(company.id)}`) || clientUsageMap.get(`name:${String(company.name || "").trim().toLowerCase()}`) || 0;
+    const activeContacts = (company.contacts || []).filter(c => c.name || c.email || c.phone);
+    const activeDepts = (company.departmentContacts || []).filter(d => d.title || d.phone || d.email);
+    return (
+      <div style={{ marginBottom: "16px" }}>
+        <div style={{ background: "#eff6ff", padding: "10px 14px", borderRadius: "8px", border: "1px solid #bfdbfe", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
+          <span style={{ background: "#1e40af", color: "white", padding: "2px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: 700 }}>KLIENTO ROLĖ</span>
+          <span style={{ fontSize: "13px", color: "#1e40af", fontWeight: 600 }}>Projektai: {usageCount}</span>
+        </div>
+        {(company.invoiceEmail || company.cmrEmail || company.podEmail) && (
+          <div style={{ ...profileBlock, marginBottom: "10px" }}>
+            <div style={profileGrid}>
+              {company.invoiceEmail ? <div><b>Invoice el. paštas:</b> {company.invoiceEmail}</div> : null}
+              {company.cmrEmail ? <div><b>CMR el. paštas:</b> {company.cmrEmail}</div> : null}
+              {company.podEmail ? <div><b>POD el. paštas:</b> {company.podEmail}</div> : null}
+            </div>
+          </div>
+        )}
+        <div style={{ marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Vadybininkų kontaktai</div>
+        {activeContacts.length > 0 ? (
+          <table style={tableStyle}>
+            <thead><tr style={{ background: "#f8fafc" }}>
+              <th style={thStyle}>Vardas</th><th style={thStyle}>Pareigos</th><th style={thStyle}>El. paštas</th><th style={thStyle}>Telefonas</th>
+            </tr></thead>
+            <tbody>{activeContacts.map(c => (
+              <tr key={c.id}><td style={tdStyle}>{c.name || "-"}</td><td style={tdStyle}>{c.position || "-"}</td><td style={tdStyle}>{c.email || "-"}</td><td style={tdStyle}>{c.phone || "-"}</td></tr>
+            ))}</tbody>
+          </table>
+        ) : <p style={emptyText}>Kontaktų nėra.</p>}
+        {activeDepts.length > 0 && (
+          <>
+            <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Papildomi kontaktai / skyriai</div>
+            <div style={departmentsGrid}>{activeDepts.map(dep => <DepartmentViewCard key={dep.id} title={dep.title} phone={dep.phone} email={dep.email} />)}</div>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderCarrierRoleBlock = (company) => {
+    const usageCount = carrierUsageMap.get(`id:${String(company.id)}`) || carrierUsageMap.get(`name:${String(company.name || "").trim().toLowerCase()}`) || 0;
+    const health = getCarrierDocumentHealth(company);
+    const cmrStatus = getCarrierDocumentStatusMeta("cmr", health);
+    const licenseStatus = getCarrierDocumentStatusMeta("license", health);
+    const activeDocs = (company.documents || []).filter(doc => doc.title || doc.number || doc.validUntil || doc.link);
+    const activeManagers = (company.managerContacts || []).filter(c => c.name || c.email || c.phone);
+    const activeDocDepts = (company.documentContacts || []).filter(d => d.title || d.phone || d.email);
+    const drivers = company.drivers || [];
+    const trucks = company.trucks || [];
+    const trailers = company.trailers || [];
+    return (
+      <div style={{ marginBottom: "16px" }}>
+        <div style={{ background: "#f0fdf4", padding: "10px 14px", borderRadius: "8px", border: "1px solid #bbf7d0", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
+          <span style={{ background: "#166534", color: "white", padding: "2px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: 700 }}>VEŽĖJO ROLĖ</span>
+          <span style={{ fontSize: "13px", color: "#166534", fontWeight: 600 }}>Projektai: {usageCount}</span>
+          <span style={getDocumentStatusBadgeStyle(cmrStatus.tone)}>CMR: {cmrStatus.label}</span>
+          <span style={getDocumentStatusBadgeStyle(licenseStatus.tone)}>Licencija: {licenseStatus.label}</span>
+        </div>
+        <div style={{ marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Fleet kontaktai / vadybininkai</div>
+        {activeManagers.length > 0 ? (
+          <table style={tableStyle}>
+            <thead><tr style={{ background: "#f8fafc" }}>
+              <th style={thStyle}>Vardas</th><th style={thStyle}>Pareigos</th><th style={thStyle}>El. paštas</th><th style={thStyle}>Telefonas</th>
+            </tr></thead>
+            <tbody>{activeManagers.map(c => (
+              <tr key={c.id}><td style={tdStyle}>{c.name || "-"}</td><td style={tdStyle}>{c.position || "-"}</td><td style={tdStyle}>{c.email || "-"}</td><td style={tdStyle}>{c.phone || "-"}</td></tr>
+            ))}</tbody>
+          </table>
+        ) : <p style={emptyText}>Fleet kontaktų nėra.</p>}
+        <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Dokumentai (CMR / Licencija)</div>
+        {activeDocs.length > 0 ? (
+          <table style={tableStyle}>
+            <thead><tr style={{ background: "#f8fafc" }}>
+              <th style={thStyle}>Pavadinimas</th><th style={thStyle}>Numeris</th><th style={thStyle}>Galioja iki</th><th style={thStyle}>Liko</th><th style={thStyle}>Veiksmai</th>
+            </tr></thead>
+            <tbody>{activeDocs.map(doc => (
+              <tr key={doc.id}>
+                <td style={tdStyle}>{doc.title || "-"}</td>
+                <td style={tdStyle}>{doc.number || "-"}</td>
+                <td style={tdStyle}>{doc.validUntil || "-"}</td>
+                <td style={tdStyle}>{getDaysLeft(doc.validUntil)}</td>
+                <td style={tdStyle}>
+                  <button style={smallActionButton} onClick={() => openCarrierDocumentModal(company, doc)}>Peržiūrėti</button>
+                  {doc.link ? <a href={doc.link} target="_blank" rel="noreferrer" style={{ ...docLinkStyle, marginLeft: "8px" }}>Atidaryti</a> : null}
+                </td>
+              </tr>
+            ))}</tbody>
+          </table>
+        ) : <p style={emptyText}>Dokumentų nėra.</p>}
+        {drivers.length > 0 && (
+          <>
+            <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Vairuotojai</div>
+            <table style={tableStyle}>
+              <thead><tr style={{ background: "#f8fafc" }}><th style={thStyle}>Vardas</th><th style={thStyle}>Telefonas</th><th style={thStyle}>Pažymėjimo Nr.</th></tr></thead>
+              <tbody>{drivers.map(d => <tr key={d.id}><td style={tdStyle}>{d.name || "-"}</td><td style={tdStyle}>{d.phone || "-"}</td><td style={tdStyle}>{d.licenseNumber || "-"}</td></tr>)}</tbody>
+            </table>
+          </>
+        )}
+        {trucks.length > 0 && (
+          <>
+            <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Vilkikai</div>
+            <table style={tableStyle}>
+              <thead><tr style={{ background: "#f8fafc" }}><th style={thStyle}>Valst. numeris</th><th style={thStyle}>Modelis</th><th style={thStyle}>Metai</th></tr></thead>
+              <tbody>{trucks.map(t => <tr key={t.id}><td style={tdStyle}>{t.licensePlate || "-"}</td><td style={tdStyle}>{t.model || "-"}</td><td style={tdStyle}>{t.year || "-"}</td></tr>)}</tbody>
+            </table>
+          </>
+        )}
+        {trailers.length > 0 && (
+          <>
+            <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Priekabos</div>
+            <table style={tableStyle}>
+              <thead><tr style={{ background: "#f8fafc" }}><th style={thStyle}>Valst. numeris</th><th style={thStyle}>Modelis</th><th style={thStyle}>Metai</th></tr></thead>
+              <tbody>{trailers.map(t => <tr key={t.id}><td style={tdStyle}>{t.licensePlate || "-"}</td><td style={tdStyle}>{t.model || "-"}</td><td style={tdStyle}>{t.year || "-"}</td></tr>)}</tbody>
+            </table>
+          </>
+        )}
+        {activeDocDepts.length > 0 && (
+          <>
+            <div style={{ marginTop: "10px", marginBottom: "8px", fontWeight: 600, color: "#334155", fontSize: "13px" }}>Dokumentų skyriai</div>
+            <div style={departmentsGrid}>{activeDocDepts.map(dep => <DepartmentViewCard key={dep.id} title={dep.title} phone={dep.phone} email={dep.email} />)}</div>
+          </>
+        )}
+        {company.notes ? (
+          <div style={{ marginTop: "10px", padding: "10px 14px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "10px", color: "#166534", lineHeight: 1.5, fontSize: "13px" }}>
+            <b>Vežėjo pastabos:</b> {company.notes}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  // ── Auth gate ─────────────────────────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", fontFamily: "Arial, sans-serif"
+      }}>
+        <div style={{ color: "white", fontSize: "20px", fontWeight: 600, opacity: 0.9 }}>
+          Kraunama...
+        </div>
+      </div>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <LoginPage onLogin={(user, token) => {
+        localStorage.setItem('rauth_token', token);
+        setAuthUser(user);
+        setAuthLoading(false);
+      }} />
+    );
+  }
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -3559,13 +4440,40 @@ function App() {
           marginBottom: "18px"
         }}>
           <div>
-            <div style={{ fontSize: "18px", fontWeight: "700", color: "#1e3a8a" }}>Radanaras MB</div>
-            <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>Your Cargo, Our Commitment</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: "34px", height: "34px", borderRadius: "9px",
+                background: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
+                boxShadow: "0 2px 8px rgba(59,130,246,0.30)", flexShrink: 0
+              }}>
+                <span style={{ color: "white", fontSize: "12px", fontWeight: "900", letterSpacing: "0.5px" }}>TF</span>
+              </div>
+              <div>
+                <div style={{ fontSize: "18px", fontWeight: "700", color: "#1e3a8a" }}>TransFlow</div>
+                <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "1px", letterSpacing: "0.3px" }}>Logistics Management Platform</div>
+              </div>
+            </div>
           </div>
 
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontWeight: "600", color: "#1e3a8a" }}>Saimondas Lukosius</div>
-            <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>Head of International Freight</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontWeight: "600", color: "#1e3a8a" }}>{authUser?.name || "—"}</div>
+              <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>
+                {authUser?.companyName || authUser?.email || ""}
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Atsijungti iš sistemos"
+              style={{
+                padding: "7px 16px", background: "#f1f5f9", color: "#475569",
+                border: "1px solid #e2e8f0", borderRadius: "8px",
+                fontSize: "13px", fontWeight: "600", cursor: "pointer"
+              }}
+            >
+              Atsijungti
+            </button>
           </div>
         </div>
 
@@ -3783,9 +4691,12 @@ function App() {
               </div>
               <div style={formGroup}>
                 <label style={labelStyle}>Kliento tipas</label>
-                <select style={inputStyle} value={clientForm.clientType} onChange={(e) => handleClientFieldChange("clientType", e.target.value)}>
-                  <option>Ekspeditorius</option>
-                  <option>Tiesioginis klientas</option>
+                <select style={inputStyle} value={clientForm.clientType} onInput={(e) => handleClientFieldChange("clientType", e.target.value)} onChange={(e) => handleClientFieldChange("clientType", e.target.value)}>
+                  <option value="Ekspeditorius">Ekspeditorius</option>
+                  <option value="Tiesioginis klientas">Tiesioginis klientas</option>
+                  <option value="Klientas">Klientas</option>
+                  <option value="Klientas + Vežėjas">Klientas + Vežėjas</option>
+                  <option value="Ekspeditorius + Vežėjas">Ekspeditorius + Vežėjas</option>
                 </select>
               </div>
               <div style={formGroup}>
@@ -3913,92 +4824,68 @@ function App() {
         <div style={overlayStyle}>
           <div style={profileModalStyle}>
             <div style={modalHeader}>
-              <h2 style={{ margin: 0, color: "#1e3a8a" }}>Kliento profilis</h2>
+              <h2 style={{ margin: 0, color: "#1e3a8a" }}>
+                {isCarrierRole(selectedClient) ? "Mišrios rolės profilis" : "Kliento profilis"}
+              </h2>
               <button onClick={() => setShowClientProfile(false)} style={closeButton}>✕</button>
             </div>
 
             <div style={profileBlock}>
-              <div style={profileTitle}>{selectedClient.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
+                <div style={profileTitle} className="profile-title-inline">{selectedClient.name}</div>
+                <span style={{ display: "inline-block", background: "#dbeafe", color: "#1e40af", border: "1px solid #93c5fd", padding: "3px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 700 }}>
+                  {selectedClient.clientType || "Klientas"}
+                </span>
+                {isCarrierRole(selectedClient) && (
+                  <span style={{ display: "inline-block", background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0", padding: "3px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 700 }}>
+                    + Vežėjas
+                  </span>
+                )}
+              </div>
               <div style={profileGrid}>
-                <div><b>Tipas:</b> {selectedClient.clientType || "-"}</div>
                 <div><b>Įmonės kodas:</b> {selectedClient.companyCode || "-"}</div>
                 <div><b>PVM kodas:</b> {selectedClient.vatCode || "-"}</div>
                 <div><b>Bendras el. paštas:</b> {selectedClient.email || "-"}</div>
                 <div><b>Telefonas:</b> {selectedClient.phone || "-"}</div>
                 <div><b>Adresas:</b> {selectedClient.address || "-"}</div>
                 <div><b>Web puslapis:</b> {selectedClient.website || "-"}</div>
-                <div><b>Invoice el. paštas:</b> {selectedClient.invoiceEmail || "-"}</div>
-                <div><b>CMR el. paštas:</b> {selectedClient.cmrEmail || "-"}</div>
-                <div><b>POD el. paštas:</b> {selectedClient.podEmail || "-"}</div>
-                <div><b>Naudojamas projektuose:</b> {clientUsageMap.get(`id:${String(selectedClient.id)}`) || clientUsageMap.get(`name:${String(selectedClient.name || "").trim().toLowerCase()}`) || 0}</div>
+                {selectedClient.createdAt ? <div><b>Sukurta:</b> {new Date(selectedClient.createdAt).toLocaleDateString("lt-LT")}</div> : null}
+                {selectedClient.updatedAt ? <div><b>Atnaujinta:</b> {new Date(selectedClient.updatedAt).toLocaleDateString("lt-LT")}</div> : null}
               </div>
-              {selectedClient.notes ? (
-                <div style={{ marginTop: "12px", padding: "12px 14px", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", color: "#475569", lineHeight: 1.5 }}>
-                  <b>Pastabos:</b> {selectedClient.notes}
-                </div>
-              ) : null}
             </div>
 
-            <div style={sectionTitle}>Vadybininkų kontaktai</div>
-
-            {selectedClient.contacts && selectedClient.contacts.length > 0 ? (
-              <table style={tableStyle}>
-                <thead>
-                  <tr style={{ background: "#f8fafc" }}>
-                    <th style={thStyle}>Vardas</th>
-                    <th style={thStyle}>Pareigos</th>
-                    <th style={thStyle}>El. paštas</th>
-                    <th style={thStyle}>Telefonas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedClient.contacts.map((contact) => (
-                    <tr key={contact.id}>
-                      <td style={tdStyle}>{contact.name || "-"}</td>
-                      <td style={tdStyle}>{contact.position || "-"}</td>
-                      <td style={tdStyle}>{contact.email || "-"}</td>
-                      <td style={tdStyle}>{contact.phone || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {isCarrierRole(selectedClient) ? (
+              <>
+                <div style={{ display: "flex", gap: "8px", margin: "16px 0 4px 0" }}>
+                  <button
+                    style={{ padding: "9px 18px", borderRadius: "8px", fontWeight: 700, fontSize: "13px", cursor: "pointer", border: "2px solid", transition: "all 0.15s", ...(profileContext === "client" ? { background: "#1e40af", color: "white", borderColor: "#1e40af" } : { background: "white", color: "#1e40af", borderColor: "#bfdbfe" }) }}
+                    onClick={() => setProfileContext("client")}
+                  >
+                    {selectedClient.name} kaip klientas
+                  </button>
+                  <button
+                    style={{ padding: "9px 18px", borderRadius: "8px", fontWeight: 700, fontSize: "13px", cursor: "pointer", border: "2px solid", transition: "all 0.15s", ...(profileContext === "carrier" ? { background: "#166534", color: "white", borderColor: "#166534" } : { background: "white", color: "#166534", borderColor: "#bbf7d0" }) }}
+                    onClick={() => setProfileContext("carrier")}
+                  >
+                    {selectedClient.name} kaip vežėjas
+                  </button>
+                </div>
+                {profileContext === "client" ? renderClientRoleBlock(selectedClient) : renderCarrierRoleBlock(selectedClient)}
+              </>
             ) : (
-              <p style={emptyText}>Kontaktų nėra.</p>
+              renderClientRoleBlock(selectedClient)
             )}
 
-            <div style={sectionTitle}>Papildomi kontaktai / skyriai</div>
-            <div style={departmentsGrid}>
-              {selectedClient.departmentContacts && selectedClient.departmentContacts.length > 0 ? (
-                selectedClient.departmentContacts.map((dep) => (
-                  <DepartmentViewCard
-                    key={dep.id}
-                    title={dep.title}
-                    phone={dep.phone}
-                    email={dep.email}
-                  />
-                ))
-              ) : (
-                <p style={emptyText}>Papildomų skyrių nėra.</p>
-              )}
-            </div>
-
             <div style={buttonRowRight}>
-              <button
-                style={dangerActionButton}
-                onClick={() => handleDeleteClient(selectedClient.id)}
-              >
-                Šalinti
-              </button>
+              <button style={dangerActionButton} onClick={() => handleDeleteClient(selectedClient.id)}>Šalinti</button>
               <button style={secondaryButton} onClick={() => setShowClientProfile(false)}>Uždaryti</button>
-              <button
-                style={primaryButton}
-                onClick={() => {
-                  setShowClientProfile(false);
-                  openEditClientModal(selectedClient);
-                }}
-              >
-                Redaguoti
-              </button>
+              {isCarrierRole(selectedClient) ? (
+                profileContext === "client"
+                  ? <button style={primaryButton} onClick={() => { setShowClientProfile(false); openEditClientModal(selectedClient); }}>Redaguoti kliento info</button>
+                  : <button style={primaryButton} onClick={() => { setShowClientProfile(false); openEditMixedClientAsCarrier(selectedClient); }}>Redaguoti vežėjo info</button>
+              ) : (
+                <button style={primaryButton} onClick={() => { setShowClientProfile(false); openEditClientModal(selectedClient); }}>Redaguoti</button>
+              )}
             </div>
           </div>
         </div>
@@ -4009,9 +4896,9 @@ function App() {
           <div style={largeModalStyle}>
             <div style={modalHeader}>
               <h2 style={{ margin: 0, color: "#1e3a8a" }}>
-                {editingCarrierId ? "Redaguoti vežėją" : "Naujas vežėjas"}
+                {editingMixedClientId ? "Redaguoti (mišri rolė – vežėjo blokai)" : editingCarrierId ? "Redaguoti vežėją" : "Naujas vežėjas"}
               </h2>
-              <button onClick={() => setShowCarrierModal(false)} style={closeButton}>✕</button>
+              <button onClick={closeCarrierModal} style={closeButton}>✕</button>
             </div>
 
             <div style={sectionTitle}>Įmonės informacija</div>
@@ -4022,10 +4909,12 @@ function App() {
               </div>
               <div style={formGroup}>
                 <label style={labelStyle}>Vežėjo tipas</label>
-                <select style={inputStyle} value={carrierForm.carrierType} onChange={(e) => handleCarrierFieldChange("carrierType", e.target.value)}>
-                  <option>Vežėjas</option>
-                  <option>Vežėjas-ekspeditorius</option>
-                  <option>Nuosavas transportas</option>
+                <select style={inputStyle} value={carrierForm.carrierType} onInput={(e) => handleCarrierFieldChange("carrierType", e.target.value)} onChange={(e) => handleCarrierFieldChange("carrierType", e.target.value)}>
+                  <option value="Vežėjas">Vežėjas</option>
+                  <option value="Vežėjas-ekspeditorius">Vežėjas-ekspeditorius</option>
+                  <option value="Nuosavas transportas">Nuosavas transportas</option>
+                  <option value="Vežėjas + Klientas">Vežėjas + Klientas</option>
+                  <option value="Vežėjas + Ekspeditorius">Vežėjas + Ekspeditorius</option>
                 </select>
               </div>
               <div style={formGroup}>
@@ -4306,7 +5195,7 @@ function App() {
             </div>
 
             <div style={buttonRowRight}>
-              <button style={secondaryButton} onClick={() => setShowCarrierModal(false)}>Uždaryti</button>
+              <button style={secondaryButton} onClick={closeCarrierModal}>Uždaryti</button>
               <button style={primaryButton} onClick={handleSaveCarrier}>Išsaugoti</button>
             </div>
           </div>
@@ -4317,253 +5206,44 @@ function App() {
         <div style={overlayStyle}>
           <div style={profileModalStyle}>
             <div style={modalHeader}>
-              <h2 style={{ margin: 0, color: "#1e3a8a" }}>Vežėjo profilis</h2>
+              <h2 style={{ margin: 0, color: "#1e3a8a" }}>
+                {isClientRole(selectedCarrier) ? "Mišrios rolės profilis" : "Vežėjo profilis"}
+              </h2>
               <button onClick={() => setShowCarrierProfile(false)} style={closeButton}>✕</button>
             </div>
 
             <div style={profileBlock}>
-              <div style={profileTitle}>{selectedCarrier.name}</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(120px, 1fr))", gap: "10px", marginBottom: "14px" }}>
-                <div style={observerMiniStat}>Projektai: {carrierUsageMap.get(`id:${String(selectedCarrier.id)}`) || carrierUsageMap.get(`name:${String(selectedCarrier.name || "").trim().toLowerCase()}`) || 0}</div>
-                <div style={observerMiniStat}>Vadyb.: {selectedCarrier.managerContacts?.filter((contact) => contact.name || contact.email || contact.phone).length || 0}</div>
-                <div style={observerMiniStat}>Vairuotojai: {selectedCarrier.drivers?.length || 0}</div>
-                <div style={observerMiniStat}>Fleet: {(selectedCarrier.trucks?.length || 0) + (selectedCarrier.trailers?.length || 0)}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
+                <div style={profileTitle} className="profile-title-inline">{selectedCarrier.name}</div>
+                <span style={{ display: "inline-block", background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0", padding: "3px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 700 }}>
+                  {selectedCarrier.carrierType || "Vežėjas"}
+                </span>
+                {isClientRole(selectedCarrier) && (
+                  <span style={{ display: "inline-block", background: "#dbeafe", color: "#1e40af", border: "1px solid #93c5fd", padding: "3px 12px", borderRadius: "12px", fontSize: "12px", fontWeight: 700 }}>
+                    + Klientas
+                  </span>
+                )}
               </div>
               <div style={profileGrid}>
-                <div><b>Tipas:</b> {selectedCarrier.carrierType || "-"}</div>
-                <div><b>Fleet statusas:</b> {selectedCarrier.isOwnCompany ? "Mūsų įmonės fleet" : "Išorinis partneris"}</div>
                 <div><b>Įmonės kodas:</b> {selectedCarrier.companyCode || "-"}</div>
                 <div><b>PVM kodas:</b> {selectedCarrier.vatCode || "-"}</div>
                 <div><b>Bendras el. paštas:</b> {selectedCarrier.email || "-"}</div>
                 <div><b>Telefonas:</b> {selectedCarrier.phone || "-"}</div>
                 <div><b>Adresas:</b> {selectedCarrier.address || "-"}</div>
                 <div><b>Web puslapis:</b> {selectedCarrier.website || "-"}</div>
-                <div><b>Sukurta:</b> {selectedCarrier.createdAt ? new Date(selectedCarrier.createdAt).toLocaleDateString("lt-LT") : "-"}</div>
-                <div><b>Atnaujinta:</b> {selectedCarrier.updatedAt ? new Date(selectedCarrier.updatedAt).toLocaleDateString("lt-LT") : "-"}</div>
+                <div><b>Fleet statusas:</b> {selectedCarrier.isOwnCompany ? "Mūsų įmonės fleet" : "Išorinis partneris"}</div>
+                {selectedCarrier.createdAt ? <div><b>Sukurta:</b> {new Date(selectedCarrier.createdAt).toLocaleDateString("lt-LT")}</div> : null}
+                {selectedCarrier.updatedAt ? <div><b>Atnaujinta:</b> {new Date(selectedCarrier.updatedAt).toLocaleDateString("lt-LT")}</div> : null}
               </div>
             </div>
 
-            {isClientRole(selectedCarrier) && (
-              <div style={{ display: "flex", gap: "8px", margin: "16px 0 4px 0" }}>
-                <button
-                  style={{
-                    padding: "9px 18px", borderRadius: "8px", fontWeight: 700, fontSize: "13px",
-                    cursor: "pointer", border: "2px solid", transition: "all 0.15s",
-                    ...(profileContext === "carrier"
-                      ? { background: "#166534", color: "white", borderColor: "#166534" }
-                      : { background: "white", color: "#166534", borderColor: "#bbf7d0" }),
-                  }}
-                  onClick={() => setProfileContext("carrier")}
-                >
-                  {selectedCarrier.name} kaip vežėjas
-                </button>
-                <button
-                  style={{
-                    padding: "9px 18px", borderRadius: "8px", fontWeight: 700, fontSize: "13px",
-                    cursor: "pointer", border: "2px solid", transition: "all 0.15s",
-                    ...(profileContext === "client"
-                      ? { background: "#1e40af", color: "white", borderColor: "#1e40af" }
-                      : { background: "white", color: "#1e40af", borderColor: "#bfdbfe" }),
-                  }}
-                  onClick={() => setProfileContext("client")}
-                >
-                  {selectedCarrier.name} kaip klientas
-                </button>
-              </div>
-            )}
-
-            {(!isClientRole(selectedCarrier) || profileContext === "carrier") && (
-              <>
-                <div style={sectionTitle}>Vadybininkų kontaktai</div>
-
-                {selectedCarrier.managerContacts && selectedCarrier.managerContacts.length > 0 ? (
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc" }}>
-                        <th style={thStyle}>Vardas</th>
-                        <th style={thStyle}>Pareigos</th>
-                        <th style={thStyle}>El. paštas</th>
-                        <th style={thStyle}>Telefonas</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCarrier.managerContacts.map((contact) => (
-                        <tr key={contact.id}>
-                          <td style={tdStyle}>{contact.name || "-"}</td>
-                          <td style={tdStyle}>{contact.position || "-"}</td>
-                          <td style={tdStyle}>{contact.email || "-"}</td>
-                          <td style={tdStyle}>{contact.phone || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={emptyText}>Kontaktų nėra.</p>
-                )}
-
-                <div style={sectionTitle}>Papildomi kontaktai / skyriai</div>
-                <div style={departmentsGrid}>
-                  {selectedCarrier.documentContacts && selectedCarrier.documentContacts.length > 0 ? (
-                    selectedCarrier.documentContacts.map((dep) => (
-                      <DepartmentViewCard
-                        key={dep.id}
-                        title={dep.title}
-                        phone={dep.phone}
-                        email={dep.email}
-                      />
-                    ))
-                  ) : (
-                    <p style={emptyText}>Papildomų skyrių nėra.</p>
-                  )}
-                </div>
-
-                <div style={sectionTitle}>Dokumentai</div>
-
-                {selectedCarrier.documents && selectedCarrier.documents.length > 0 ? (
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc" }}>
-                        <th style={thStyle}>Pavadinimas</th>                    <th style={thStyle}>Numeris</th>                    <th style={thStyle}>Galioja iki</th>                    <th style={thStyle}>Liko</th>                    <th style={thStyle}>Veiksmai</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCarrier.documents.map((doc) => (
-                        <tr key={doc.id}>
-                          <td style={tdStyle}>{doc.title || "-"}</td>
-                          <td style={tdStyle}>{doc.number || "-"}</td>
-                          <td style={tdStyle}>{doc.validUntil || "-"}</td>                      <td style={tdStyle}>{getDaysLeft(doc.validUntil)}</td>                      <td style={tdStyle}>
-                            <button
-                              style={smallActionButton}
-                              onClick={() => openCarrierDocumentModal(selectedCarrier, doc)}
-                            >
-                              Peržiūrėti
-                            </button>
-                            {doc.link ? (
-                              <a
-                                href={doc.link}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ ...docLinkStyle, marginLeft: "8px" }}
-                              >
-                                Atidaryti
-                              </a>
-                            ) : null}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={emptyText}>Dokumentų nėra.</p>
-                )}
-
-                <div style={sectionTitle}>Vairuotojai</div>
-                {selectedCarrier.drivers && selectedCarrier.drivers.length > 0 ? (
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc" }}>
-                        <th style={thStyle}>Vardas</th>
-                        <th style={thStyle}>Telefonas</th>
-                        <th style={thStyle}>Pažymėjimo Nr.</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCarrier.drivers.map((d) => (
-                        <tr key={d.id}>
-                          <td style={tdStyle}>{d.name || "-"}</td>
-                          <td style={tdStyle}>{d.phone || "-"}</td>
-                          <td style={tdStyle}>{d.licenseNumber || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={emptyText}>Vairuotojų nėra.</p>
-                )}
-
-                <div style={sectionTitle}>Vilkikai</div>
-                {selectedCarrier.trucks && selectedCarrier.trucks.length > 0 ? (
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc" }}>
-                        <th style={thStyle}>Valst. numeris</th>
-                        <th style={thStyle}>Modelis</th>
-                        <th style={thStyle}>Metai</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCarrier.trucks.map((t) => (
-                        <tr key={t.id}>
-                          <td style={tdStyle}>{t.licensePlate || "-"}</td>
-                          <td style={tdStyle}>{t.model || "-"}</td>
-                          <td style={tdStyle}>{t.year || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={emptyText}>Vilkikų nėra.</p>
-                )}
-
-                <div style={sectionTitle}>Priekabos</div>
-                {selectedCarrier.trailers && selectedCarrier.trailers.length > 0 ? (
-                  <table style={tableStyle}>
-                    <thead>
-                      <tr style={{ background: "#f8fafc" }}>
-                        <th style={thStyle}>Valst. numeris</th>
-                        <th style={thStyle}>Modelis</th>
-                        <th style={thStyle}>Metai</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedCarrier.trailers.map((t) => (
-                        <tr key={t.id}>
-                          <td style={tdStyle}>{t.licensePlate || "-"}</td>
-                          <td style={tdStyle}>{t.model || "-"}</td>
-                          <td style={tdStyle}>{t.year || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={emptyText}>Priekabų nėra.</p>
-                )}
-
-                <div style={sectionTitle}>Pastabos</div>
-                <div style={profileBlock}>
-                  {selectedCarrier.notes ? selectedCarrier.notes : "Pastabų nėra."}
-                </div>
-              </>
-            )}
-
-            {isClientRole(selectedCarrier) && profileContext === "client" && renderClientRoleBlock(selectedCarrier)}
+            {renderCarrierRoleBlock(selectedCarrier)}
+            {isClientRole(selectedCarrier) && renderClientRoleBlock(selectedCarrier)}
 
             <div style={buttonRowRight}>
               <button style={dangerActionButton} onClick={() => handleDeleteCarrier(selectedCarrier.id)}>Ištrinti</button>
               <button style={secondaryButton} onClick={() => setShowCarrierProfile(false)}>Uždaryti</button>
-              {isClientRole(selectedCarrier) && profileContext === "client"
-                ? (
-                  <button
-                    style={primaryButton}
-                    onClick={() => {
-                      setShowCarrierProfile(false);
-                      openEditClientModal(selectedCarrier);
-                    }}
-                  >
-                    Redaguoti kliento info
-                  </button>
-                ) : (
-                  <button
-                    style={primaryButton}
-                    onClick={() => {
-                      setShowCarrierProfile(false);
-                      openEditCarrierModal(selectedCarrier);
-                    }}
-                  >
-                    Redaguoti
-                  </button>
-                )
-              }
+              <button style={primaryButton} onClick={() => { setShowCarrierProfile(false); openEditCarrierModal(selectedCarrier); }}>Redaguoti</button>
             </div>
           </div>
         </div>
@@ -4577,6 +5257,7 @@ function App() {
             setShowOrderModal(false);
             setEditingOrder(null);
             setOrderWorkflowMode("default");
+            setOrderImportPrefill(null);
           }}
           clients={clients}
           carriers={carriers}
@@ -4588,6 +5269,7 @@ function App() {
           persistFutureDomain={persistFutureDomainToAppState}
           persistTarget={orderPersistTarget}
           workflowMode={orderWorkflowMode}
+          prefill={orderImportPrefill}
         />
       )}
 

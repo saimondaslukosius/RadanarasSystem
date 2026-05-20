@@ -14,13 +14,18 @@
     "userLimit": null,
     "status": "active",
     "basePrice": 0,
-    "includedUsers": null,
+    "includedUsers": 1,
     "extraUserPrice": 0,
-    "billingEmail": "saimondaslukosius@radanaras.com",
+    "billingEmail": "info@radanaras.com",
     "currency": "EUR",
     "createdAt": "2026-01-01T00:00:00.000Z",
-    "updatedAt": "2026-05-19T00:00:00.000Z",
-    "active": true
+    "updatedAt": "2026-05-20T09:33:16.159Z",
+    "active": true,
+    "address": "",
+    "notes": "",
+    "billingMode": "internal",
+    "unlimitedUsers": true,
+    "trialEndsAt": ""
   },
   {
     "id": "company-1779254366925",
@@ -31,7 +36,7 @@
     "billingEmail": "",
     "country": "",
     "plan": "basic",
-    "status": "suspended",
+    "status": "deleted",
     "tenantType": "paid",
     "billingStatus": "active",
     "isBillingExempt": false,
@@ -42,9 +47,11 @@
     "currency": "EUR",
     "active": true,
     "createdAt": "2026-05-20T05:19:26.925Z",
-    "updatedAt": "2026-05-20T05:19:59.146Z",
+    "updatedAt": "2026-05-20T09:00:51.944Z",
     "activeUsersCount": 0,
     "totalUsersCount": 0,
-    "monthlyTotal": 150
+    "monthlyTotal": 150,
+    "deletedAt": "2026-05-20T09:00:51.944Z",
+    "deletedBy": "user-saimondas-001"
   }
 ]
