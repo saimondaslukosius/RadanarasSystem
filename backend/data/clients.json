@@ -1,5 +1,85 @@
 [
   {
+    "id": "CL-1778575534848",
+    "name": "RPM Europe B.V.",
+    "clientType": "Klientas",
+    "companyCode": "75119056",
+    "vatCode": "NL860149894B01",
+    "email": "loads.europe@loads.rpmmoves.com",
+    "phone": "\"\"020 899 1049\"\"",
+    "address": "RPM Europe, B.V. Zwaansvliet 1-3 1081 AP Amsterdam, Netherlands",
+    "country": "Olandija",
+    "website": "",
+    "invoiceEmail": "ap.europe@rpmmoves.com",
+    "cmrEmail": "ap.europe@rpmmoves.com",
+    "podEmail": "ap.europe@rpmmoves.com",
+    "notes": "Hello,\nI trust this email finds you in good spirits.\n\nEnclosed, please find the invoice and corresponding documents for the shipment facilitated by our service. Detailed within the attachments are the specifics of the transaction:\n\n**Cargo Value:** €450.00\n**Loading Place:** Hordain FR  \n**Unloading Place:** Ghislenghien BE\n**Shipment ID:** \n\nLOT: \n\nVIN Code: \n\n\n\nThe attachments include:\n- The Order Form\n- The CMR (Consignment Note)\n- The Invoice\n\nWe request that the payment be processed as per the terms outlined in the invoice. If there are any questions or further details needed, please feel free to get in touch.\n\nWe appreciate your prompt handling of this matter.\n\n",
+    "contacts": [
+      {
+        "id": 1,
+        "name": "Jakub Chiszberg   ",
+        "position": "Pardavimų Vadybininkas ",
+        "email": "mstrzelczyk@rpmmoves.com",
+        "phone": "+48 668 841 839"
+      },
+      {
+        "id": 1777456897309,
+        "name": "Kasia",
+        "position": "Pardavimų vadybinkė ",
+        "email": "",
+        "phone": "+48 665 060 829"
+      },
+      {
+        "id": 1777457184620,
+        "name": "Modestas Taškinas ",
+        "position": "Pardavimų vadybininkas ",
+        "email": "mtaskinas@rpmmoves.com",
+        "phone": "+48 518 282 318"
+      },
+      {
+        "id": 1777666337681,
+        "name": "Marek Strzelczyk",
+        "position": "Pardavimų vadybininkas ",
+        "email": "mstrzelczyk@rpmmoves.com",
+        "phone": "+48 668 841 839"
+      }
+    ],
+    "departmentContacts": [
+      {
+        "id": 1,
+        "title": "Administracija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 2,
+        "title": "Buhalterija",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 3,
+        "title": "Klientų aptarnavimas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 4,
+        "title": "Personalas",
+        "phone": "",
+        "email": ""
+      },
+      {
+        "id": 5,
+        "title": "Krovinių gabenimas",
+        "phone": "",
+        "email": ""
+      }
+    ],
+    "createdAt": "2026-05-12T08:45:34.848Z",
+    "updatedAt": "2026-05-12T08:56:23.153Z"
+  },
+  {
     "id": "CL-1777467221789",
     "name": "Dolama, UAB",
     "clientType": "Ekspeditorius + Vežėjas",
@@ -1630,90 +1710,6 @@
     "invoiceEmail": "",
     "cmrEmail": "",
     "podEmail": ""
-  },
-  {
-    "id": "IMP1775684103555",
-    "name": "RPM Europe B.V.",
-    "companyCode": "75119056",
-    "vatCode": "NL05150307",
-    "email": "",
-    "phone": "\"\"020 899 1049\"\"",
-    "address": "Amsterdam, Olandija",
-    "website": "",
-    "managerContacts": [
-      {
-        "id": 1,
-        "name": "\"\"Carrier Operations Representative Jakub Chiszberg  Jakub Chiszberg  pardavimai Vladana  Stamenic",
-        "position": "",
-        "email": "",
-        "phone": "\"\"020 899 1049\"\""
-      }
-    ],
-    "notes": "",
-    "_importSource": "InfoTrans",
-    "_country": "Olandija",
-    "_city": "Amsterdam",
-    "clientType": "Klientas",
-    "contacts": [
-      {
-        "id": 1,
-        "name": "Jakub Chiszberg   ",
-        "position": "Pardavimų Vadybininkas ",
-        "email": "mstrzelczyk@rpmmoves.com",
-        "phone": "+48 668 841 839"
-      },
-      {
-        "id": 1777456897309,
-        "name": "Kasia",
-        "position": "Pardavimų vadybinkė ",
-        "email": "",
-        "phone": "+48 665 060 829"
-      },
-      {
-        "id": 1777457184620,
-        "name": "MOdestas Taškinas ",
-        "position": "Pardavimų vadybininkas ",
-        "email": "",
-        "phone": "+48 518 282 318"
-      }
-    ],
-    "departmentContacts": [
-      {
-        "id": 1,
-        "title": "Administracija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 2,
-        "title": "Buhalterija",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 3,
-        "title": "Klientų aptarnavimas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 4,
-        "title": "Personalas",
-        "phone": "",
-        "email": ""
-      },
-      {
-        "id": 5,
-        "title": "Krovinių gabenimas",
-        "phone": "",
-        "email": ""
-      }
-    ],
-    "country": "",
-    "invoiceEmail": "",
-    "cmrEmail": "",
-    "podEmail": "",
-    "updatedAt": "2026-04-29T10:10:38.727Z"
   },
   {
     "id": "IMP1775684103563",

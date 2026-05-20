@@ -2917,9 +2917,265 @@ function UsersManager({ authUser }) {
   );
 }
 
-// PlatformTab removed — logic moved to frontend/src/AdminConsole.jsx
-// (accessible via "🌐 Admin Console" in the top navigation menu)
-function PlatformTab() { return null; /* stub — no longer rendered */ }
+// ── Platform Tab (Settings → Platforma tab, only for isPlatformAdmin) ────────
+function PlatformTab() {
+  const [companies, setCompanies]     = useState([]);
+  const [loading, setLoading]         = useState(true);
+  const [loadErr, setLoadErr]         = useState("");
+  const [showForm, setShowForm]       = useState(false);
+  const [editCompany, setEditCompany] = useState(null);  // null = new, obj = edit
+  const [showAdminForm, setShowAdminForm] = useState(null); // companyId or null
+  const [saving, setSaving]           = useState(false);
+
+  const emptyCompanyForm = {
+    name: "", code: "", vat: "", billingEmail: "", country: "", phone: "",
+    plan: "basic", status: "active",
+    basePrice: 150, includedUsers: 1, extraUserPrice: 50, currency: "EUR"
+  };
+  const [companyForm, setCompanyForm] = useState(emptyCompanyForm);
+  const emptyAdminForm = { name: "", email: "", password: "", role: "admin", status: "active" };
+  const [adminForm, setAdminForm]     = useState(emptyAdminForm);
+
+  const load = () => {
+    setLoading(true); setLoadErr("");
+    fetch(`${API_BASE}/api/platform/companies`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCompanies(d); else setLoadErr(d.error || "Klaida"); })
+      .catch(() => setLoadErr("Serverio klaida"))
+      .finally(() => setLoading(false));
+  };
+  useEffect(() => { load(); }, []);
+
+  const openNew = () => {
+    setEditCompany(null);
+    setCompanyForm(emptyCompanyForm);
+    setShowAdminForm(null);
+    setShowForm(true);
+  };
+  const openEdit = (c) => {
+    setEditCompany(c);
+    setCompanyForm({
+      name: c.name || "", code: c.code || "", vat: c.vat || "",
+      billingEmail: c.billingEmail || "", country: c.country || "", phone: c.phone || "",
+      plan: c.plan || "basic", status: c.status || "active",
+      basePrice: c.basePrice ?? 150, includedUsers: c.includedUsers ?? 1,
+      extraUserPrice: c.extraUserPrice ?? 50, currency: c.currency || "EUR"
+    });
+    setShowAdminForm(null);
+    setShowForm(true);
+  };
+  const cancelForm = () => { setShowForm(false); setEditCompany(null); setCompanyForm(emptyCompanyForm); };
+
+  const handleSaveCompany = async () => {
+    if (!companyForm.name.trim()) { alert("Pavadinimas būtinas"); return; }
+    setSaving(true);
+    try {
+      const url    = editCompany ? `${API_BASE}/api/platform/companies/${editCompany.id}` : `${API_BASE}/api/platform/companies`;
+      const method = editCompany ? "PUT" : "POST";
+      const res    = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(companyForm) });
+      const data   = await res.json();
+      if (!res.ok) { alert(data.error || "Klaida"); return; }
+      cancelForm();
+      load();
+    } catch { alert("Serverio klaida"); }
+    finally { setSaving(false); }
+  };
+
+  const openAdminForm = (companyId) => {
+    setShowAdminForm(companyId);
+    setAdminForm(emptyAdminForm);
+    setShowForm(false);
+  };
+  const cancelAdminForm = () => { setShowAdminForm(null); setAdminForm(emptyAdminForm); };
+
+  const handleSaveAdmin = async () => {
+    if (!adminForm.name || !adminForm.email || !adminForm.password) { alert("Privalomi laukai: vardas, el. paštas, slaptažodis"); return; }
+    setSaving(true);
+    try {
+      const res  = await fetch(`${API_BASE}/api/platform/companies/${showAdminForm}/admin-user`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminForm)
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || "Klaida"); return; }
+      alert(`✅ Vartotojas sukurtas: ${data.email}`);
+      cancelAdminForm();
+      load();
+    } catch { alert("Serverio klaida"); }
+    finally { setSaving(false); }
+  };
+
+  const planLabel = (p) => ({ basic: "Basic", pro: "Pro", enterprise: "Enterprise", internal: "Internal" }[p] || p || "—");
+  const statusBadge = (s) => {
+    const m = { active: { bg: "#dcfce7", color: "#166534" }, trial: { bg: "#fef9c3", color: "#854d0e" }, suspended: { bg: "#fee2e2", color: "#991b1b" } }[s] || { bg: "#f1f5f9", color: "#475569" };
+    return <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, background: m.bg, color: m.color }}>{s || "—"}</span>;
+  };
+
+  if (loading) return <div style={{ padding: "40px", color: "#64748b", textAlign: "center" }}>Kraunama...</div>;
+  if (loadErr) return <div style={{ padding: "20px", background: "#fee2e2", color: "#991b1b", borderRadius: "8px" }}>❌ {loadErr}</div>;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <h3 style={{ margin: 0, color: "#1e3a8a" }}>🌐 Platform — įmonių valdymas</h3>
+        <button type="button" style={btn} onClick={openNew}>+ Nauja įmonė</button>
+      </div>
+
+      {/* Billing disclaimer */}
+      <div style={{ background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", padding: "10px 14px", fontSize: "12px", color: "#92400e", marginBottom: "20px" }}>
+        ⚠️ Payments are not automated yet. Billing is calculated for administrative purposes only.
+      </div>
+
+      {/* Company form */}
+      {showForm && (
+        <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "24px", marginBottom: "24px" }}>
+          <h4 style={{ margin: "0 0 18px", color: "#1e3a8a" }}>{editCompany ? "✏️ Redaguoti įmonę" : "➕ Nauja įmonė"}</h4>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+            {[
+              { k: "name",         lbl: "Pavadinimas *",   type: "text"  },
+              { k: "code",         lbl: "Įmonės kodas",    type: "text"  },
+              { k: "vat",          lbl: "PVM kodas",       type: "text"  },
+              { k: "billingEmail", lbl: "Billing email",   type: "email" },
+              { k: "country",      lbl: "Šalis",           type: "text"  },
+              { k: "phone",        lbl: "Telefonas",       type: "text"  },
+            ].map(({ k, lbl, type }) => (
+              <div key={k} style={formGroup}>
+                <label style={label}>{lbl}</label>
+                <input style={inputBase} type={type} value={companyForm[k]}
+                  onChange={e => setCompanyForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+            <div style={formGroup}>
+              <label style={label}>Planas</label>
+              <select style={inputBase} value={companyForm.plan} onChange={e => setCompanyForm(f => ({ ...f, plan: e.target.value }))}>
+                <option value="basic">Basic</option>
+                <option value="pro">Pro</option>
+                <option value="enterprise">Enterprise</option>
+              </select>
+            </div>
+            <div style={formGroup}>
+              <label style={label}>Statusas</label>
+              <select style={inputBase} value={companyForm.status} onChange={e => setCompanyForm(f => ({ ...f, status: e.target.value }))}>
+                <option value="active">✅ Active</option>
+                <option value="trial">🟡 Trial</option>
+                <option value="suspended">⛔ Suspended</option>
+              </select>
+            </div>
+            {[
+              { k: "basePrice",      lbl: "Bazinė kaina (EUR/mėn.)" },
+              { k: "includedUsers",  lbl: "Įtraukti vartotojai"     },
+              { k: "extraUserPrice", lbl: "Papildomas vartotojas (EUR/mėn.)" },
+            ].map(({ k, lbl }) => (
+              <div key={k} style={formGroup}>
+                <label style={label}>{lbl}</label>
+                <input style={inputBase} type="number" min="0" value={companyForm[k]}
+                  onChange={e => setCompanyForm(f => ({ ...f, [k]: Number(e.target.value) }))} />
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+            <button type="button" style={btnSuccess} onClick={handleSaveCompany} disabled={saving}>
+              {saving ? "Saugoma..." : "💾 Išsaugoti"}
+            </button>
+            <button type="button" style={btnSecondary} onClick={cancelForm}>Atšaukti</button>
+          </div>
+        </div>
+      )}
+
+      {/* Admin user form */}
+      {showAdminForm && (
+        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "10px", padding: "24px", marginBottom: "24px" }}>
+          <h4 style={{ margin: "0 0 16px", color: "#166534" }}>
+            👤 Sukurti admin vartotoją — {companies.find(c => c.id === showAdminForm)?.name}
+          </h4>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+            {[
+              { k: "name",     lbl: "Vardas *",      type: "text"     },
+              { k: "email",    lbl: "El. paštas *",  type: "email"    },
+              { k: "password", lbl: "Slaptažodis *", type: "password" },
+            ].map(({ k, lbl, type }) => (
+              <div key={k} style={formGroup}>
+                <label style={label}>{lbl}</label>
+                <input style={inputBase} type={type} value={adminForm[k]} autoComplete="new-password"
+                  onChange={e => setAdminForm(f => ({ ...f, [k]: e.target.value }))} />
+              </div>
+            ))}
+            <div style={formGroup}>
+              <label style={label}>Rolė</label>
+              <select style={inputBase} value={adminForm.role} onChange={e => setAdminForm(f => ({ ...f, role: e.target.value }))}>
+                {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "10px", marginTop: "18px" }}>
+            <button type="button" style={btnSuccess} onClick={handleSaveAdmin} disabled={saving}>
+              {saving ? "Kuriama..." : "👤 Sukurti vartotoją"}
+            </button>
+            <button type="button" style={btnSecondary} onClick={cancelAdminForm}>Atšaukti</button>
+          </div>
+        </div>
+      )}
+
+      {/* Companies table */}
+      <div style={{ overflowX: "auto" }}>
+        <table style={table}>
+          <thead>
+            <tr>
+              <th style={th}>Įmonė</th>
+              <th style={th}>Statusas</th>
+              <th style={th}>Planas</th>
+              <th style={th}>Vartotojai</th>
+              <th style={th}>Mėn. suma</th>
+              <th style={th}>Veiksmai</th>
+            </tr>
+          </thead>
+          <tbody>
+            {companies.map(c => (
+              <tr key={c.id}>
+                <td style={td}>
+                  <div style={{ fontWeight: 700 }}>{c.name}</div>
+                  {c.code && <div style={{ fontSize: "12px", color: "#64748b" }}>{c.code}</div>}
+                  {c.billingEmail && <div style={{ fontSize: "12px", color: "#64748b" }}>{c.billingEmail}</div>}
+                  {c.isBillingExempt && (
+                    <div style={{ display: "inline-block", marginTop: "4px", padding: "2px 8px", borderRadius: "999px", background: "#dcfce7", color: "#166534", fontSize: "11px", fontWeight: 700 }}>
+                      Internal / Free
+                    </div>
+                  )}
+                </td>
+                <td style={td}>{statusBadge(c.status)}</td>
+                <td style={td}>{planLabel(c.plan)}</td>
+                <td style={td}>
+                  <div>{c.activeUsersCount} aktyvūs</div>
+                  <div style={{ fontSize: "12px", color: "#64748b" }}>{c.totalUsersCount} iš viso</div>
+                </td>
+                <td style={td}>
+                  {c.isBillingExempt
+                    ? <span style={{ color: "#166534", fontWeight: 700 }}>0,00 EUR</span>
+                    : <span style={{ fontWeight: 700 }}>{Number(c.monthlyTotal || 0).toFixed(2)} {c.currency}</span>
+                  }
+                </td>
+                <td style={td}>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <button type="button" style={{ ...btn, fontSize: "12px", padding: "5px 10px" }}
+                      onClick={() => openEdit(c)}>✏️ Redaguoti</button>
+                    <button type="button" style={{ ...btn, background: "#0f766e", boxShadow: "none", fontSize: "12px", padding: "5px 10px" }}
+                      onClick={() => openAdminForm(c.id)}>👤 Admin</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {companies.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ ...td, textAlign: "center", color: "#64748b", padding: "40px" }}>
+                  Įmonių nėra
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 export function Settings({ settings, saveSettings, authUser }) {
   const [formData, setFormData] = useState(() => buildDefaultSettings(settings));
@@ -2931,7 +3187,7 @@ export function Settings({ settings, saveSettings, authUser }) {
     { key: "templates",    title: "📝 Užsakymų šablonai" },
     { key: "users",        title: "👥 Vartotojai" },
     { key: "subscription", title: "📋 Abonementas" },
-    // "Platforma" tab perkeltas į atskirą Admin Console modulį (viršutinis meniu)
+    ...(authUser?.isPlatformAdmin ? [{ key: "platform", title: "🌐 Platforma" }] : [])
   ];
 
   useEffect(() => {
@@ -3304,7 +3560,9 @@ export function Settings({ settings, saveSettings, authUser }) {
         <SubscriptionTab />
       )}
 
-      {/* "Platforma" section removed — now in Admin Console top-level module */}
+      {section === "platform" && authUser?.isPlatformAdmin && (
+        <PlatformTab />
+      )}
     </div>
   );
 }

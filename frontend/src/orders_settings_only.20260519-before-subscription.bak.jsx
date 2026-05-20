@@ -2533,149 +2533,6 @@ export function TemplateManager({ settings, saveSettings }) {
   );
 }
 
-// ── Subscription Tab (Settings → Abonementas tab) ────────────────────────────
-function SubscriptionTab() {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState("");
-
-  useEffect(() => {
-    setLoading(true); setError("");
-    fetch(`${API_BASE}/api/company/subscription`)
-      .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d.error || "Klaida")))
-      .then(d => { setData(d); setLoading(false); })
-      .catch(e => { setError(String(e)); setLoading(false); });
-  }, []);
-
-  if (loading) return <div style={{ padding: "20px", color: "#64748b" }}>⏳ Kraunama...</div>;
-  if (error)   return <div style={{ padding: "20px", color: "#dc2626" }}>❌ {error}</div>;
-  if (!data)   return null;
-
-  const fmt = (n) => Number(n).toLocaleString("lt-LT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const isFree = data.billingStatus === "free";
-
-  // ── Internal / Free plan view ───────────────────────────────────────────────
-  if (isFree) {
-    const freeRows = [
-      { label: "Įmonė",              value: data.companyName },
-      { label: "Planas",             value: "Internal / Free" },
-      { label: "Statusas",           value: <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, background: "#dcfce7", color: "#166534", border: "1px solid #bbf7d0" }}>✅ Aktyvus</span> },
-      { label: "Vartotojų limitas",  value: "Neribotas" },
-      { label: "Aktyvūs vartotojai", value: data.activeUsersCount },
-    ];
-
-    return (
-      <div>
-        <h3 style={{ margin: "0 0 20px", color: "#1e3a8a" }}>📋 Abonementas</h3>
-
-        <div style={{ background: "white", borderRadius: "10px", border: "1px solid #e2e8f0", overflow: "hidden", marginBottom: "20px" }}>
-          <table style={table}>
-            <tbody>
-              {freeRows.map(row => (
-                <tr key={row.label}>
-                  <td style={{ ...td, fontWeight: 600, color: "#475569", width: "260px", background: "#f8fafc" }}>{row.label}</td>
-                  <td style={{ ...td }}>{row.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mėnesio suma — žalia "nemokama" kortelė */}
-        <div style={{
-          background: "linear-gradient(135deg, #14532d, #16a34a)",
-          borderRadius: "12px", padding: "22px 26px",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          color: "white", marginBottom: "16px"
-        }}>
-          <div>
-            <div style={{ fontSize: "13px", opacity: 0.85, marginBottom: "4px" }}>Mėnesio suma</div>
-            <div style={{ fontSize: "32px", fontWeight: 800 }}>0,00 {data.currency}</div>
-            <div style={{ fontSize: "12px", opacity: 0.75, marginTop: "4px" }}>Internal company account — billing disabled.</div>
-          </div>
-          <div style={{ fontSize: "40px", opacity: 0.3 }}>🏢</div>
-        </div>
-
-        {data.note && (
-          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", color: "#166534" }}>
-            ℹ️ {data.note}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── Standard paid plan view ─────────────────────────────────────────────────
-  const planLabels = { basic: "Basic", pro: "Pro", enterprise: "Enterprise" };
-  const statusColor = data.status === "active"
-    ? { bg: "#dcfce7", color: "#166534", border: "#bbf7d0" }
-    : { bg: "#fee2e2", color: "#991b1b", border: "#fecaca" };
-
-  const rows = [
-    { label: "Įmonė",                    value: data.companyName },
-    { label: "Planas",                   value: planLabels[data.plan] || data.plan },
-    { label: "Statusas",                 value: (
-        <span style={{ display: "inline-block", padding: "3px 10px", borderRadius: "999px", fontSize: "12px", fontWeight: 700, background: statusColor.bg, color: statusColor.color, border: `1px solid ${statusColor.border}` }}>
-          {data.status === "active" ? "✅ Aktyvus" : "⛔ " + data.status}
-        </span>
-      )
-    },
-    { label: "Bazinė kaina",             value: fmt(data.basePrice) + " " + data.currency + " / mėn." },
-    { label: "Įtraukti vartotojai",      value: data.includedUsers },
-    { label: "Aktyvūs vartotojai",       value: data.activeUsersCount },
-    { label: "Papildomi vartotojai",     value: data.extraUsersCount, highlight: data.extraUsersCount > 0 },
-    { label: "Papildomo vartotojo kaina",value: fmt(data.extraUserPrice) + " " + data.currency + " / vart. / mėn." },
-  ];
-
-  return (
-    <div>
-      <h3 style={{ margin: "0 0 20px", color: "#1e3a8a" }}>📋 Abonementas</h3>
-
-      <div style={{ background: "white", borderRadius: "10px", border: "1px solid #e2e8f0", overflow: "hidden", marginBottom: "20px" }}>
-        <table style={table}>
-          <tbody>
-            {rows.map(row => (
-              <tr key={row.label}>
-                <td style={{ ...td, fontWeight: 600, color: "#475569", width: "260px", background: "#f8fafc" }}>{row.label}</td>
-                <td style={{ ...td, color: row.highlight ? "#c2410c" : "#1e293b", fontWeight: row.highlight ? 700 : 400 }}>
-                  {row.value}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mėnesio suma — akcentuota kortelė */}
-      <div style={{
-        background: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-        borderRadius: "12px", padding: "22px 26px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        color: "white", marginBottom: "16px"
-      }}>
-        <div>
-          <div style={{ fontSize: "13px", opacity: 0.85, marginBottom: "4px" }}>Mėnesio suma</div>
-          <div style={{ fontSize: "32px", fontWeight: 800 }}>{fmt(data.monthlyTotal)} {data.currency}</div>
-          <div style={{ fontSize: "12px", opacity: 0.75, marginTop: "4px" }}>
-            {data.basePrice} (bazinė) + {data.extraUsersCount} × {data.extraUserPrice} (papildomi vartotojai)
-          </div>
-        </div>
-        <div style={{ fontSize: "40px", opacity: 0.3 }}>💳</div>
-      </div>
-
-      {data.extraUsersCount > 0 && (
-        <div style={{ background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", color: "#92400e" }}>
-          ⚠️ Turite <strong>{data.extraUsersCount}</strong> papildomą (-ų) aktyvų vartotoją (-ų) virš įtraukto limito. Kiekvienas papildomas vartotojas kainuoja <strong>{data.extraUserPrice} {data.currency}/mėn.</strong>
-        </div>
-      )}
-
-      <div style={{ marginTop: "16px", fontSize: "12px", color: "#94a3b8" }}>
-        Norėdami keisti planą ar sąlygas — susisiekite su TransFlow komanda.
-      </div>
-    </div>
-  );
-}
-
 // ── Users Manager (Settings → Vartotojai tab) ────────────────────────────────
 const ROLE_OPTIONS = [
   { value: "admin",      label: "Administratorius" },
@@ -2686,25 +2543,16 @@ const ROLE_OPTIONS = [
 const ROLE_LABELS = { admin: "Administratorius", manager: "Vadybininkas", accounting: "Buhalterija", carrier: "Vežėjas" };
 
 function UsersManager({ authUser }) {
-  const [users, setUsers]             = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [loadErr, setLoadErr]         = useState("");
-  const [showForm, setShowForm]       = useState(false);
-  const [editId, setEditId]           = useState(null);
-  const [saving, setSaving]           = useState(false);
-  const [billingFree, setBillingFree] = useState(false);
+  const [users, setUsers]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [loadErr, setLoadErr]   = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId]     = useState(null);
+  const [saving, setSaving]     = useState(false);
   const emptyForm = { name: "", email: "", password: "", role: "manager", status: "active" };
   const [form, setForm] = useState(emptyForm);
 
   const isAdmin = authUser?.role === "admin";
-
-  // Patikriname ar įmonė yra billing-exempt (slepiam perspėjimą apie kainą)
-  useEffect(() => {
-    fetch(`${API_BASE}/api/company/current`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setBillingFree(d.isBillingExempt === true || d.tenantType === "internal"); })
-      .catch(() => {});
-  }, []);
 
   const loadUsers = async () => {
     setLoading(true); setLoadErr("");
@@ -2773,13 +2621,6 @@ function UsersManager({ authUser }) {
 
   return (
     <div>
-      {/* Perspėjimas apie papildomų vartotojų kainą — tik mokamoms įmonėms */}
-      {!billingFree && (
-        <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "10px 16px", marginBottom: "20px", fontSize: "13px", color: "#1e40af" }}>
-          ℹ️ Papildomi aktyvūs vartotojai didina mėnesio kainą pagal abonemento sąlygas. Detalės — skiltyje <strong>Abonementas</strong>.
-        </div>
-      )}
-
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h3 style={{ margin: 0, color: "#1e3a8a" }}>👥 Vartotojai</h3>
         {isAdmin && (
@@ -2809,19 +2650,13 @@ function UsersManager({ authUser }) {
             </div>
             <div style={formGroup}>
               <label style={label}>
-                Naujas slaptažodis {!editId && <span style={{ color: "#dc2626" }}>*</span>}
+                {editId ? "Slaptažodis (palikite tuščią — nekeičiamas)" : "Slaptažodis *"}
               </label>
               <input
                 style={inputBase} type="password" value={form.password}
-                placeholder={editId ? "Palikite tuščią, jei nenorite keisti." : "Slaptažodis"}
-                autoComplete="new-password"
+                placeholder={editId ? "••••••••" : "Slaptažodis"}
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               />
-              {editId && (
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
-                  Palikite tuščią, jei nenorite keisti slaptažodžio.
-                </div>
-              )}
             </div>
             <div style={formGroup}>
               <label style={label}>Rolė *</label>
@@ -2917,21 +2752,15 @@ function UsersManager({ authUser }) {
   );
 }
 
-// PlatformTab removed — logic moved to frontend/src/AdminConsole.jsx
-// (accessible via "🌐 Admin Console" in the top navigation menu)
-function PlatformTab() { return null; /* stub — no longer rendered */ }
-
 export function Settings({ settings, saveSettings, authUser }) {
   const [formData, setFormData] = useState(() => buildDefaultSettings(settings));
   const [section, setSection] = useState("company");
   const sectionButtons = [
-    { key: "company",      title: "🏢 Įmonės duomenys" },
-    { key: "documents",    title: "📄 Dokumentai" },
-    { key: "email",        title: "📧 El. paštas" },
-    { key: "templates",    title: "📝 Užsakymų šablonai" },
-    { key: "users",        title: "👥 Vartotojai" },
-    { key: "subscription", title: "📋 Abonementas" },
-    // "Platforma" tab perkeltas į atskirą Admin Console modulį (viršutinis meniu)
+    { key: "company",   title: "🏢 Įmonės duomenys" },
+    { key: "documents", title: "📄 Dokumentai" },
+    { key: "email",     title: "📧 El. paštas" },
+    { key: "templates", title: "📝 Užsakymų šablonai" },
+    { key: "users",     title: "👥 Vartotojai" }
   ];
 
   useEffect(() => {
@@ -3299,12 +3128,6 @@ export function Settings({ settings, saveSettings, authUser }) {
       {section === "users" && (
         <UsersManager authUser={authUser} />
       )}
-
-      {section === "subscription" && (
-        <SubscriptionTab />
-      )}
-
-      {/* "Platforma" section removed — now in Admin Console top-level module */}
     </div>
   );
 }

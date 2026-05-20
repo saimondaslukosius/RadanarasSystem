@@ -1,0 +1,21 @@
+[
+  {
+    "id": "radanaras-mb",
+    "name": "Radanaras, MB",
+    "code": "305779537",
+    "vat": "LT100014108415",
+    "phone": "+37063021971",
+    "email": "info@radanaras.com",
+    "country": "LT",
+    "plan": "basic",
+    "status": "active",
+    "basePrice": 150,
+    "includedUsers": 1,
+    "extraUserPrice": 50,
+    "billingEmail": "saimondaslukosius@radanaras.com",
+    "currency": "EUR",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-19T00:00:00.000Z",
+    "active": true
+  }
+]

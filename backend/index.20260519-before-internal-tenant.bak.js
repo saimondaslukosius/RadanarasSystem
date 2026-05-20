@@ -13,8 +13,7 @@ const execAsync = promisify(exec);
 const { parseDocument } = require("./aiParser");
 const { parseOrderDocumentText } = require("./orderImportParser");
 const LicenseExtractorCLI = require("./cli_license_extractor");
-const jwt    = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { requireAuth } = require('./middleware/auth');
 
 const app = express();
@@ -44,10 +43,8 @@ const dataFiles = {
 };
 
 // Auth duomenų failai — atskiri nuo dataFiles, nepassiekiami per PUT /api/data/:bucket
-const companiesFile       = path.join(dataRoot, "companies.json");
-const usersFile           = path.join(dataRoot, "users.json");
-const platformPaymentsFile  = path.join(dataRoot, "platformPayments.json");
-const platformActivityFile  = path.join(dataRoot, "platformActivity.json");
+const companiesFile = path.join(dataRoot, "companies.json");
+const usersFile     = path.join(dataRoot, "users.json");
 
 const dataDefaults = {
   clients: [],
@@ -259,12 +256,7 @@ app.post('/api/auth/login', (req, res) => {
     catch (e) { return res.status(500).json({ error: 'Vartotojų duomenys nepasiekiami' }); }
 
     const user = users.find(u => u.email === email && u.active !== false && u.status !== 'inactive');
-    const passwordValid = user && (
-      user.passwordHash
-        ? bcrypt.compareSync(password, user.passwordHash)
-        : user.password === password   // fallback: plain-text (neturėtų likti po migracijos)
-    );
-    if (!user || !passwordValid) {
+    if (!user || user.password !== password) {
       return res.status(401).json({ error: 'Neteisingas el. paštas arba slaptažodis' });
     }
 
@@ -272,22 +264,18 @@ app.post('/api/auth/login', (req, res) => {
     try { companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8')); } catch {}
     const company = companies.find(c => c.id === user.companyId);
 
-    if (company && company.status === 'deleted') {
-      return res.status(403).json({ error: 'Įmonės paskyra ištrinta. Susisiekite su platformos administratoriumi.' });
-    }
     if (company && company.status !== 'active') {
       return res.status(403).json({ error: 'Company account is not active. Susisiekite su administratoriumi.' });
     }
 
     const JWT_SECRET = process.env.JWT_SECRET || 'radanaras-dev-secret-CHANGE-IN-PRODUCTION';
     const payload = {
-      userId:          user.id,
-      email:           user.email,
-      name:            user.name,
-      role:            user.role,
-      companyId:       user.companyId,
-      companyName:     company ? company.name : '',
-      isPlatformAdmin: user.isPlatformAdmin === true
+      userId:      user.id,
+      email:       user.email,
+      name:        user.name,
+      role:        user.role,
+      companyId:   user.companyId,
+      companyName: company ? company.name : ''
     };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
@@ -295,13 +283,12 @@ app.post('/api/auth/login', (req, res) => {
       ok: true,
       token,
       user: {
-        id:              user.id,
-        email:           user.email,
-        name:            user.name,
-        role:            user.role,
-        companyId:       user.companyId,
-        companyName:     company ? company.name : '',
-        isPlatformAdmin: user.isPlatformAdmin === true
+        id:          user.id,
+        email:       user.email,
+        name:        user.name,
+        role:        user.role,
+        companyId:   user.companyId,
+        companyName: company ? company.name : ''
       }
     });
   } catch (err) {
@@ -311,22 +298,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/auth/me', requireAuth, (req, res) => {
-  try {
-    // Merge live user fields (isPlatformAdmin, status) so stale JWT tokens
-    // still return up-to-date values on page reload.
-    const users    = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const liveUser = users.find(u => u.id === req.user.userId);
-    res.json({
-      ok:   true,
-      user: {
-        ...req.user,
-        isPlatformAdmin: liveUser ? liveUser.isPlatformAdmin === true : false
-      }
-    });
-  } catch {
-    // Fallback: JWT payload only (safe — isPlatformAdmin just won't show until re-login)
-    res.json({ ok: true, user: req.user });
-  }
+  res.json({ ok: true, user: req.user });
 });
 
 app.post('/api/auth/logout', (req, res) => {
@@ -340,7 +312,7 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/users', (req, res) => {
   try {
     const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    res.json(users.map(({ password, passwordHash, ...rest }) => rest));
+    res.json(users.map(({ password, ...rest }) => rest));
   } catch (e) {
     res.status(500).json({ error: 'Klaida skaitant vartotojus' });
   }
@@ -355,7 +327,7 @@ app.post('/api/users', (req, res) => {
     }
     const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
     if (users.find(u => u.email === email)) {
-      return res.status(409).json({ error: 'Toks vartotojo el. paštas jau egzistuoja.' });
+      return res.status(409).json({ error: 'Vartotojas su tokiu el. paštu jau egzistuoja' });
     }
     const resolvedStatus = status || 'active';
     const newUser = {
@@ -363,7 +335,7 @@ app.post('/api/users', (req, res) => {
       companyId: req.user.companyId || 'radanaras-mb',
       name,
       email,
-      passwordHash: bcrypt.hashSync(password, 10),
+      password,
       role,
       status: resolvedStatus,
       active: resolvedStatus === 'active',
@@ -372,7 +344,7 @@ app.post('/api/users', (req, res) => {
     };
     users.push(newUser);
     fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-    const { passwordHash: _p, ...out } = newUser;
+    const { password: _p, ...out } = newUser;
     res.status(201).json(out);
   } catch (e) {
     res.status(500).json({ error: 'Klaida kuriant vartotoją' });
@@ -397,13 +369,10 @@ app.put('/api/users/:id', (req, res) => {
       active:    resolvedStatus === 'active',
       updatedAt: new Date().toISOString()
     };
-    if (password && password.trim()) {
-      updated.passwordHash = bcrypt.hashSync(password.trim(), 10);
-      delete updated.password;   // pašalinti plain-text jei kažkodėl liko
-    }
+    if (password && password.trim()) updated.password = password;
     users[idx] = updated;
     fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-    const { passwordHash: _ph, password: _p, ...out } = updated;
+    const { password: _p, ...out } = updated;
     res.json(out);
   } catch (e) {
     res.status(500).json({ error: 'Klaida atnaujinant vartotoją' });
@@ -450,9 +419,8 @@ app.put('/api/company/current', (req, res) => {
     const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
     const idx = companies.findIndex(c => c.id === req.user.companyId);
     if (idx === -1) return res.status(404).json({ error: 'Įmonė nerasta' });
-    // Billing, plano ir tenant laukų neleisti keisti iš UI — tik serverio lygyje
-    const { basePrice, extraUserPrice, includedUsers, plan, status, active, id,
-            tenantType, billingStatus, isBillingExempt, userLimit, ...editableFields } = req.body || {};
+    // Kainos ir plano laukų neleisti keisti iš UI — tik adminas per serverį
+    const { basePrice, extraUserPrice, includedUsers, plan, status, active, id, ...editableFields } = req.body || {};
     const updated = {
       ...companies[idx],
       ...editableFields,
@@ -474,29 +442,9 @@ app.get('/api/company/subscription', (req, res) => {
     if (!company) return res.status(404).json({ error: 'Įmonė nerasta' });
 
     const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const companyUsers     = users.filter(u => u.companyId === req.user.companyId);
+    const companyUsers   = users.filter(u => u.companyId === req.user.companyId);
     const activeUsersCount = companyUsers.filter(u => u.status === 'active' && u.active !== false).length;
 
-    // ── Internal / billing-exempt tenant ────────────────────────────────────
-    if (company.isBillingExempt === true || company.tenantType === 'internal') {
-      return res.json({
-        companyName:      company.name,
-        plan:             'internal',
-        status:           company.status  || 'active',
-        billingStatus:    'free',
-        userLimit:        'unlimited',
-        basePrice:        0,
-        includedUsers:    null,
-        extraUserPrice:   0,
-        activeUsersCount,
-        extraUsersCount:  0,
-        monthlyTotal:     0,
-        currency:         company.currency || 'EUR',
-        note:             'Internal company account — billing disabled.'
-      });
-    }
-
-    // ── Standard paid tenant ─────────────────────────────────────────────────
     const basePrice      = Number(company.basePrice      || 0);
     const includedUsers  = Number(company.includedUsers  || 1);
     const extraUserPrice = Number(company.extraUserPrice || 0);
@@ -505,524 +453,18 @@ app.get('/api/company/subscription', (req, res) => {
 
     res.json({
       companyName:      company.name,
-      plan:             company.plan     || 'basic',
-      status:           company.status   || 'active',
-      billingStatus:    'active',
-      userLimit:        null,
+      plan:             company.plan        || 'basic',
+      status:           company.status      || 'active',
       basePrice,
       includedUsers,
       extraUserPrice,
       activeUsersCount,
       extraUsersCount,
       monthlyTotal,
-      currency:         company.currency || 'EUR',
-      note:             null
+      currency:         company.currency    || 'EUR'
     });
   } catch (e) {
     res.status(500).json({ error: 'Klaida skaitant abonemento duomenis' });
-  }
-});
-
-// ── Platform Activity helper ─────────────────────────────────────────────────
-function logActivity(type, message, extra = {}) {
-  try {
-    let log = [];
-    try { log = JSON.parse(fs.readFileSync(platformActivityFile, 'utf8')); } catch {}
-    log.unshift({
-      id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      type,
-      message,
-      ...extra,
-      createdAt: new Date().toISOString(),
-    });
-    if (log.length > 200) log = log.slice(0, 200);
-    fs.writeFileSync(platformActivityFile, JSON.stringify(log, null, 2));
-  } catch {}
-}
-
-// ── Platform Admin endpoints ─────────────────────────────────────────────────
-
-function requirePlatformAdmin(req, res, next) {
-  if (!req.user) return res.status(403).json({ error: 'Platform admin access required.' });
-
-  // Fast path: new JWT tokens already carry isPlatformAdmin in payload
-  if (req.user.isPlatformAdmin === true) return next();
-
-  // Slow path: stale JWT (issued before isPlatformAdmin was added) — check live users.json
-  try {
-    const users    = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const liveUser = users.find(u => u.id === req.user.userId);
-    if (liveUser && liveUser.isPlatformAdmin === true) return next();
-  } catch { /* fallthrough to 403 */ }
-
-  return res.status(403).json({ error: 'Platform admin access required.' });
-}
-
-// GET /api/platform/companies — visų įmonių sąrašas su vartotojų kiekiais
-// ?include_deleted=true — įtraukti ištrintas įmones
-app.get('/api/platform/companies', requirePlatformAdmin, (req, res) => {
-  try {
-    const allCompanies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const users        = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const includeDeleted = req.query.include_deleted === 'true';
-
-    const companies = includeDeleted
-      ? allCompanies
-      : allCompanies.filter(c => c.status !== 'deleted');
-
-    const result = companies.map(c => {
-      const companyUsers      = users.filter(u => u.companyId === c.id);
-      const activeUsersCount  = companyUsers.filter(u => u.status === 'active' && u.active !== false).length;
-      const totalUsersCount   = companyUsers.length;
-
-      let monthlyTotal = 0;
-      if (c.isBillingExempt !== true && c.tenantType !== 'internal') {
-        const basePrice      = Number(c.basePrice      || 0);
-        const includedUsers  = Number(c.includedUsers  || 1);
-        const extraUserPrice = Number(c.extraUserPrice || 0);
-        monthlyTotal = basePrice + Math.max(0, activeUsersCount - includedUsers) * extraUserPrice;
-      }
-
-      return {
-        id:               c.id,
-        name:             c.name,
-        code:             c.code,
-        vat:              c.vat              || '',
-        phone:            c.phone            || '',
-        country:          c.country          || '',
-        plan:             c.plan             || 'basic',
-        status:           c.status           || 'active',
-        tenantType:       c.tenantType       || 'paid',
-        billingStatus:    c.billingStatus    || 'active',
-        isBillingExempt:  c.isBillingExempt  === true,
-        basePrice:        Number(c.basePrice      || 0),
-        extraUserPrice:   Number(c.extraUserPrice  || 0),
-        includedUsers:    c.includedUsers != null ? Number(c.includedUsers) : 1,
-        currency:         c.currency    || 'EUR',
-        billingEmail:     c.billingEmail || '',
-        activeUsersCount,
-        totalUsersCount,
-        monthlyTotal,
-        createdAt:        c.createdAt,
-        updatedAt:        c.updatedAt,
-        deletedAt:        c.deletedAt  || null,
-        deletedBy:        c.deletedBy  || null,
-      };
-    });
-
-    res.json(result);
-  } catch (e) {
-    console.error('GET /api/platform/companies error:', e);
-    res.status(500).json({ error: 'Klaida skaitant įmonių sąrašą' });
-  }
-});
-
-// POST /api/platform/companies — sukurti naują įmonę
-app.post('/api/platform/companies', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const {
-      name, code, vat, billingEmail, country, phone,
-      plan = 'basic', status = 'active',
-      basePrice = 150, includedUsers = 1, extraUserPrice = 50,
-      currency = 'EUR'
-    } = req.body || {};
-
-    if (!name) return res.status(400).json({ error: 'Privalomas laukas: name' });
-
-    const id = `company-${Date.now()}`;
-    const newCompany = {
-      id,
-      name,
-      code:           code          || '',
-      vat:            vat           || '',
-      phone:          phone         || '',
-      billingEmail:   billingEmail  || '',
-      country:        country       || '',
-      plan,
-      status,
-      tenantType:     'paid',
-      billingStatus:  'active',
-      isBillingExempt: false,
-      userLimit:      null,
-      basePrice:      Number(basePrice),
-      includedUsers:  Number(includedUsers),
-      extraUserPrice: Number(extraUserPrice),
-      currency,
-      active:         true,
-      createdAt:      new Date().toISOString(),
-      updatedAt:      new Date().toISOString()
-    };
-
-    companies.push(newCompany);
-    fs.writeFileSync(companiesFile, JSON.stringify(companies, null, 2));
-    logActivity('company_created', `Sukurta nauja įmonė: ${name}`, { companyId: id, companyName: name });
-    res.status(201).json(newCompany);
-  } catch (e) {
-    console.error('POST /api/platform/companies error:', e);
-    res.status(500).json({ error: 'Klaida kuriant įmonę' });
-  }
-});
-
-// PUT /api/platform/companies/:id — atnaujinti bet kurią įmonę
-app.put('/api/platform/companies/:id', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const idx = companies.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Įmonė nerasta' });
-
-    const { id: _id, createdAt: _ca, ...fields } = req.body || {};
-    const prevStatus      = companies[idx].status;
-    const prevBillingMode = companies[idx].billingMode;
-    const updated = {
-      ...companies[idx],
-      ...fields,
-      id:        companies[idx].id,
-      createdAt: companies[idx].createdAt,
-      updatedAt: new Date().toISOString()
-    };
-    companies[idx] = updated;
-    fs.writeFileSync(companiesFile, JSON.stringify(companies, null, 2));
-    // Activity log
-    if (fields.billingMode && fields.billingMode !== prevBillingMode) {
-      logActivity('company_billing_updated',
-        `Billing režimas pakeistas: ${updated.name} → ${fields.billingMode}`,
-        { companyId: updated.id, companyName: updated.name, billingMode: fields.billingMode }
-      );
-    } else if (fields.status && fields.status !== prevStatus) {
-      if (fields.status === 'suspended') {
-        logActivity('company_suspended', `Įmonė sustabdyta: ${updated.name}`, { companyId: updated.id, companyName: updated.name });
-      } else if (fields.status === 'active') {
-        logActivity('company_activated', `Įmonė aktyvuota: ${updated.name}`, { companyId: updated.id, companyName: updated.name });
-      } else {
-        logActivity('company_updated', `Įmonė atnaujinta: ${updated.name}`, { companyId: updated.id, companyName: updated.name });
-      }
-    } else {
-      logActivity('company_updated', `Įmonė atnaujinta: ${updated.name}`, { companyId: updated.id, companyName: updated.name });
-    }
-    res.json(updated);
-  } catch (e) {
-    console.error('PUT /api/platform/companies/:id error:', e);
-    res.status(500).json({ error: 'Klaida atnaujinant įmonę' });
-  }
-});
-
-// POST /api/platform/companies/:id/admin-user — sukurti pirmą tos įmonės admin vartotoją
-app.post('/api/platform/companies/:id/admin-user', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const company   = companies.find(c => c.id === req.params.id);
-    if (!company) return res.status(404).json({ error: 'Įmonė nerasta' });
-
-    const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const { name, email, password, role = 'admin', status = 'active' } = req.body || {};
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Privalomi laukai: name, email, password' });
-    }
-    if (users.find(u => u.email === email)) {
-      return res.status(409).json({ error: 'Toks vartotojo el. paštas jau egzistuoja.' });
-    }
-
-    const newUser = {
-      id:           `user-${Date.now()}`,
-      companyId:    company.id,
-      name,
-      email,
-      passwordHash: bcrypt.hashSync(password, 10),
-      role,
-      status,
-      active:       status === 'active',
-      createdAt:    new Date().toISOString(),
-      updatedAt:    new Date().toISOString()
-    };
-    users.push(newUser);
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-    logActivity('admin_created', `Sukurtas administratorius: ${email}`, { companyId: company.id, companyName: company.name, userEmail: email });
-    const { passwordHash: _ph, ...out } = newUser;
-    res.status(201).json(out);
-  } catch (e) {
-    console.error('POST /api/platform/companies/:id/admin-user error:', e);
-    res.status(500).json({ error: 'Klaida kuriant vartotoją' });
-  }
-});
-
-// DELETE /api/platform/companies/:id — soft-delete (status → "deleted")
-app.delete('/api/platform/companies/:id', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const idx = companies.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Įmonė nerasta' });
-
-    const company = companies[idx];
-
-    // Neleisti trinti internal/free tenant
-    if (company.isBillingExempt === true || company.tenantType === 'internal') {
-      return res.status(403).json({ error: 'Vidinės platformos įmonės negali būti ištrintos.' });
-    }
-
-    // Jau ištrinta
-    if (company.status === 'deleted') {
-      return res.status(409).json({ error: 'Įmonė jau pažymėta kaip ištrinta.' });
-    }
-
-    companies[idx] = {
-      ...company,
-      status:    'deleted',
-      deletedAt: new Date().toISOString(),
-      deletedBy: req.user?.userId || 'platform-admin',
-      updatedAt: new Date().toISOString(),
-    };
-    fs.writeFileSync(companiesFile, JSON.stringify(companies, null, 2));
-
-    logActivity('company_deleted', `Įmonė pažymėta kaip ištrinta: ${company.name}`, {
-      companyId:   company.id,
-      companyName: company.name,
-    });
-
-    res.json({ ok: true, id: company.id, status: 'deleted' });
-  } catch (e) {
-    console.error('DELETE /api/platform/companies/:id error:', e);
-    res.status(500).json({ error: 'Klaida trinant įmonę' });
-  }
-});
-
-// PUT /api/platform/companies/:id/restore — atkurti soft-deleted įmonę
-app.put('/api/platform/companies/:id/restore', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const idx = companies.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Įmonė nerasta' });
-
-    const company = companies[idx];
-
-    if (company.status !== 'deleted') {
-      return res.status(400).json({ error: 'Įmonė nėra ištrinta — atkurti negalima.' });
-    }
-
-    companies[idx] = {
-      ...company,
-      status:    'active',
-      deletedAt: null,
-      deletedBy: null,
-      updatedAt: new Date().toISOString(),
-    };
-    fs.writeFileSync(companiesFile, JSON.stringify(companies, null, 2));
-
-    logActivity('company_restored', `Įmonė atkurta: ${company.name}`, {
-      companyId:   company.id,
-      companyName: company.name,
-    });
-
-    res.json({ ok: true, id: company.id, status: 'active' });
-  } catch (e) {
-    console.error('PUT /api/platform/companies/:id/restore error:', e);
-    res.status(500).json({ error: 'Klaida atkuriant įmonę' });
-  }
-});
-
-// GET /api/platform/companies/:id/users — grąžina įmonės vartotojus
-app.get('/api/platform/companies/:id/users', requirePlatformAdmin, (req, res) => {
-  try {
-    const companies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const company   = companies.find(c => c.id === req.params.id);
-    if (!company) return res.status(404).json({ error: 'Įmonė nerasta' });
-
-    const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const out = users
-      .filter(u => u.companyId === req.params.id)
-      .map(({ passwordHash: _ph, ...u }) => u);
-    res.json(out);
-  } catch (e) {
-    console.error('GET /api/platform/companies/:id/users error:', e);
-    res.status(500).json({ error: 'Klaida skaitant vartotojus' });
-  }
-});
-
-// PUT /api/platform/users/:id — atnaujinti vartotojo rolę / statusą
-app.put('/api/platform/users/:id', requirePlatformAdmin, (req, res) => {
-  try {
-    const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const idx   = users.findIndex(u => u.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Vartotojas nerastas' });
-
-    // Draudžiame keisti platform admin vartotoją
-    if (users[idx].isPlatformAdmin) {
-      return res.status(403).json({ error: 'Platform admin vartotojo keisti negalima.' });
-    }
-
-    const allowed = ['role', 'status', 'disabledAt', 'active'];
-    const updates = {};
-    allowed.forEach(k => { if (req.body[k] !== undefined) updates[k] = req.body[k]; });
-
-    users[idx] = { ...users[idx], ...updates, updatedAt: new Date().toISOString() };
-    if (updates.status) users[idx].active = updates.status === 'active';
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-
-    logActivity('user_updated',
-      `Vartotojas atnaujintas: ${users[idx].email}`,
-      { companyId: users[idx].companyId, userEmail: users[idx].email, changes: Object.keys(updates) }
-    );
-
-    const { passwordHash: _ph, ...out } = users[idx];
-    res.json(out);
-  } catch (e) {
-    console.error('PUT /api/platform/users/:id error:', e);
-    res.status(500).json({ error: 'Klaida atnaujinant vartotoją' });
-  }
-});
-
-// POST /api/platform/users/:id/reset-password — laikinas slaptažodis
-app.post('/api/platform/users/:id/reset-password', requirePlatformAdmin, (req, res) => {
-  try {
-    const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const idx   = users.findIndex(u => u.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Vartotojas nerastas' });
-    if (users[idx].isPlatformAdmin) {
-      return res.status(403).json({ error: 'Platform admin slaptažodžio keisti negalima.' });
-    }
-
-    // Sugeneruojame 12 simbolių laikiną slaptažodį
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
-    let temporaryPassword = '';
-    for (let i = 0; i < 12; i++) {
-      temporaryPassword += chars[Math.floor(Math.random() * chars.length)];
-    }
-
-    users[idx].passwordHash = bcrypt.hashSync(temporaryPassword, 10);
-    users[idx].updatedAt    = new Date().toISOString();
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-
-    logActivity('user_password_reset',
-      `Slaptažodis atstatytas: ${users[idx].email}`,
-      { companyId: users[idx].companyId, userEmail: users[idx].email }
-    );
-
-    res.json({ ok: true, temporaryPassword });
-  } catch (e) {
-    console.error('POST /api/platform/users/:id/reset-password error:', e);
-    res.status(500).json({ error: 'Klaida atstatant slaptažodį' });
-  }
-});
-
-// DELETE /api/platform/users/:id — soft disable (status → disabled)
-app.delete('/api/platform/users/:id', requirePlatformAdmin, (req, res) => {
-  try {
-    const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-    const idx   = users.findIndex(u => u.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Vartotojas nerastas' });
-    if (users[idx].isPlatformAdmin) {
-      return res.status(403).json({ error: 'Platform admin vartotojo išjungti negalima.' });
-    }
-
-    users[idx] = {
-      ...users[idx],
-      status:     'disabled',
-      active:     false,
-      disabledAt: new Date().toISOString(),
-      updatedAt:  new Date().toISOString(),
-    };
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-
-    logActivity('user_disabled',
-      `Vartotojas išjungtas: ${users[idx].email}`,
-      { companyId: users[idx].companyId, userEmail: users[idx].email }
-    );
-
-    const { passwordHash: _ph, ...out } = users[idx];
-    res.json({ ok: true, ...out });
-  } catch (e) {
-    console.error('DELETE /api/platform/users/:id error:', e);
-    res.status(500).json({ error: 'Klaida išjungiant vartotoją' });
-  }
-});
-
-// GET /api/platform/activity — paskutiniai platformos įvykiai
-app.get('/api/platform/activity', requirePlatformAdmin, (req, res) => {
-  try {
-    let log = [];
-    try { log = JSON.parse(fs.readFileSync(platformActivityFile, 'utf8')); } catch {}
-    const limit = Math.min(Number(req.query.limit) || 20, 100);
-    res.json(log.slice(0, limit));
-  } catch (e) {
-    res.status(500).json({ error: 'Klaida skaitant veiklos žurnalą' });
-  }
-});
-
-// GET /api/platform/overview — KPI suvestinė platform adminui
-app.get('/api/platform/overview', requirePlatformAdmin, (req, res) => {
-  try {
-    const allCompanies = JSON.parse(fs.readFileSync(companiesFile, 'utf8'));
-    const users        = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-
-    // Deleted įmonių neskaičiuoti į KPI
-    const companies = allCompanies.filter(c => c.status !== 'deleted');
-
-    const activeCompanies    = companies.filter(c => c.status === 'active').length;
-    const trialCompanies     = companies.filter(c => c.status === 'trial').length;
-    const suspendedCompanies = companies.filter(c => c.status === 'suspended').length;
-    const totalActiveUsers   = users.filter(u => u.status === 'active' && u.active !== false).length;
-
-    // MRR — tik mokamoms ne-deleted įmonėms
-    const mrr = companies.reduce((sum, c) => {
-      if (c.isBillingExempt === true || c.tenantType === 'internal') return sum;
-      const cu = users.filter(u => u.companyId === c.id && u.status === 'active' && u.active !== false).length;
-      const base  = Number(c.basePrice || 0);
-      const incl  = Number(c.includedUsers || 1);
-      const extra = Number(c.extraUserPrice || 0);
-      return sum + base + Math.max(0, cu - incl) * extra;
-    }, 0);
-
-    let payments = [];
-    try { payments = JSON.parse(fs.readFileSync(platformPaymentsFile, 'utf8')); } catch {}
-    const now = Date.now();
-    const overduePaymentsCount  = payments.filter(p =>
-      p.status === 'overdue' || (p.status === 'pending' && new Date(p.dueDate).getTime() < now)
-    ).length;
-    const upcomingRenewalsCount = payments.filter(p => {
-      if (p.status !== 'pending') return false;
-      const diff = (new Date(p.dueDate).getTime() - now) / 86400000;
-      return diff >= 0 && diff <= 30;
-    }).length;
-
-    res.json({
-      totalCompanies:          companies.length,
-      activeCompanies,
-      trialCompanies,
-      suspendedCompanies,
-      totalActiveUsers,
-      monthlyRecurringRevenue: mrr,
-      overduePaymentsCount,
-      upcomingRenewalsCount
-    });
-  } catch (e) {
-    console.error('GET /api/platform/overview error:', e);
-    res.status(500).json({ error: 'Klaida' });
-  }
-});
-
-// GET /api/platform/payments — mokėjimų sąrašas
-app.get('/api/platform/payments', requirePlatformAdmin, (req, res) => {
-  try {
-    let payments = [];
-    try { payments = JSON.parse(fs.readFileSync(platformPaymentsFile, 'utf8')); } catch {}
-    res.json(payments);
-  } catch (e) {
-    res.status(500).json({ error: 'Klaida skaitant mokėjimus' });
-  }
-});
-
-// PUT /api/platform/payments/:id/mark-paid — pažymėti mokėjimą kaip apmokėtą
-app.put('/api/platform/payments/:id/mark-paid', requirePlatformAdmin, (req, res) => {
-  try {
-    let payments = [];
-    try { payments = JSON.parse(fs.readFileSync(platformPaymentsFile, 'utf8')); } catch {}
-    const idx = payments.findIndex(p => p.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Mokėjimas nerastas' });
-    payments[idx] = { ...payments[idx], status: 'paid', paidDate: new Date().toISOString() };
-    fs.writeFileSync(platformPaymentsFile, JSON.stringify(payments, null, 2));
-    res.json(payments[idx]);
-  } catch (e) {
-    res.status(500).json({ error: 'Klaida atnaujinant mokėjimą' });
   }
 });
 

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "user-saimondas-001",
+    "companyId": "radanaras-mb",
+    "email": "saimondaslukosius@radanaras.com",
+    "role": "admin",
+    "name": "Saimondas Lukosius",
+    "isPlatformAdmin": true,
+    "status": "active",
+    "active": true,
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "updatedAt": "2026-05-19T10:15:42.423Z",
+    "passwordHash": "$2b$10$FjoGeRue0WA69rxrq6x48uSV0Vq3GOd7gz1ktAJaw0lYR04raNyXS"
+  },
+  {
+    "id": "user-1779186102648",
+    "companyId": "radanaras-mb",
+    "name": "Edgaras Mickus ",
+    "email": "Edgarasmickus@radanaras.com",
+    "role": "manager",
+    "status": "active",
+    "active": true,
+    "createdAt": "2026-05-19T10:21:42.648Z",
+    "updatedAt": "2026-05-19T10:45:40.077Z",
+    "passwordHash": "$2b$10$o7L18wA4vn1VnNE7zefxMef7UcvdK.gLnNUsdtqJqr/leEtgWspfW"
+  }
+]

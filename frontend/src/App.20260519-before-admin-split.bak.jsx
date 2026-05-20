@@ -7,7 +7,7 @@ import { buildLegacyOrderLikeRowsFromFutureBuckets } from "./order_domain_view_a
 import { buildReminderSnapshot, createManualReminderUpdate, getCarrierDocumentHealth } from "./missing_data_engine";
 import * as XLSX from "xlsx";
 import LoginPage from './LoginPage.jsx';
-// AdminConsole removed from company app — accessible via /#/admin (separate admin shell)
+import AdminConsole from './AdminConsole.jsx';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
@@ -917,8 +917,8 @@ function App() {
     { name: "Sąmatos", key: "samatos", title: "Būsimas krovinių kainų skaičiavimo ir vadybininko sprendimų modulis." },
     { name: "Finansai", key: "finansai", title: "Finansinė suvestinė iš projektų, sąskaitų ir terminų duomenų." },
     { name: "Importas", key: "importas", title: "Importo ir vidinių master-data bazių modulis klientams, vežėjams ir kontaktams." },
-    { name: "Įmonės nustatymai", key: "settings", title: "Įmonės duomenys, dokumentų ir šablonų nustatymai." }
-    // Admin Console removed — accessible via /#/admin hash route (separate restricted UI)
+    { name: "Įmonės nustatymai", key: "settings", title: "Įmonės duomenys, dokumentų ir šablonų nustatymai." },
+    ...(authUser?.isPlatformAdmin ? [{ name: "🌐 Admin Console", key: "admin-console", title: "TransFlow platformos administravimas — įmonės, abonementai, mokėjimai." }] : [])
   ];
 
   const handleRunMigrationDryRun = async () => {
@@ -4225,6 +4225,7 @@ return normalizeText(o.status).includes(normalizeText(ekspedFilterStatus));
     if (page === "samatos")        return renderSamatosDemo();
     if (page === "finansai")       return <Finansai />;
     if (page === "importas")       return renderImportHub();
+    if (page === "admin-console" && authUser?.isPlatformAdmin) return <AdminConsole />;
     return renderSettings();
   };
 

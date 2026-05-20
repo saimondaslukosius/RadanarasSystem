@@ -1,0 +1,12 @@
+[
+  {
+    "id": "user-saimondas-001",
+    "companyId": "radanaras-mb",
+    "email": "saimondaslukosius@gmail.com",
+    "password": "admin123",
+    "role": "admin",
+    "name": "Saimondas Lukosius",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "active": true
+  }
+]

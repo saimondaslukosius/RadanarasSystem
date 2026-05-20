@@ -2287,17 +2287,17 @@
     "carrierType": "Vežėjas",
     "companyCode": "304403304",
     "vatCode": "LT100010461711",
-    "email": "\"\"uabmangida@gmail.com\"\"",
-    "phone": "",
-    "address": "Marijampolë, Lietuva",
+    "email": "uabmangida@gmail.com",
+    "phone": "+370 694 55008",
+    "address": "Uosupio g. 10-40, LT-68157 Marijampolė ",
     "website": "",
     "managerContacts": [
       {
         "id": 1,
-        "name": "\"\" Robertas Marcinkevièius  uabmangida@gmail.com \"\"",
-        "position": "",
-        "email": "\"\"uabmangida@gmail.com\"\"",
-        "phone": ""
+        "name": "Robertas Marcinkevičius   ",
+        "position": "Direktorius ",
+        "email": "uabmangida@gmail.com",
+        "phone": "+370 694 55008"
       }
     ],
     "documentContacts": [
@@ -2309,9 +2309,9 @@
       },
       {
         "id": 2,
-        "title": "Buhalterija",
-        "phone": "",
-        "email": ""
+        "title": "Ramūnas  Buhalterija",
+        "phone": "+370 683 93122",
+        "email": "uabmangida@gmail.com"
       },
       {
         "id": 3,
@@ -2334,33 +2334,32 @@
     ],
     "documents": [
       {
-        "type": "CMR draudimas",
-        "number": "",
-        "validUntil": "",
-        "file": null
+        "id": 1,
+        "title": "CMR draudimas",
+        "number": "1334472287",
+        "validUntil": "2026-11-20",
+        "link": "http://localhost:3001/uploads/carrier/IMP1775684103521/1777972912149-CMR_2025_11_25.pdf",
+        "fileName": "CMR 2025 11 25.pdf"
       },
       {
-        "type": "Transporto licencija",
+        "id": 1777973034328,
+        "title": "LIcenzija ",
         "number": "",
         "validUntil": "",
-        "file": null
-      },
-      {
-        "type": "Civilinės atsakomybės draudimas",
-        "number": "",
-        "validUntil": "",
-        "file": null
+        "link": "http://localhost:3001/uploads/carrier/IMP1775684103521/1777972805113-Licencija.PDF",
+        "fileName": "Licencija.PDF"
       }
     ],
-    "notes": "Importuota iš InfoTrans. Šalis: Lietuva. Miestas: Marijampolë.",
+    "notes": "",
     "_importSource": "InfoTrans",
     "_country": "Lietuva",
     "_city": "Marijampolë",
     "isOwnCompany": false,
-    "country": "",
+    "country": "Lietuva",
     "drivers": [],
     "trucks": [],
-    "trailers": []
+    "trailers": [],
+    "updatedAt": "2026-05-05T09:33:01.228Z"
   },
   {
     "id": "IMP1775684103530",

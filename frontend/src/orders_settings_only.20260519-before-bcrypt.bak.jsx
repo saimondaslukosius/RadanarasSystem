@@ -2809,19 +2809,13 @@ function UsersManager({ authUser }) {
             </div>
             <div style={formGroup}>
               <label style={label}>
-                Naujas slaptažodis {!editId && <span style={{ color: "#dc2626" }}>*</span>}
+                {editId ? "Slaptažodis (palikite tuščią — nekeičiamas)" : "Slaptažodis *"}
               </label>
               <input
                 style={inputBase} type="password" value={form.password}
-                placeholder={editId ? "Palikite tuščią, jei nenorite keisti." : "Slaptažodis"}
-                autoComplete="new-password"
+                placeholder={editId ? "••••••••" : "Slaptažodis"}
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               />
-              {editId && (
-                <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>
-                  Palikite tuščią, jei nenorite keisti slaptažodžio.
-                </div>
-              )}
             </div>
             <div style={formGroup}>
               <label style={label}>Rolė *</label>
@@ -2917,10 +2911,6 @@ function UsersManager({ authUser }) {
   );
 }
 
-// PlatformTab removed — logic moved to frontend/src/AdminConsole.jsx
-// (accessible via "🌐 Admin Console" in the top navigation menu)
-function PlatformTab() { return null; /* stub — no longer rendered */ }
-
 export function Settings({ settings, saveSettings, authUser }) {
   const [formData, setFormData] = useState(() => buildDefaultSettings(settings));
   const [section, setSection] = useState("company");
@@ -2930,8 +2920,7 @@ export function Settings({ settings, saveSettings, authUser }) {
     { key: "email",        title: "📧 El. paštas" },
     { key: "templates",    title: "📝 Užsakymų šablonai" },
     { key: "users",        title: "👥 Vartotojai" },
-    { key: "subscription", title: "📋 Abonementas" },
-    // "Platforma" tab perkeltas į atskirą Admin Console modulį (viršutinis meniu)
+    { key: "subscription", title: "📋 Abonementas" }
   ];
 
   useEffect(() => {
@@ -3303,8 +3292,6 @@ export function Settings({ settings, saveSettings, authUser }) {
       {section === "subscription" && (
         <SubscriptionTab />
       )}
-
-      {/* "Platforma" section removed — now in Admin Console top-level module */}
     </div>
   );
 }

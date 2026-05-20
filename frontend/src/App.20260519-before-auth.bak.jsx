@@ -6,8 +6,6 @@ import { ORDER_DRAFT_PERSIST_TARGETS } from "./order_draft_persistence_adapter";
 import { buildLegacyOrderLikeRowsFromFutureBuckets } from "./order_domain_view_adapter";
 import { buildReminderSnapshot, createManualReminderUpdate, getCarrierDocumentHealth } from "./missing_data_engine";
 import * as XLSX from "xlsx";
-import LoginPage from './LoginPage.jsx';
-// AdminConsole removed from company app — accessible via /#/admin (separate admin shell)
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
@@ -297,26 +295,6 @@ const dedupeImports = (importsList, carriersList, clientsList) => {
 
 const OBSERVER_MAX_EVENTS = 200;
 
-// ── Auth fetch interceptor ──────────────────────────────────────────────────
-// Automatiškai prideda JWT Authorization header prie visų /api/ ir /upload/ užklausų.
-// Tokenas saugomas localStorage['rauth_token'] (ne 'radanaras*' prefiksas — nebus išvalytas).
-const _baseFetch = window.fetch.bind(window);
-window.fetch = function authFetch(url, options) {
-  const opts   = options ? { ...options } : {};
-  const urlStr = typeof url === 'string' ? url : (url instanceof Request ? url.url : '');
-  if (urlStr.includes('/api/') || urlStr.startsWith('/upload/')) {
-    const token = localStorage.getItem('rauth_token');
-    if (token) {
-      if (opts.headers instanceof Headers) {
-        opts.headers.set('Authorization', `Bearer ${token}`);
-      } else {
-        opts.headers = { ...(opts.headers || {}), Authorization: `Bearer ${token}` };
-      }
-    }
-  }
-  return _baseFetch(url, opts);
-};
-
 const formatObserverTime = (date = new Date()) =>
   date.toLocaleTimeString("lt-LT", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
@@ -447,9 +425,6 @@ function App() {
   const [appObserverErrorCount, setAppObserverErrorCount] = useState(0);
   const [appObserverFetchErrorCount, setAppObserverFetchErrorCount] = useState(0);
   const [appObserverCopyStatus, setAppObserverCopyStatus] = useState("");
-  // ── Auth state ─────────────────────────────────────────────────────────────
-  const [authUser,    setAuthUser]    = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const isDev = import.meta.env.DEV;
   const modalVisibilityRef = useRef({
     showOrderModal: false,
@@ -481,20 +456,7 @@ function App() {
     setAppObserverCopyStatus("");
   };
 
-  const handleLogout = async () => {
-    try { await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST' }); } catch {}
-    localStorage.removeItem('rauth_token');
-    setAuthUser(null);
-  };
-
   React.useEffect(() => {
-    // ── Auth tikrinimas prieš bet kokį duomenų krausymą ───────────────────
-    const token = localStorage.getItem('rauth_token');
-    if (!token) {
-      setAuthLoading(false);
-      return; // Nėra tokeno → rodys LoginPage
-    }
-
     // Clear all legacy localStorage keys to prevent QuotaExceededError
     if (typeof window !== "undefined") {
       Object.keys(window.localStorage)
@@ -505,24 +467,6 @@ function App() {
     const abortController = new AbortController();
 
     const loadData = async () => {
-      // Patikrina tokeno galiojimą prieš kraunant duomenis
-      try {
-        const meRes = await fetch(`${API_BASE}/api/auth/me`, { signal: abortController.signal });
-        if (!meRes.ok) {
-          localStorage.removeItem('rauth_token');
-          setAuthLoading(false);
-          return;
-        }
-        const meData = await meRes.json();
-        setAuthUser(meData.user);
-      } catch (e) {
-        if (abortController.signal.aborted) return;
-        localStorage.removeItem('rauth_token');
-        setAuthLoading(false);
-        return;
-      }
-      setAuthLoading(false);
-
       const backendData = await loadFromBackend(abortController.signal);
       if (abortController.signal.aborted) return;
 
@@ -918,7 +862,6 @@ function App() {
     { name: "Finansai", key: "finansai", title: "Finansinė suvestinė iš projektų, sąskaitų ir terminų duomenų." },
     { name: "Importas", key: "importas", title: "Importo ir vidinių master-data bazių modulis klientams, vežėjams ir kontaktams." },
     { name: "Įmonės nustatymai", key: "settings", title: "Įmonės duomenys, dokumentų ir šablonų nustatymai." }
-    // Admin Console removed — accessible via /#/admin hash route (separate restricted UI)
   ];
 
   const handleRunMigrationDryRun = async () => {
@@ -1056,7 +999,7 @@ function App() {
         clientOrderNumber: "CL-78451",
         clientName: "Veho Lietuva, UAB",
         orderType: "own_transport",
-        carrierName: "TransFlow",
+        carrierName: "Radanaras MB",
         route: "Vilnius → Kaunas",
         loadingDate: "2026-04-21",
         unloadingDate: "2026-04-21",
@@ -1079,7 +1022,7 @@ function App() {
         clientOrderNumber: "CL-78488",
         clientName: "Mercedes-Benz Lietuva",
         orderType: "own_transport",
-        carrierName: "TransFlow",
+        carrierName: "Radanaras MB",
         route: "Kaunas → Ryga",
         loadingDate: "2026-04-22",
         unloadingDate: "2026-04-23",
@@ -1102,7 +1045,7 @@ function App() {
         clientOrderNumber: "CL-78511",
         clientName: "Delamode Baltics",
         orderType: "own_transport",
-        carrierName: "TransFlow",
+        carrierName: "Radanaras MB",
         route: "Klaipėda → Vilnius",
         loadingDate: "2026-04-24",
         unloadingDate: "2026-04-24",
@@ -1978,8 +1921,12 @@ function App() {
   const renderDashboard = () => {
     const activeOrdersCount = orders.filter(o => o.status !== "Juodraštis").length;
     const draftOrdersCount = orders.filter(o => o.status === "Juodraštis").length;
+    const fin = dashboardStats?.financial || {};
     const carrierDocs = reminderSnapshot.carrierDocuments;
     const reminderStats = reminderSnapshot.reminderStats;
+    const fmtEur = (val) => val !== undefined
+      ? "€" + Number(val).toLocaleString("lt-LT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : "—";
     const cardBaseStyle = {
       cursor: "pointer",
       transition: "transform 0.16s ease, box-shadow 0.16s ease",
@@ -1987,16 +1934,48 @@ function App() {
 
     return (
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "0" }}>
-          <h2 style={{ margin: 0, color: "#1e3a8a" }}>Dashboard</h2>
-          <span style={{
-            fontSize: "11px", fontWeight: "700",
-            background: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-            color: "white", padding: "3px 10px", borderRadius: "999px",
-            letterSpacing: "0.4px", opacity: 0.85
-          }}>
-            v0.9.0-beta
-          </span>
+        <h2 style={{ marginTop: 0, color: "#1e3a8a" }}>Dashboard</h2>
+
+        {/* Financial summary cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginTop: "20px" }}>
+          {/* Revenue — green */}
+          <div
+            title="Rodo bendras pajamas. Atidaro Finansų ekraną."
+            onClick={() => setPage("finansai")}
+            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #15803d, #22c55e)" }}
+          >
+            <div style={statTitle}>Pajamos (Revenue)</div>
+            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalRevenue)}</div>
+            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
+              ↗ +{fin.revenueChange ?? 15}%
+            </div>
+          </div>
+
+          {/* Expenses — orange */}
+          <div
+            title="Rodo bendras išlaidas. Atidaro Finansų ekraną."
+            onClick={() => setPage("finansai")}
+            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #c2410c, #fb923c)" }}
+          >
+            <div style={statTitle}>Išlaidos (Expenses)</div>
+            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalCost)}</div>
+            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
+              Marža: {fin.profitMargin ?? 0}%
+            </div>
+          </div>
+
+          {/* Profit — blue */}
+          <div
+            title="Rodo bendrą pelną. Atidaro Finansų ekraną."
+            onClick={() => setPage("finansai")}
+            style={{ ...statCard, ...cardBaseStyle, background: "linear-gradient(135deg, #1e3a8a, #3b82f6)" }}
+          >
+            <div style={statTitle}>Pelnas (Profit)</div>
+            <div style={{ ...statValue, fontSize: "32px" }}>{fmtEur(fin.totalProfit)}</div>
+            <div style={{ marginTop: "10px", fontSize: "13px", opacity: 0.9 }}>
+              ↘ Optimizacija
+            </div>
+          </div>
         </div>
 
         {/* Operational stats */}
@@ -2091,51 +2070,91 @@ function App() {
           </div>
         </div>
 
-        {/* Empty state when no orders */}
-        {orders.length === 0 && (
-          <div style={{
-            marginTop: "20px",
-            background: "#f8fafc",
-            border: "2px dashed #cbd5e1",
-            borderRadius: "14px",
-            padding: "32px 24px",
-            textAlign: "center",
-            color: "#64748b"
-          }}>
-            <div style={{ fontSize: "36px", marginBottom: "10px" }}>📋</div>
-            <div style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a", marginBottom: "6px" }}>Užsakymų dar nėra</div>
-            <div style={{ fontSize: "13px" }}>Sukurkite pirmą krovinį naudodami greitus veiksmus žemiau.</div>
-          </div>
-        )}
-
-        {/* Quick actions */}
+        {/* Today widget */}
         <div style={{ marginTop: "20px" }}>
-          <div style={{ fontSize: "13px", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "12px" }}>Greiti veiksmai</div>
-          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              title="Sukurti naują užsakymą / krovinį"
-              style={{ ...primaryButton, padding: "10px 20px", fontSize: "14px" }}
-              onClick={() => openOrderModal("order", null)}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>📦 Šiandien</span>
+            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+            <div
+              title="Rodo šiandienos pakrovimus. Atidaro Projektų ekraną."
+              onClick={() => setPage("projektai")}
+              style={{ ...cardBaseStyle, background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "18px 22px" }}
             >
-              + Naujas krovinys
-            </button>
-            <button
-              type="button"
-              title="Pridėti naują klientą į bazę"
-              style={{ ...secondaryButton, padding: "10px 20px", fontSize: "14px" }}
-              onClick={openNewClientModal}
+              <div style={{ fontSize: "13px", color: "#15803d", fontWeight: 600, marginBottom: "6px" }}>🟢 Pakrovimai</div>
+              <div style={{ fontSize: "36px", fontWeight: 700, color: "#15803d" }}>3</div>
+              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>suplanuoti šiandien</div>
+            </div>
+            <div
+              title="Rodo šiandienos iškrovimus. Atidaro Projektų ekraną."
+              onClick={() => setPage("projektai")}
+              style={{ ...cardBaseStyle, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "12px", padding: "18px 22px" }}
             >
-              + Naujas klientas
-            </button>
-            <button
-              type="button"
-              title="Pridėti naują vežėją į bazę"
-              style={{ ...secondaryButton, padding: "10px 20px", fontSize: "14px" }}
-              onClick={openNewCarrierModal}
-            >
-              + Naujas vežėjas
-            </button>
+              <div style={{ fontSize: "13px", color: "#1d4ed8", fontWeight: 600, marginBottom: "6px" }}>🔵 Iškrovimai</div>
+              <div style={{ fontSize: "36px", fontWeight: 700, color: "#1d4ed8" }}>5</div>
+              <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>suplanuoti šiandien</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Attention required widget */}
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>⚠️ Dėmesio reikalauja</span>
+            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys</span>
+          </div>
+          <div
+            title="Demo suvestinė. Vėliau čia bus realūs perspėjimai apie dokumentus, vėlavimus ir apmokėjimus."
+            style={{ background: "#fff7ed", border: "2px solid #fed7aa", borderRadius: "12px", padding: "18px 22px", display: "flex", gap: "32px", flexWrap: "wrap" }}
+          >
+            <div>
+              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Trūksta dokumentų</div>
+              <div style={{ fontSize: "24px", fontWeight: 700, color: "#c2410c" }}>2</div>
+            </div>
+            <div style={{ borderLeft: "1px solid #fed7aa", paddingLeft: "32px" }}>
+              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Vėluoja</div>
+              <div style={{ fontSize: "24px", fontWeight: 700, color: "#b91c1c" }}>1</div>
+            </div>
+            <div style={{ borderLeft: "1px solid #fed7aa", paddingLeft: "32px" }}>
+              <div style={{ fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>Laukia apmokėjimo</div>
+              <div style={{ fontSize: "24px", fontWeight: 700, color: "#b45309" }}>3</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Top carriers widget */}
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+            <span style={{ fontSize: "16px", fontWeight: 700, color: "#1e3a8a" }}>📊 TOP Vežėjai</span>
+            <span style={{ fontSize: "12px", background: "#fef3c7", color: "#92400e", border: "1px solid #fcd34d", borderRadius: "6px", padding: "2px 8px", fontWeight: 600 }}>🚧 Demo duomenys — funkcija neveikia</span>
+          </div>
+          <div
+            title="Demo blokas. Vėliau čia bus realus vežėjų reitingavimas ir našumo duomenys."
+            style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+          >
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#f8fafc" }}>
+                  <th style={{ padding: "11px 16px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Vežėjas</th>
+                  <th style={{ padding: "11px 16px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Reitingas</th>
+                  <th style={{ padding: "11px 16px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.4px", borderBottom: "2px solid #e2e8f0" }}>Užsakymai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { name: "Schenker MB", rating: "⭐ 4.8", orders: 156 },
+                  { name: "DSV Solutions", rating: "⭐ 4.6", orders: 78 },
+                  { name: "Rhenus Freight", rating: "⭐ 4.4", orders: 54 },
+                ].map((row, i) => (
+                  <tr key={row.name} style={{ background: i % 2 === 0 ? "white" : "#f8fafc" }}>
+                    <td style={{ padding: "11px 16px", fontSize: "14px", fontWeight: 600, color: "#1e293b", borderBottom: "1px solid #e2e8f0" }}>{row.name}</td>
+                    <td style={{ padding: "11px 16px", textAlign: "center", fontSize: "14px", color: "#b45309", borderBottom: "1px solid #e2e8f0" }}>{row.rating}</td>
+                    <td style={{ padding: "11px 16px", textAlign: "center", fontSize: "14px", fontWeight: 700, color: "#1e3a8a", borderBottom: "1px solid #e2e8f0" }}>{row.orders}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -3981,7 +4000,7 @@ return normalizeText(o.status).includes(normalizeText(ekspedFilterStatus));
   };
 
   const renderSettings = () => {
-    return <SettingsPage settings={settings} saveSettings={saveSettings} authUser={authUser} />;
+    return <SettingsPage settings={settings} saveSettings={saveSettings} />;
   };
 
   const renderImports = () => {
@@ -4397,30 +4416,6 @@ return normalizeText(o.status).includes(normalizeText(ekspedFilterStatus));
     );
   };
 
-  // ── Auth gate ─────────────────────────────────────────────────────────────
-  if (authLoading) {
-    return (
-      <div style={{
-        minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", fontFamily: "Arial, sans-serif"
-      }}>
-        <div style={{ color: "white", fontSize: "20px", fontWeight: 600, opacity: 0.9 }}>
-          Kraunama...
-        </div>
-      </div>
-    );
-  }
-
-  if (!authUser) {
-    return (
-      <LoginPage onLogin={(user, token) => {
-        localStorage.setItem('rauth_token', token);
-        setAuthUser(user);
-        setAuthLoading(false);
-      }} />
-    );
-  }
-
   return (
     <div style={{
       minHeight: "100vh",
@@ -4440,40 +4435,13 @@ return normalizeText(o.status).includes(normalizeText(ekspedFilterStatus));
           marginBottom: "18px"
         }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "34px", height: "34px", borderRadius: "9px",
-                background: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
-                boxShadow: "0 2px 8px rgba(59,130,246,0.30)", flexShrink: 0
-              }}>
-                <span style={{ color: "white", fontSize: "12px", fontWeight: "900", letterSpacing: "0.5px" }}>TF</span>
-              </div>
-              <div>
-                <div style={{ fontSize: "18px", fontWeight: "700", color: "#1e3a8a" }}>TransFlow</div>
-                <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "1px", letterSpacing: "0.3px" }}>Logistics Management Platform</div>
-              </div>
-            </div>
+            <div style={{ fontSize: "18px", fontWeight: "700", color: "#1e3a8a" }}>Radanaras MB</div>
+            <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>Your Cargo, Our Commitment</div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontWeight: "600", color: "#1e3a8a" }}>{authUser?.name || "—"}</div>
-              <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>
-                {authUser?.companyName || authUser?.email || ""}
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              title="Atsijungti iš sistemos"
-              style={{
-                padding: "7px 16px", background: "#f1f5f9", color: "#475569",
-                border: "1px solid #e2e8f0", borderRadius: "8px",
-                fontSize: "13px", fontWeight: "600", cursor: "pointer"
-              }}
-            >
-              Atsijungti
-            </button>
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontWeight: "600", color: "#1e3a8a" }}>Saimondas Lukosius</div>
+            <div style={{ fontSize: "13px", color: "#64748b", marginTop: "4px" }}>Head of International Freight</div>
           </div>
         </div>
 
